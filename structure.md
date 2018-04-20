@@ -19,12 +19,13 @@ theme: Copenhagen
 	* P last
 		1. paper organization
 		2. proofs in Appendix
+		
+# Precise Null Pointer Analysis Throught Global Value Numbering by Akash Lal		
+## Flow		
 2. Background
 	1. Programming Language
 	2. alias analysis
 	3. SSA
-
-## Flow
 
 3. Overview
 	1. common sub-expression elimination
@@ -75,15 +76,17 @@ theme: Copenhagen
 
 # Fixing the State Bugdge : Approximation of Regular Languages with
   small DFAs
+  
 ## Intro
 	   
 
 # Checking Observational purity by Himanshu
 ## Flow
 1. Intro
-2. Background
-	1. path condition
-	2. invariant
+2. Overview
+	1. Observational purity
+	2. path condition
+	3. invariant
 3. Static analysis approaches
    	  1. Existenital approach
 	  2. Impurity Witness approach

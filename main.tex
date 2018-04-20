@@ -237,33 +237,50 @@ There will be two blank lines before and after the Abstract. \dots
 \end{abstract}
 
 \section{Introduction}
-Defining the correctness for a program is a time consuming task that
-requires deep understanding of the expected functionality of a
-program. In this paper, we talk about a general property that is the
-necessary condition for the correctness of many procedures. If the
-return value from a procedure is dependent only on the formal
-arguments, the given procedure is \textit{Observationally
-  pure(OP)}. Thus, OP procedures return independent of the value of
-the global variables. For instance, dynamic programming algorithms
-fall into this category. Checking whether a given procedure is OP, is
-in general undecidable.
+Defining the correctness for a procedure is a time consuming task that
+requires deep understanding of the expected functionality. In this
+paper, we talk about a general property that is the necessary
+condition for the correctness of many procedures. If the return value
+from a procedure is dependent only on the formal arguments, the given
+procedure is \textit{Observationally pure(OP)}. Thus, OP procedures
+return independent of the value of the global variables. For instance,
+dynamic programming algorithms fall into this category. Checking
+whether a given procedure is OP, is in general undecidable. In this
+paper, we propose a pair of static analysis techniques that are sound
+but not complete.
 
-In the absence of global variables, since all the operators (logical
-and arithmetic) are mathematical functions, their composition is also
-a mathematical function (function). Hence the procedure is a function
-of the formal arguments. But, OP procedures that access global
-variables make more interesting examples, for instance procedure
-`factorial' in Listing~\ref{lst:factorialSimple}. In order to prove
-the result form a procedure is independent of the global values, we
-prove that for all reachable global state, for each argument value
-there is a single result. This invariant over the global variables,
-can optimistically assume that the given procedure is observationally
-pure. This is make it feasible to generate an invariant for the given
-procedure.
+Since all the operators (logical and arithmetic) are mathematical
+functions, their composition is also a mathematical function
+(function). Hence, in the absence of global variables, all procedure
+are a function of their formal arguments. This paper focuses on
+checking if a procedure that access global variables is OP. Procedure
+`factorial' in Listing~\ref{lst:factorialSimple} is OP for a certain
+set of global states.  In order to prove the result form a procedure
+is independent of the global values, we prove that for all reachable
+global states, for each argument value there is a single result. This
+invariant over the global variables, can optimistically assume that
+the given procedure is observationally pure, this is a trick we
+use. This trick allows us a way to generate the invariant and also be
+certain that the invariant has saturated. 
 
-Observationally purity seems to be closely related to termination of
-the given procedure. It is certainly feasible that the given procedure
-terminates for a given global state but not for another.   
+%% For procedure `factorial'
+%% in Listing~\ref{lst:factorialSimple}, the invariant on the global
+%% state can be This is make it feasible to generate an invariant for the
+%% given procedure.
+
+%% Observationally purity seems to be closely related to termination of
+%% the given procedure. It is certainly feasible that the given procedure
+%% terminates for a given global state but not for another.
+
+Since observational purity is a property on the return values from a
+procedure, this property is intertwined with termination. In
+Section~\ref{sec:overview}, we define OPness in a way such that
+non-termination does not cause non-OPness. OP is violated only if for
+a given invariant on the reachable global states, for a given argument
+value there is a non-unique return value. Thus, there must exist a
+pair of traces such that both the traces begin a global state that is
+satisfied by the invariant, and both traces begin with the same
+argument value but return different results.
 
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
@@ -284,23 +301,24 @@ int factorial( int n) {
 }
 \end{lstlisting}
 
-Programmers on rely many library procedures to be mathematical
-function. For instance, procedures like `sine' and `cos'.
+%% Programmers on rely many library procedures to be mathematical
+%% function. For instance, procedures like `sine' and `cos'.
 
-Dynamic programming algorithms use memoization to store pre-computed
-solutions to the sub-problem so that it can look-up the solution when
-needed, thus trading compute time for storage. Our technique can check
-if it is safe the memoize the results produced by a procedure. By
-safety we mean assurance that the procedure will produce the same
-result it returned earlier. We propose two static analysis techniques
-to check this problem. The property we check is whether the given
-procedure's behaviour is equivalent to some mathematical function.
-One interesting thing about our approach is that the user need not
-mention a (the) mathematical function that the procedure is supposed
-to mimic.
+Dynamic programming algorithms (such as procedure `factorial' in
+Listing~\ref{lst:factorialSimple}) use memoization to store
+pre-computed solutions to the sub-problem so that it can look-up the
+solution when needed, thus trading compute time for storage. Our
+technique can check if it is safe the memoize the results produced by
+a procedure. By safety we mean assurance that the procedure will
+produce the same result it returned earlier. We propose two static
+analysis techniques to check this problem. The property we check is
+whether the given procedure's behaviour is equivalent to some
+mathematical function.  One interesting thing about our approach is
+that the user need not mention a (the) mathematical function that the
+procedure is supposed to mimic.
 
 
-\section{Background}
+\section{Overview} \label{sec:overview}
 This section first gives the definition of Observational purity. Next,
 we present some formalisms that we use define our approaches.
 
