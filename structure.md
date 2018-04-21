@@ -107,6 +107,9 @@ theme: Copenhagen
 * Talk about termination of the given procedure. how that is circumvented.
 
 # Checking Observational purity by Himanshu
-## Background
-1.  path condition
-2.  invariant 	      
+## Overview
+1. trace
+2. history
+3. invariant
+4. OP
+5. path condition

@@ -8,8 +8,9 @@
 \usepackage{makeidx}  % allows for indexgeneration
 %% himanshu
 \usepackage{listings}
-\newcommand{\foo}{\textit{foo}}
+\newcommand{\foo}{\mathit{foo}}
 \newcommand{\trace}{\pi}
+\newcommand{\inv}{\mathit{inv}}
 \newcommand{\history}{\Pi}
 \newcommand{\pathCondition}{\mathit{T_{\foo}}}
 
@@ -335,39 +336,39 @@ we present some formalisms that we use define our approaches.
   A history $\history$ is a sequence of consecutive traces, with the
   first trace starting from a given global state, and each subsequent
   trace begins in the state in which the previous trace ends.
-  \end{definition}
-
-
-\begin{definition}[observational purity(set of global state)]%%  A procedure `\foo' is 
-  %% observational pure wrt a given set of global states $\Gstates$ if
-  %% for each history $\history$ of procedure `\foo', all pairs of traces
-  %% in the history that begin in global state $\gstate$ respect each
-  %% other where $\gstate \in \Gstates$.  In other words $\forall \gstate
-  %% \in \Gstates.\forall \, \history \in \historyOf{\gstate}. \forall
-  %% \trace_1 \in \tracesOf{\history}. \forall \trace_2 \in
-  %% \tracesOf{\history}. \param{\trace_1} = \param{\trace_2} \implies
-  %% \return{\trace_1} = \return{\trace_2}$.
 \end{definition}
 
+\begin{definition}[invariant]
+  An invariant $\inv$ is a set of global states, such that if a trace
+  begins in state in $\inv$ then it is guranteed to end in a state in
+  $\inv$; assuming the given set of procedures are OP. For this paper,
+  the invariant is a first order logic formula with uninterpreted
+  functions. Since the given set of procedure are assumed to be OP, we
+  can represent all the procedure calls using function symbols.
+\end{definition}
 
-\subsection{Path Condition}
-The path condition $\pathCondition$ for procedure `\foo' is a formula
-that represents the procedure `\foo' in logic.  $\pathCondition$ has
-the following set of free variables \{$g, gout, n, retVar, gbef_1,
-\cdots gbef_m, gaft_1, \cdots gaft_m$\}. Variable $g$ represents the
-value of the global variable `g' at the beginning of procedure `\foo'
-whereas $gout$ represents value of `g' at the end of `\foo'. Variable
-$n$ represents the value of the argument, $retVar$ the return
-value. And $gbef_i$ and $gaft_i$ represent the value of `g' before and
-after the $i^{th}$ procedure call statement and there are $m$
-procedure calls in `foo'.
+Note : Representing recursive calls using function symbols allows us
+to comeup with an automated invariant generation algorithm.
 
+\begin{definition}[observational purity(invariant $\inv$)]
+  A given set of procedures are observationally pure if in each
+  history starting from a state in invariant $\inv$, all traces of
+  each procedure with the same argument value return the same result.
+\end{definition}
 
-\subsection{Invariant}
-
+\begin{definition}[path condition ( invariant $\inv$, procedure $\foo$)]
+  The path condition $\pathCondition$ for a given procedure $\foo$ is
+  a formula that relates the incoming values of global variables and
+  aruments to the outgoing values of the global variables and the
+  return value, while assuming the recursive procedure call (if there
+  is one) to be to an OP procedure. The recursive procedure call is
+  represented as function symbol instead of inlining it.
+\end{definition}
 
 \section{Static analysis approaches}
+\subsection{is invariant inductive} 
 \subsection{Existential approach}
+
 \subsection{Impurity-witness approach}
 \subsection{Comparing the two approaches}
 \section{Comparison of Impurity witness approach with other approaches}
