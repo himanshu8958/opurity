@@ -7,12 +7,22 @@
 %
 \usepackage{makeidx}  % allows for indexgeneration
 %% himanshu
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath}
 \usepackage{listings}
 \newcommand{\foo}{\mathit{foo}}
 \newcommand{\trace}{\pi}
 \newcommand{\inv}{\mathit{inv}}
 \newcommand{\history}{\Pi}
 \newcommand{\pathCondition}{\mathit{T_{\foo}}}
+\newcommand{\OPCheckE}{\mathit{OPCheck \mhyphen existential}}
+\newcommand{\OPCheckA}{\mathit{OPCheck \mhyphen pairwise}}
+\mathchardef \mhyphen="2D
+\newcommand{\mi}[1]{\mathit{#1}}
+\newcommand{\retVar}{\textit{retVar}}
+\newcommand{\F}{\mathit{F}}
+\newcommand{\n}{\mathit{n}}
 
 \lstdefinestyle{mystyle}{
   %% basicstyle=\footnotesize, 
@@ -366,8 +376,36 @@ to comeup with an automated invariant generation algorithm.
 \end{definition}
 
 \section{Static analysis approaches}
-\subsection{is invariant inductive} 
+\subsection{is invariant inductive}
+
+\begin{figure}[htp]
+  \begin{algorithm}[H]
+    \begin{align*}
+      is-Inductive & \mi{(\inv :
+        invariant, \pathCondition : path \; condition)} \equiv \\
+      &\inv \wedge \pathCondition \implies \inv[g'/g]
+    \end{align*}
+    \caption{Is Inductive: is true iff the given invariant is inductive} 
+    \label{algo:someOPcheckCombined}
+  \end{algorithm}  
+\end{figure}
+
 \subsection{Existential approach}
+
+\begin{figure}[htp]
+  \begin{algorithm}[H]
+    \begin{align*}
+      \OPCheckE & \mi{(\inv :
+        invariant, \pathCondition : path \; condition)} \equiv \\
+      &\inv \wedge \pathCondition \wedge \retVar = \F(\n)\\
+      & 
+    \end{align*}
+    \caption{Existential check : produces a formula whose
+      satisfiability implies the given procedure is observationally
+      pure} 
+    \label{algo:someOPcheckCombined}
+  \end{algorithm}  
+\end{figure}
 
 \subsection{Impurity-witness approach}
 \subsection{Comparing the two approaches}
