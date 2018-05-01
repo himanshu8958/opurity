@@ -43,3 +43,19 @@ theme: Copenhagen
 0. after explaining the two approaches.
 1. give an example were the two approachs differ
 2. explain why the SMT solver terminates on one but not the other in most cases.
+
+# discussion with raghavan: may 1st, 2018
+## flow
+1. Introduction
+
+	Give example, show invariant, formula produced by existential approach.
+2. Background
+
+	explain path condition  and SSA
+3. Understanding the Invariant
+
+   	explain invariant, history, trace (cover in 12 pages)
+4. Existential approach
+5. Impurity witness approach
+6. Experimential results
+7. Related work
