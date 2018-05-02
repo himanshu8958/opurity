@@ -11,7 +11,7 @@
 \usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{listings}
-\newcommand{\foo}{\mathit{foo}}
+\newcommand{\foo}{\textit{foo}}
 \newcommand{\trace}{\pi}
 \newcommand{\inv}{\mathit{inv}}
 \newcommand{\history}{\Pi}
@@ -22,7 +22,14 @@
 \newcommand{\mi}[1]{\mathit{#1}}
 \newcommand{\retVar}{\textit{retVar}}
 \newcommand{\F}{\mathit{F}}
-\newcommand{\n}{\mathit{n}}
+\newcommand{\n}{\textit{n}}
+\newcommand{\gstate}{\gamma}
+\newcommand{\g}{\mathit{g}}
+\newcommand{\gout}{\mathit{gout}}
+\newcommand{\gbef}{\mathit{gbef}}
+\newcommand{\gaft}{\mathit{gaft}}
+\newcommand{\satisfies}{\vdash}
+
 
 \lstdefinestyle{mystyle}{
   %% basicstyle=\footnotesize, 
@@ -251,16 +258,16 @@ There will be two blank lines before and after the Abstract. \dots
 
 \section{Introduction}
 Defining the correctness for a procedure is a time consuming task that
-requires deep understanding of the expected functionality. In this
-paper, we talk about a general property that is the necessary
-condition for the correctness of many procedures. If the return value
-from a procedure is dependent only on the formal arguments, the given
-procedure is \textit{Observationally pure(OP)}. Thus, OP procedures
-return independent of the value of the global variables. For instance,
-dynamic programming algorithms fall into this category. Checking
-whether a given procedure is OP, is in general undecidable. In this
-paper, we propose a pair of static analysis techniques that are sound
-but not complete.
+requires deep understanding of the expected functionality of the
+procedure. In this paper, we talk about a general property that is the
+necessary condition for the correctness of many procedures. If the
+return value from a procedure is dependent only on the formal
+arguments, the given procedure is \textit{Observationally
+  pure(OP)}. Thus, OP procedures return independent of the value of
+the global variables. For instance, dynamic programming algorithms
+fall into this category. Checking whether a given procedure is OP, is
+in general undecidable. In this paper, we propose a pair of static
+analysis techniques that are sound but not complete.
 
 Since all the operators (logical and arithmetic) are mathematical
 functions, their composition is also a mathematical function
@@ -287,7 +294,7 @@ certain that the invariant has saturated.
 
 Since observational purity is a property on the return values from a
 procedure, this property is intertwined with termination. In
-Section~\ref{sec:overview}, we define OPness in a way such that
+Section~\ref{sec:background}, we define OPness in a way such that
 non-termination does not cause non-OPness. OP is violated only if for
 a given invariant on the reachable global states, for a given argument
 value there is a non-unique return value. Thus, there must exist a
@@ -331,15 +338,59 @@ that the user need not mention a (the) mathematical function that the
 procedure is supposed to mimic.
 
 
-\section{Overview} \label{sec:overview}
+\section{Background} \label{sec:background}
 This section first gives the definition of Observational purity. Next,
 we present some formalisms that we use define our approaches.
 
+\subsection{Programming Language}
+We make the following restrictions on the structure of the prgram for
+the sake of simplicity of the analysis.
+
+\begin{itemize}
+\item The given procedure (`\foo') has a single argument i.e `\n'. And
+  `\n' is never written inside `\foo'.
+\item Procedure `\foo' has a single global variable name `\g'.
+\item We are only analyzing procedure `\foo' and the other procedures
+  in the program do not write to global variables that `\foo' refers
+  to.
+\item No variable is used before it is defined, except global
+  variables.
+\item All loops in procedure `\foo' have been replaced with separate
+  recursive procedures.
+\item The return value from the recursive procedure calls is assigned
+  only to local variables.
+\end{itemize}
+
+Note : all of the above mentioned restrictions can be omitted.
+\subsection{SSA}
+This section shows how a program transformation allows a program to be
+represented in logic.
+
+\subsection{Path Condition}
+  %% The path condition $\pathCondition$ for a given procedure $\foo$ is
+  %% a formula that relates the incoming values of global variables and
+  %% arguments to the outgoing values of the global variables and the
+  %% return value, while assuming the recursive procedure call (if there
+  %% is one) to be to an OP procedure. The recursive procedure call is
+  %% represented as function symbol instead of inlining it.
+
+  The path condition $\pathCondition$ for procedure `\foo' is a
+  formula that represents the procedure `\foo' in logic.
+  $\pathCondition$ has the following set of free variables \{$\g,
+  \gout,\n,\\ \retVar, \gbef_1, \cdots \gbef_m, \gaft_1, \cdots
+  \gaft_m$\}. Variable $\g$ represents the value of the global
+  variable `\g' at the beginning of procedure `\foo' whereas $\gout$
+  represents value of `\g' at the end of `\foo'. Variable $\n$
+  represents the value of the argument, $\retVar$ the return
+  value. And $\gbef_i$ and $\gaft_i$ represent the value of `\g' before
+  and after the $i^{th}$ procedure call statement and there are $m$
+  procedure calls in `\foo'.
+
 \begin{definition}[trace]
-  A trace $\trace$ is a complete execution of the procedure starting from a
-  given global state and a tuple of formal arguments. A trace upon
-  completion gives an end state and a return value. Traces may have
-  sub-traces, which by definition are traces (recursive calls).
+  A trace $\trace$ is a complete execution of the procedure starting
+  from a given global state and a tuple of formal arguments. A trace
+  upon completion gives an end state and a return value. Traces may
+  have sub-traces, which by definition are traces (recursive calls).
 \end{definition}
 
 \begin{definition}[history]
@@ -348,13 +399,22 @@ we present some formalisms that we use define our approaches.
   trace begins in the state in which the previous trace ends.
 \end{definition}
 
+\section{Invariant}
+
 \begin{definition}[invariant]
-  An invariant $\inv$ is a set of global states, such that if a trace
-  begins in state in $\inv$ then it is guranteed to end in a state in
-  $\inv$; assuming the given set of procedures are OP. For this paper,
-  the invariant is a first order logic formula with uninterpreted
-  functions. Since the given set of procedure are assumed to be OP, we
-  can represent all the procedure calls using function symbols.
+  An invariant is a formula with function symbol $\F$ and the global
+  variables of the given procedure as free variables. The invariant
+  represents the set of global states that may arise before and after
+  each procedure call of the given procedure in a history or set of
+  histories. Some variables here may be defined in terms of a function
+  symbol $\F$, which in turn refers to the mathematical function that
+  is equivalent to the given procedure.
+  
+  Let $\gstate$ be a global state, and $\F'$ be a function, and $\inv$
+  be a invariant. If we substitute $\gstate$ for $g$ and $\F'$ for
+  $\F$ in $\inv$, if $\inv[\gstate/g, \F'/\F]$ is true then, we say
+  $(\gstate, \F') \satisfies \inv$. For instance let $\inv := g = -1
+  \vee g = \F(18) * 19$ then $(0, \lambda n. n!) \satisfies \inv$.
 \end{definition}
 
 Note : Representing recursive calls using function symbols allows us
@@ -365,30 +425,6 @@ to comeup with an automated invariant generation algorithm.
   history starting from a state in invariant $\inv$, all traces of
   each procedure with the same argument value return the same result.
 \end{definition}
-
-\begin{definition}[path condition ( invariant $\inv$, procedure $\foo$)]
-  The path condition $\pathCondition$ for a given procedure $\foo$ is
-  a formula that relates the incoming values of global variables and
-  aruments to the outgoing values of the global variables and the
-  return value, while assuming the recursive procedure call (if there
-  is one) to be to an OP procedure. The recursive procedure call is
-  represented as function symbol instead of inlining it.
-\end{definition}
-
-\section{Static analysis approaches}
-\subsection{is invariant inductive}
-
-\begin{figure}[htp]
-  \begin{algorithm}[H]
-    \begin{align*}
-      is-Inductive & \mi{(\inv :
-        invariant, \pathCondition : path \; condition)} \equiv \\
-      &\inv \wedge \pathCondition \implies \inv[g'/g]
-    \end{align*}
-    \caption{Is Inductive: is true iff the given invariant is inductive} 
-    \label{algo:someOPcheckCombined}
-  \end{algorithm}  
-\end{figure}
 
 \subsection{Existential approach}
 
@@ -407,7 +443,21 @@ to comeup with an automated invariant generation algorithm.
   \end{algorithm}  
 \end{figure}
 
-\subsection{Impurity-witness approach}
+\section{Impurity witness approach}
+\section{is invariant inductive}
+
+\begin{figure}[htp]
+  \begin{algorithm}[H]
+    \begin{align*}
+      is-Inductive & \mi{(\inv :
+        invariant, \pathCondition : path \; condition)} \equiv \\
+      &\inv \wedge \pathCondition \implies \inv[\g'/\g]
+    \end{align*}
+    \caption{Is Inductive: is true iff the given invariant is inductive} 
+    \label{algo:someOPcheckCombined}
+  \end{algorithm}  
+\end{figure}
+
 \subsection{Comparing the two approaches}
 \section{Comparison of Impurity witness approach with other approaches}
 The goal of this section is to 
