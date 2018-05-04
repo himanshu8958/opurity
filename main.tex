@@ -21,13 +21,13 @@
 \mathchardef \mhyphen="2D
 \newcommand{\mi}[1]{\mathit{#1}}
 \newcommand{\retVar}{\textit{retVar}}
-\newcommand{\F}{\mathit{F}}
+\newcommand{\F}{\textit{F}}
 \newcommand{\n}{\textit{n}}
 \newcommand{\gstate}{\gamma}
-\newcommand{\g}{\mathit{g}}
-\newcommand{\gout}{\mathit{gout}}
-\newcommand{\gbef}{\mathit{gbef}}
-\newcommand{\gaft}{\mathit{gaft}}
+\newcommand{\g}{\textit{g}}
+\newcommand{\gout}{\textit{gout}}
+\newcommand{\gbef}{\textit{gbef}}
+\newcommand{\gaft}{\textit{gaft}}
 \newcommand{\satisfies}{\vdash}
 
 
@@ -267,7 +267,7 @@ arguments, the given procedure is \textit{Observationally
 the global variables. For instance, dynamic programming algorithms
 fall into this category. Checking whether a given procedure is OP, is
 in general undecidable. In this paper, we propose a pair of static
-analysis techniques that are sound but not complete.
+analysis techniques to check OPness that are sound but not complete.
 
 Since all the operators (logical and arithmetic) are mathematical
 functions, their composition is also a mathematical function
@@ -431,10 +431,10 @@ to comeup with an automated invariant generation algorithm.
 \begin{figure}[htp]
   \begin{algorithm}[H]
     \begin{align*}
-      \OPCheckE & \mi{(\inv :
+      \OPCheckE
+       & \mi{(\inv :
         invariant, \pathCondition : path \; condition)} \equiv \\
       &\inv \wedge \pathCondition \wedge \retVar = \F(\n)\\
-      & 
     \end{align*}
     \caption{Existential check : produces a formula whose
       satisfiability implies the given procedure is observationally
@@ -443,20 +443,44 @@ to comeup with an automated invariant generation algorithm.
   \end{algorithm}  
 \end{figure}
 
+%% \begin{figure}[htp]
+%%   \begin{algorithm}[H]
+%%     \begin{align*}
+%%       \OPCheckE & \mi{(\inv :
+%%         invariant, \pathCondition : path \; condition)} \equiv \\
+%%        (\forall & \g) (\forall \n) (\forall \retVar) (\forall \gout) &(1)\\
+%%        (\forall & \gbef_1) (\forall \gbef_2) \cdots(\forall \gbef_m) &(2)\\
+%%        (\forall & \gaft_1) (\forall \gaft_2) \cdots(\forall \gaft_m)
+%%       \{& (3)\\
+%%       & \inv \wedge \pathCondition \wedge & (4)\\
+%%       & \inv[\gaft_1/\g] \wedge \inv[\gaft_2/\g] \cdots \wedge
+%%       \inv[\gaft_m/\g] & (5)\\
+%%       & \implies (\retVar = \F(\n) \wedge \inv[\gout/\g] \wedge & (6) \\
+%%       & \inv[\gbef_1/\g] \wedge \inv[\gbef_2/\g] \cdots \wedge
+%%       \inv[\gbef_m/\g]) & (7) \\
+%%        \}&\\
+%%     \end{align*}
+%%     \caption{Existential check : produces a formula whose
+%%       satisfiability implies the given procedure is observationally
+%%       pure} 
+%%     \label{algo:someOPcheckCombined}
+%%   \end{algorithm}  
+%% \end{figure}
+
 \section{Impurity witness approach}
 \section{is invariant inductive}
 
-\begin{figure}[htp]
-  \begin{algorithm}[H]
-    \begin{align*}
-      is-Inductive & \mi{(\inv :
-        invariant, \pathCondition : path \; condition)} \equiv \\
-      &\inv \wedge \pathCondition \implies \inv[\g'/\g]
-    \end{align*}
-    \caption{Is Inductive: is true iff the given invariant is inductive} 
-    \label{algo:someOPcheckCombined}
-  \end{algorithm}  
-\end{figure}
+%% \begin{figure}[htp]
+%%   \begin{algorithm}[H]
+%%     \begin{align*}
+%%       is-Inductive & \mi{(\inv :
+%%         invariant, \pathCondition : path \; condition)} \equiv \\
+%%       &\inv \wedge \pathCondition \implies \inv[\g'/\g]
+%%     \end{align*}
+%%     \caption{Is Inductive: is true iff the given invariant is inductive} 
+%%     \label{algo:someOPcheckCombined}
+%%   \end{algorithm}  
+%% \end{figure}
 
 \subsection{Comparing the two approaches}
 \section{Comparison of Impurity witness approach with other approaches}
