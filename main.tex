@@ -29,6 +29,7 @@
 \newcommand{\gbef}{\textit{gbef}}
 \newcommand{\gaft}{\textit{gaft}}
 \newcommand{\satisfies}{\vdash}
+\newcommand{\fact}{\mathit{fact}}
 
 
 \lstdefinestyle{mystyle}{
@@ -277,15 +278,15 @@ that access global variables is OP.
 
 Procedure `factorial' in Listing~\ref{lst:factorialSimple} is OP for a
 certain set of global states. If the global state is restricted to the
-set $\{g = -1, g = 19!\}$, procedure `factorial' always returns $n!$
-which is a function. But for the global states $\{g =1, g = 19!\}$,
+set $\{g = -1, g = 3!\}$, procedure `factorial' always returns $n!$
+which is a function. But for the global states $\{g =1, g = 3!\}$,
 procedure factorial is not a mathematical function. For argument value
-`$n = 19$' it may return 1 or 19!, thus for this set of glboal states
-it is not OP. We assume that this set of global states can be
+`$n = 3$' it may return 1 or 3!, thus for this set of glboal states it
+is not OP.  We assume that this set of global states can be
 represented in the underlying logic and we refer to it as
 \textit{invariant}. Also for all procedure calls, the global state at
-the beginning of, as well as at the end of the procedure call must be
-a member of this invariant.
+the beginning of, as well as at the end of the procedure call must
+satisfy the invariant.
 
 In order to prove that a given procedure is OP, we prove that for all
 reachable global states, for each argument value there is a single
@@ -295,17 +296,39 @@ and the post condition holds at its end. Both the pre condition and
 the post condition can be subtituted by the invariant. Also, the post
 condition must describe the return value from the given procedure in
 the same underlying logic. Thus, for procedure `factorial' in
-Listing~\ref{lst:factorialSimple} 
+Listing~\ref{lst:factorialSimple} we can use the invariant $\inv : g =
+-1 \vee g = 6$ and the function `factorial' can be modelled as
+$\fact[k] == 1 \wedge k >1 ==> \fact[k] == \fact[k-1]*k$. Thus, the
+pre-condition is $\inv$ and the post-condition is $\inv \wedge
+\fact[k] == 1 \wedge k >1 ==> \fact[k] == \fact[k-1]*k$.
 
-This invariant over the global variables, can optimistically
-assume that the given procedure is observationally pure, this is a
-trick we use. This trick allows us a way to generate the invariant and
-also be certain that the invariant has saturated.
+Now, In general the above mentioned idea is feasible. But there are
+certain issues (a) It is hard for theorem provers in general to prove
+such assertions (b) describing the procedure in logic takes
+considerable effort. We propose that instead of trying to describe the
+function for the given procedure, we abstract out the mathematical
+function using an uniterpreted function symbol. And then ask the
+question whether an assignment for the function symbol exists while
+constraining its meaning based on the given procedure. Now, this kind
+of a query is also hard for theorem provers but we showcase another
+technique that borrows from this idea, which is able to prove
+factorial to be OP.
+
+This idea of abstracting using a mathematical function symbol also
+comes in hand for the invariant generation. if the result from
+a recursive procedure call flows to a global variable, the invariant
+computation can also represent the recursive call as the same function
+symbol as above.
+
+%% This invariant over the global variables, can optimistically
+%% assume that the given procedure is observationally pure, this is a
+%% trick we use. This trick allows us a way to generate the invariant and
+%% also be certain that the invariant has saturated.
 
 For procedure `factorial' in Listing~\ref{lst:factorialSimple}, the
-invariant we used is $\g = -1 \vee g = \F(18) * 19$. The symbol
-`$\F(18)$' in the invariant represents the return value from the
-procedure `factorial' incase it is a mathematical function. The
+invariant we used is $\g = -1 \vee g = \F(2) * 3$. The symbol
+`$\F(2)$' in the invariant represents the return value from the
+procedure `factorial' assuming it is a mathematical function. The
 invariant used here is valid iff the given procedure is OP, otherwise
 it is not well defined. 
 
@@ -354,15 +377,15 @@ argument value but return different results.
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
       returns factorial of `n' and memoizes result for argument value
-      `19'.}, label=lst:factorialSimple]
+      `3'.}, label=lst:factorialSimple]
 int g = -1;
 int factorial( int n) {
   if(n <= 1) {
     return 1;
-  } else if(g == -1 && n == 19) {
-    g = 19 * factorial( 18 );
+  } else if(g == -1 && n == 3) {
+    g = 3 * factorial( 2 );
     return g;
-  } else if(g != -1 && n == 19) {
+  } else if(g != -1 && n == 3) {
     return g;
   } else {
     return n * factorial( n - 1 );
