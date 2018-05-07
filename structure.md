@@ -59,3 +59,23 @@ theme: Copenhagen
 5. Impurity witness approach
 6. Experimential results
 7. Related work
+
+# may 5, 2018
+## flow
+1. Introduction
+
+	Give example, show invariant, formula produced by existential approach.
+	* OP checking using pre and post
+	* talk about inlining 
+	* talk about the meaning of the invariant
+		
+2. Background
+
+	explain path condition  and SSA
+3. Understanding the Invariant
+
+   	explain invariant, history, trace (cover in 12 pages)
+4. Existential approach
+5. Impurity witness approach
+6. Experimential results
+7. Related work

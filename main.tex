@@ -21,7 +21,7 @@
 \mathchardef \mhyphen="2D
 \newcommand{\mi}[1]{\mathit{#1}}
 \newcommand{\retVar}{\textit{retVar}}
-\newcommand{\F}{\textit{F}}
+\newcommand{\F}{\mathit{F}}
 \newcommand{\n}{\textit{n}}
 \newcommand{\gstate}{\gamma}
 \newcommand{\g}{\textit{g}}
@@ -258,7 +258,7 @@ There will be two blank lines before and after the Abstract. \dots
 
 \section{Introduction}
 Defining the correctness for a procedure is a time consuming task that
-requires deep understanding of the expected functionality of the
+requires deep understanding of the expected functionality of a
 procedure. In this paper, we talk about a general property that is the
 necessary condition for the correctness of many procedures. If the
 return value from a procedure is dependent only on the formal
@@ -269,24 +269,72 @@ fall into this category. Checking whether a given procedure is OP, is
 in general undecidable. In this paper, we propose a pair of static
 analysis techniques to check OPness that are sound but not complete.
 
-Since all the operators (logical and arithmetic) are mathematical
-functions, their composition is also a mathematical function
-(function). Hence, in the absence of global variables, all procedure
-are a function of their formal arguments. This paper focuses on
-checking if a procedure that access global variables is OP. Procedure
-`factorial' in Listing~\ref{lst:factorialSimple} is OP for a certain
-set of global states.  In order to prove the result form a procedure
-is independent of the global values, we prove that for all reachable
-global states, for each argument value there is a single result. This
-invariant over the global variables, can optimistically assume that
-the given procedure is observationally pure, this is a trick we
-use. This trick allows us a way to generate the invariant and also be
-certain that the invariant has saturated. 
+Since all logical and arithmetic operators are mathematical functions,
+their composition is also a mathematical function (function). Hence,
+in the absence of global variables, all procedures are a function of
+their formal arguments. This paper focuses on checking if a procedure
+that access global variables is OP. 
 
-%% For procedure `factorial'
-%% in Listing~\ref{lst:factorialSimple}, the invariant on the global
-%% state can be This is make it feasible to generate an invariant for the
-%% given procedure.
+Procedure `factorial' in Listing~\ref{lst:factorialSimple} is OP for a
+certain set of global states. If the global state is restricted to the
+set $\{g = -1, g = 19!\}$, procedure `factorial' always returns $n!$
+which is a function. But for the global states $\{g =1, g = 19!\}$,
+procedure factorial is not a mathematical function. For argument value
+`$n = 19$' it may return 1 or 19!, thus for this set of glboal states
+it is not OP. We assume that this set of global states can be
+represented in the underlying logic and we refer to it as
+\textit{invariant}. Also for all procedure calls, the global state at
+the beginning of, as well as at the end of the procedure call must be
+a member of this invariant.
+
+In order to prove that a given procedure is OP, we prove that for all
+reachable global states, for each argument value there is a single
+result. Now, this can be modelled using standard pre and post
+conditions. The pre condition holds at the beginning of the procedure
+and the post condition holds at its end. Both the pre condition and
+the post condition can be subtituted by the invariant. Also, the post
+condition must describe the return value from the given procedure in
+the same underlying logic. 
+
+This invariant over the global variables, can optimistically
+assume that the given procedure is observationally pure, this is a
+trick we use. This trick allows us a way to generate the invariant and
+also be certain that the invariant has saturated.
+
+For procedure `factorial' in Listing~\ref{lst:factorialSimple}, the
+invariant we used is $\g = -1 \vee g = \F(18) * 19$. The symbol
+`$\F(18)$' in the invariant represents the return value from the
+procedure `factorial' incase it is a mathematical function. The
+invariant used here is valid iff the given procedure is OP, otherwise
+it is not well defined. 
+
+In static analysis, recursion is handelled by either repeated inlining
+or using pre and post conditions. The pre and post conditions are
+constructed in a what that if the precondition holds before the
+procedure call then the post condition holds after the procedure call,
+for all procedrue call. Only incase of a recursvie procedure call the
+precondition is expected to hold at the beginning of the procedure and
+the post condition is expected to hold at the end of the proceudre. 
+Capturing the meaning of the program in this mechanism requires that
+the return of the procedure is also modelled in the same logic as used
+to represent the pre and post conditions. Also, this return value is
+generally a part of the post condition. We instead propose to
+model the return value from the procedure as an uninterpreted
+function; some mathematical function which we don't care to define. 
+
+The semantics of the invariant we use is that (a) it is defined iff
+the given procedure is a mathematical function (b) It represents all
+the reachable global states before and after each procedure call. We
+use this invariant to represent the pre-condition and the
+post-condition. 
+
+Now in our recipie for checking observational purity (a) representing the
+meaning of the given procedure can be bypassed using a function symbol
+(b) the invariant, which will substituted or the pre and the post
+condition can be generated automatically. We willl present an approach
+for constructing this invariant
+  
+
 
 %% Observationally purity seems to be closely related to termination of
 %% the given procedure. It is certainly feasible that the given procedure
@@ -332,7 +380,7 @@ technique can check if it is safe the memoize the results produced by
 a procedure. By safety we mean assurance that the procedure will
 produce the same result it returned earlier. We propose two static
 analysis techniques to check this problem. The property we check is
-whether the given procedure's behaviour is equivalent to some
+whether the given procedure's behavior is equivalent to some
 mathematical function.  One interesting thing about our approach is
 that the user need not mention a (the) mathematical function that the
 procedure is supposed to mimic.
@@ -343,7 +391,7 @@ This section first gives the definition of Observational purity. Next,
 we present some formalisms that we use define our approaches.
 
 \subsection{Programming Language}
-We make the following restrictions on the structure of the prgram for
+We make the following restrictions on the structure of the program for
 the sake of simplicity of the analysis.
 
 \begin{itemize}
