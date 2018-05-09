@@ -264,11 +264,12 @@ procedure. In this paper, we talk about a general property that is the
 necessary condition for the correctness of many procedures. If the
 return value from a procedure is dependent only on the formal
 arguments, the given procedure is \textit{Observationally
-  pure(OP)}. Thus, OP procedures return independent of the value of
-the global variables. For instance, dynamic programming algorithms
-fall into this category. Checking whether a given procedure is OP, is
-in general undecidable. In this paper, we propose a pair of static
-analysis techniques to check OPness that are sound but not complete.
+  pure(OP)}. Thus, OP procedures return equivalent to a mathematical
+function of the argument values; independent of the value of the
+global variables. For instance, dynamic programming algorithms fall
+into this category. Checking whether a given procedure is OP, is
+undecidable. In this paper, we propose a pair of static analysis
+techniques to check OPness that are sound but incomplete.
 
 Since all logical and arithmetic operators are mathematical functions,
 their composition is also a mathematical function (function). Hence,
@@ -280,9 +281,9 @@ Procedure `factorial' in Listing~\ref{lst:factorialSimple} is OP for a
 certain set of global states. If the global state is restricted to the
 set $\{g = -1, g = 3!\}$, procedure `factorial' always returns $n!$
 which is a function. But for the global states $\{g =1, g = 3!\}$,
-procedure factorial is not a mathematical function. For argument value
-`$n = 3$' it may return 1 or 3!, thus for this set of glboal states it
-is not OP.  We assume that this set of global states can be
+procedure `factorial' is not a mathematical function. For argument
+value `$n = 3$' it may return 1 or 3!, thus for this set of global
+states it is not OP.  We assume that this set of global states can be
 represented in the underlying logic and we refer to it as
 \textit{invariant}. Also for all procedure calls, the global state at
 the beginning of, as well as at the end of the procedure call must
@@ -293,73 +294,84 @@ reachable global states, for each argument value there is a single
 result. Now, this can be modelled using standard pre and post
 conditions. The pre condition holds at the beginning of the procedure
 and the post condition holds at its end. Both the pre condition and
-the post condition can be subtituted by the invariant. Also, the post
-condition must describe the return value from the given procedure in
-the same underlying logic. Thus, for procedure `factorial' in
-Listing~\ref{lst:factorialSimple} we can use the invariant $\inv : g =
--1 \vee g = 6$ and the function `factorial' can be modelled as
-$\fact[k] == 1 \wedge k >1 ==> \fact[k] == \fact[k-1]*k$. Thus, the
-pre-condition is $\inv$ and the post-condition is $\inv \wedge
-\fact[k] == 1 \wedge k >1 ==> \fact[k] == \fact[k-1]*k$.
+the post condition can be substituted by the invariant. But this does
+not constrain the return value of the procedure. And the return value from
+an inner recursive call might flow into a global variable. Thus,
+the return from the procedure must be modelled in the post condition.
+For procedure `factorial' in Listing~\ref{lst:factorialSimple}
+we can use the invariant `$\inv : g = -1 \vee g = 6$' and the function
+`factorial' can be modelled as `$\fact[k] == 1 \wedge k >1 ==> \fact[k]
+== \fact[k-1]*k$'. Thus, the pre-condition is `$\inv$' and the
+post-condition is `$\inv \wedge \fact[k] == 1 \wedge k >1 ==> \fact[k]
+== \fact[k-1]*k$'.
 
-Now, In general the above mentioned idea is feasible. But there are
-certain issues (a) It is hard for theorem provers in general to prove
-such assertions (b) describing the procedure in logic takes
-considerable effort. We propose that instead of trying to describe the
-function for the given procedure, we abstract out the mathematical
-function using an uniterpreted function symbol. And then ask the
-question whether an assignment for the function symbol exists while
-constraining its meaning based on the given procedure. Now, this kind
-of a query is also hard for theorem provers but we showcase another
-technique that borrows from this idea, which is able to prove
-factorial to be OP.
+The above mentioned idea is valid. But it has certain issues (a)
+theorem provers often fail to prove such assertions (as is the case
+for the above mentioned example) (b) describing the procedure in logic
+takes considerable effort. We propose, instead of trying to describe
+the function for the given procedure, we equate the result from the
+procedure to that of an uninterpreted function symbol. And then ask
+the question whether an assignment for the function symbol exists? If
+yes, then the procedure is OP. We call this the existential approach.
+%% Now, this kind of a query is also hard for theorem provers.  Later, we
+%% show another technique that borrows from this idea, and is able to
+%% prove procedures such as `factorial' in
+%% Listing~\ref{lst:factorialSimple} to be OP.
 
 This idea of abstracting using a mathematical function symbol also
-comes in hand for the invariant generation. if the result from
-a recursive procedure call flows to a global variable, the invariant
-computation can also represent the recursive call as the same function
-symbol as above.
+comes in handy for defining the invariant on the global states. The
+result from a recursive procedure call may flow to a global
+variable. In such a case, the return from the recursive procedure call
+needs to be evaluated to establish the post-condition. We propose, use
+the same function symbol (as mentioned above) to represent the result
+from a recursive procedure call (the same function symbol that
+was equated to the result of the procedure). For procedure `factorial'
+we can use the invariant `$\inv_{\F} : g = -1 \vee g = \F(2) *
+3$'. The symbol `$\F(2)$' in the invariant represents the return value
+from the procedure `factorial' assuming it is a mathematical
+function. The invariant used here is valid iff the given procedure is
+OP, otherwise it is not well defined.
+
+%% should I talk about why F(2) *3 instead of F(3)
+
+Another technique is represent two instances of a procedure in some
+underlying logic. Then, ask the question that does a pair of traces
+exist such that both start with the same parameter but return
+different results. We call this the impurity witness approach. This
+approach also uses invariant that makes use of uninterpreted function
+symbols. 
 
 %% This invariant over the global variables, can optimistically
 %% assume that the given procedure is observationally pure, this is a
 %% trick we use. This trick allows us a way to generate the invariant and
 %% also be certain that the invariant has saturated.
 
-For procedure `factorial' in Listing~\ref{lst:factorialSimple}, the
-invariant we used is $\g = -1 \vee g = \F(2) * 3$. The symbol
-`$\F(2)$' in the invariant represents the return value from the
-procedure `factorial' assuming it is a mathematical function. The
-invariant used here is valid iff the given procedure is OP, otherwise
-it is not well defined. 
+%% In static analysis, recursion is handled by either repeated inlining
+%% or using pre and post conditions. The pre and post conditions are
+%% constructed in a what that if the precondition holds before the
+%% procedure call then the post condition holds after the procedure call,
+%% for all procedure call. Only in-case of a recursive procedure call the
+%% precondition is expected to hold at the beginning of the procedure and
+%% the post condition is expected to hold at the end of the procedure. 
+%% Capturing the meaning of the program in this mechanism requires that
+%% the return of the procedure is also modelled in the same logic as used
+%% to represent the pre and post conditions. Also, this return value is
+%% generally a part of the post condition. We instead propose to
+%% model the return value from the procedure as an uninterpreted
+%% function; some mathematical function which we don't care to define. 
 
-In static analysis, recursion is handelled by either repeated inlining
-or using pre and post conditions. The pre and post conditions are
-constructed in a what that if the precondition holds before the
-procedure call then the post condition holds after the procedure call,
-for all procedrue call. Only incase of a recursvie procedure call the
-precondition is expected to hold at the beginning of the procedure and
-the post condition is expected to hold at the end of the proceudre. 
-Capturing the meaning of the program in this mechanism requires that
-the return of the procedure is also modelled in the same logic as used
-to represent the pre and post conditions. Also, this return value is
-generally a part of the post condition. We instead propose to
-model the return value from the procedure as an uninterpreted
-function; some mathematical function which we don't care to define. 
+%% The semantics of the invariant we use is that (a) it is defined iff
+%% the given procedure is a mathematical function (b) It represents all
+%% the reachable global states before and after each procedure call. We
+%% use this invariant to represent the pre-condition and the
+%% post-condition. 
 
-The semantics of the invariant we use is that (a) it is defined iff
-the given procedure is a mathematical function (b) It represents all
-the reachable global states before and after each procedure call. We
-use this invariant to represent the pre-condition and the
-post-condition. 
-
-Now in our recipie for checking observational purity (a) representing the
+Now in our recipe for checking observational purity (a) representing the
 meaning of the given procedure can be bypassed using a function symbol
 (b) the invariant, which will substituted or the pre and the post
-condition can be generated automatically. We willl present an approach
-for constructing this invariant
+condition can be generated automatically. We Will present an approach
+for constructing the invariant.
   
-
-
 %% Observationally purity seems to be closely related to termination of
 %% the given procedure. It is certainly feasible that the given procedure
 %% terminates for a given global state but not for another.
@@ -369,10 +381,12 @@ procedure, this property is intertwined with termination. In
 Section~\ref{sec:background}, we define OPness in a way such that
 non-termination does not cause non-OPness. OP is violated only if for
 a given invariant on the reachable global states, for a given argument
-value there is a non-unique return value. Thus, there must exist a
-pair of traces such that both the traces begin a global state that is
-satisfied by the invariant, and both traces begin with the same
-argument value but return different results.
+value there is a non-unique return value.
+
+%% Thus, there must exist a
+%% pair of traces such that both the traces begin a global state that is
+%% satisfied by the invariant, and both traces begin with the same
+%% argument value but return different results.
 
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
@@ -400,14 +414,14 @@ Dynamic programming algorithms (such as procedure `factorial' in
 Listing~\ref{lst:factorialSimple}) use memoization to store
 pre-computed solutions to the sub-problem so that it can look-up the
 solution when needed, thus trading compute time for storage. Our
-technique can check if it is safe the memoize the results produced by
-a procedure. By safety we mean assurance that the procedure will
-produce the same result it returned earlier. We propose two static
-analysis techniques to check this problem. The property we check is
-whether the given procedure's behavior is equivalent to some
-mathematical function.  One interesting thing about our approach is
-that the user need not mention a (the) mathematical function that the
-procedure is supposed to mimic.
+technique can check if it is safe to memoize the results produced by a
+procedure. By safety we mean assurance that the procedure will produce
+the same result it returned earlier. We propose two static analysis
+approaches to check this problem. The property we check is whether the
+given procedure's behavior is equivalent to some mathematical
+function. One interesting thing about our approach is that the user
+need not mention a (the) mathematical function that the procedure is
+supposed to mimic.
 
 
 \section{Background} \label{sec:background}
@@ -490,7 +504,7 @@ represented in logic.
 \end{definition}
 
 Note : Representing recursive calls using function symbols allows us
-to comeup with an automated invariant generation algorithm.
+to come-up with an automated invariant generation algorithm.
 
 \begin{definition}[observational purity(invariant $\inv$)]
   A given set of procedures are observationally pure if in each
@@ -567,10 +581,10 @@ The goal of this section is to
 \begin{thebibliography}{5}
 %
 \bibitem {clar:eke}
-Clarke, F., Ekeland, I.:
+Clarke, F., a, I.:
 Nonlinear oscillations and
 boundary-value problems for Hamiltonian systems.
-Arch. Rat. Mech. Anal. 78, 315--333 (1982)
+Arch. Rat. a. Anal. 78, 315--333 (1982)
 
 
 \end{thebibliography}
