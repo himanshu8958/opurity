@@ -293,15 +293,16 @@ that access global variables is OP.
 
 Procedure `factorial' in Listing~\ref{lst:factorialSimple} is OP for a
 certain set of global states. If the global state is restricted to the
-set $\{g = -1, g = 3!\}$, procedure `factorial' mimics $\lambda n.n!$
-which is a function. But for the global states $\{g =1, g = 3!\}$,
-procedure `factorial' is not a mathematical function. For argument
-value `$n = 3$' it may return 1 or 3!, thus for this set of global
-states it is not OP.  We assume that this set of global states can be
-represented in the underlying logic and we refer to it as
-\textit{invariant}. Also for all procedure calls, the global state at
-the beginning of, as well as at the end of the procedure call must
-satisfy the invariant.
+set $\{g = -1, g = 3!\}$, procedure `factorial' mimics $\lambda
+n.n!$. But for the global states $\{g = 1, g = 3!\}$, procedure
+`factorial' is not a mathematical function. For argument value `$n =
+3$' it may return 1 or 3!.  We assume that this set of global states
+can be represented in the underlying logic and we refer to it as
+\textit{invariant}. The global states reachable at all the boundaries
+of the given procedure must satisfy the invariant.
+%% Also
+%% for all procedure calls, the global state at the beginning of, as well
+%% as at the end of the procedure call must satisfy the invariant.
 
 In order to prove that a given procedure is OP, we prove that for all
 reachable global states, for each argument value there is a single
@@ -309,50 +310,59 @@ result. Now, this can be modelled using standard pre and post
 conditions. The pre condition holds at the beginning of the procedure
 and the post condition holds at its end. Both the pre condition and
 the post condition can be substituted by the invariant. But this does
-not constrain the return value of the procedure. And the return value from
-an inner recursive call might flow into a global variable. Thus,
+not constrain the return value of the procedure. And the return value
+from an inner recursive call might flow into a global variable. Thus,
 the return from the procedure must be modelled in the post condition.
-For procedure `factorial' in Listing~\ref{lst:factorialSimple}
-we can use the invariant `$\inv : g = -1 \vee g = 6$' and the function
-`factorial' can be modelled as `$\fact[k] == 1 \wedge k >1 ==> \fact[k]
-== \fact[k-1]*k$'. Thus, the pre-condition is `$\inv$' and the
-post-condition is `$\inv \wedge \fact[k] == 1 \wedge k >1 ==> \fact[k]
-== \fact[k-1]*k$'.
+For procedure `factorial' in Listing~\ref{lst:factorialSimple} we can
+use the invariant `$\inv : g = -1 \vee g = 6$' and the function
+`factorial' can be modelled as `$ f := k \leq 1 \implies \fact[k] == 1
+\wedge k >1 \implies \fact[k] == \fact[k-1]*k$'. Thus, the
+pre-condition is `$\inv$' and the post-condition is `$\inv \wedge f
+\wedge \retVar = fact[n]$'.
 
 The above mentioned idea is valid. But it has certain issues (a)
 theorem provers often fail to prove such assertions (as is the case
 for the above mentioned example) (b) describing the procedure in logic
-takes considerable effort. We propose, instead of trying to describe
+takes considerable effort. We propose, instead of trying to formalize
 the function for the given procedure, we equate the result from the
 procedure to that of an uninterpreted function symbol. And then ask
 the question whether an assignment for the function symbol exists? If
-yes, then the procedure is OP. We call this the existential approach.
-%% Now, this kind of a query is also hard for theorem provers.  Later, we
+yes, then the procedure is OP. This is our existential approach.
+%% Now, this kind of a query is also hard for theorem provers. Later, we
 %% show another technique that borrows from this idea, and is able to
 %% prove procedures such as `factorial' in
 %% Listing~\ref{lst:factorialSimple} to be OP.
 
-This idea of abstracting using a mathematical function symbol also
-comes in handy for defining the invariant on the global states. The
-result from a recursive procedure call may flow to a global
-variable. In such a case, the return from the recursive procedure call
-needs to be evaluated to establish the post-condition. We propose, use
-the same function symbol (as mentioned above) to represent the result
-from a recursive procedure call (the same function symbol that
-was equated to the result of the procedure). For procedure `factorial'
-we can use the invariant `$\inv_{\F} : g = -1 \vee g = \F(2) *
-3$'. The symbol `$\F(2)$' in the invariant represents the return value
-from the procedure `factorial' assuming it is a mathematical
-function. The invariant used here is valid iff the given procedure is
-OP, otherwise it is not well defined.
+This idea of abstracting using a mathematical function symbol goes a
+long way, also in describing the invariant on the global states.
+%% The result from a recursive procedure call may flow to a global
+%% variable. In such a case, the return from the recursive procedure call
+%% needs to be evaluated to establish the post-condition. We propose, use
+%% the same function symbol (as mentioned above) to represent the result
+%% from a recursive procedure call (the same function symbol that was
+%% equated to the result of the procedure).
+For procedure `factorial' we
+can use the invariant `$\inv_{\F} : g = -1 \vee g = \F(2) * 3$'. The
+symbol `$\F(2)$' in the invariant represents the return value from the
+procedure `factorial' assuming it is a mathematical function. Note that
+invariant used here is valid iff the given procedure is OP, otherwise
+it is not well defined.
 
-%% should I talk about why F(2) *3 instead of F(3)
+%% should I talk about why F(2) *3 instead of F(3) ?
 
-Another technique is represent two instances of a procedure in some
-underlying logic. Then, ask the question that does a pair of traces
-exist such that both start with the same parameter but return
-different results. We call this the impurity witness approach. This
-approach also uses invariant that makes use of uninterpreted function
+Another technique to check OPness is to represent two instances of a
+procedure in some underlying logic. Then ask the question that do the
+two instances of the given procedure always mimic each other? If
+yes, then we show that the given procedure is OP. Otherwise, we are
+able to construct a witness to the impurity of the given procedure. We
+construct a pair of traces, such that both begin in a global state in
+the invariant, the same argument value but return different
+results. We call this the `impurity witness approach'.
+%% Then, ask the question that does a
+%% pair of traces exist such that both start with the same parameter but
+%% return different results. We call this the impurity witness
+%% approach
+This approach also makes use of  invariant with uninterpreted function
 symbols. 
 
 %% This invariant over the global variables, can optimistically
@@ -384,24 +394,20 @@ Now in our recipe for checking observational purity (a) representing the
 meaning of the given procedure can be bypassed using a function symbol
 (b) the invariant, which will substituted or the pre and the post
 condition can be generated automatically. We Will present an approach
-for constructing the invariant.
+for constructing the invariant in Section~\ref{sec:invGen}.
   
 %% Observationally purity seems to be closely related to termination of
 %% the given procedure. It is certainly feasible that the given procedure
 %% terminates for a given global state but not for another.
 
 Since observational purity is a property on the return values from a
-procedure, this property is intertwined with termination. In
+procedure, this problem is closely related with the termination of the
+given procedure. In
 Section~\ref{sec:background}, we define OPness in a way such that
 non-termination does not cause non-OPness. OP is violated only if for
 a given invariant on the reachable global states, for a given argument
-value there is a non-unique return value.
-
-%% Thus, there must exist a
-%% pair of traces such that both the traces begin a global state that is
-%% satisfied by the invariant, and both traces begin with the same
-%% argument value but return different results.
-
+value there is a non-unique return value. And in-case of
+non-termination there isn't a return value.
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
       returns factorial of `n' and memoizes result for argument value
@@ -429,14 +435,11 @@ Listing~\ref{lst:factorialSimple}) use memoization to store
 pre-computed solutions to the sub-problem so that it can look-up the
 solution when needed, thus trading compute time for storage. Our
 technique can check if it is safe to memoize the results produced by a
-procedure. By safety we mean assurance that the procedure will produce
-the same result it returned earlier. We propose two static analysis
-approaches to check this problem. The property we check is whether the
-given procedure's behavior is equivalent to some mathematical
-function. One interesting thing about our approach is that the user
+procedure. By safety, we mean preservation of the input-output
+behaviour. We propose two static analysis approaches to check this
+problem. One interesting thing about our approach is that the user
 need not mention a (the) mathematical function that the procedure is
 supposed to mimic.
-
 
 \section{Background} \label{sec:background}
 This section first gives the definition of Observational purity. Next,
