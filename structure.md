@@ -70,8 +70,11 @@ theme: Copenhagen
 	* talk about the meaning of the invariant
 		
 2. Background
+	* Programming language
+	  
+	* Explain path condition
 
-	explain path condition  and SSA
+	* Explain SSA
 3. Understanding the Invariant
 
    	explain invariant, history, trace (cover in 12 pages)
@@ -79,3 +82,27 @@ theme: Copenhagen
 5. Impurity witness approach
 6. Experimential results
 7. Related work
+
+# may 9, 2018
+## Background
+   1. Programming language
+      * restrictions on procedure
+      * the grammar
+      * special instructions
+   2. Explain SSA
+      1. retval is assigned return value.
+      2. procedure call cannot be a part of expression.
+      3. overapproximate recursive calls with havoc statements. (havoc globals too)
+      4. convert to SSA, havocs increment incarnation.
+      5. replace recursive calls with function symbol.
+   3. Explain Path Condition
+
+# may 12, 2018
+## Background
+   1. Explain Path Condition
+      * we need : capture value of global variables, parameter and the return value.
+      * Formula with free variables that correspond to above.
+      * example ( PC of transformed factorial)
+      * Talk about the set of varialble you add for the boundries ( Ex : $g_{out}$, $g_{bef}$, )
+      * quantification ( is it left for later)
+      * 

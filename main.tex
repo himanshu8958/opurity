@@ -11,6 +11,7 @@
 \usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{listings}
+\usepackage{syntax}
 \newcommand{\foo}{\textit{foo}}
 \newcommand{\trace}{\pi}
 \newcommand{\inv}{\mathit{inv}}
@@ -33,13 +34,13 @@
 
 
 \lstdefinestyle{mystyle}{
-  %% basicstyle=\footnotesize, 
+  basicstyle=\footnotesize, 
   %% breakatwhitespace=false,         
   %% breaklines=true,                 
-  %% captionpos=b,                    
+  captionpos=b,
   %% keepspaces=true,         
-  %% numbers=left,                    
-  %% numbersep=5pt,                  
+  numbers=left,
+  numbersep=6pt,                  
   %% showspaces=false,                
   %% showstringspaces=false,
   %% showtabs=false,
@@ -254,20 +255,33 @@ The abstract should summarize the contents of the paper
 using at least 70 and at most 150 words. It will be set in 9-point
 font size and be inset 1.0 cm from the right and left margins.
 There will be two blank lines before and after the Abstract. \dots
-\keywords{computational geometry, graph theory, Hamilton cycles}
+\keywords{static analysis, Program analysis }
 \end{abstract}
 
 \section{Introduction}
-Defining the correctness for a procedure is a time consuming task that
-requires deep understanding of the expected functionality of a
-procedure. In this paper, we talk about a general property that is the
-necessary condition for the correctness of many procedures. If the
-return value from a procedure is dependent only on the formal
-arguments, the given procedure is \textit{Observationally
-  pure(OP)}. Thus, OP procedures return equivalent to a mathematical
-function of the argument values; independent of the value of the
-global variables. For instance, dynamic programming algorithms fall
-into this category. Checking whether a given procedure is OP, is
+Verifying function properties of procedures is a hard task. 
+Formalizing the function properties of a procedure entails
+deep understanding of the expected functionality of
+a procedure. 
+%% Defining the correctness for a procedure is a time consuming task that
+%% requires deep understanding of the expected functionality of a
+%% procedure.
+In this paper, we talk about a general property that is the necessary
+condition for the correctness of many procedures. If the return value
+from a procedure is dependent only on the formal arguments, the given
+procedure is \textit{Observationally pure(OP)}.
+%% Thus, OP procedures return equivalent to a mathematical
+%% function of the argument values; independent of the value of the
+%% global variables.
+%% Essentially, we ensure
+Ensuring the existence of a mathematical function that
+mimics the given procedure and shares it's signature. Implying that
+the input-output behaviour of the given procedure is independent of
+any global state. This is a general property that has many
+applications. 
+For instance, implementations of dynamic programming problems without
+the memoization would mimic the input output behaviour of the optimal
+implementations. Checking whether a given procedure is OP, is
 undecidable. In this paper, we propose a pair of static analysis
 techniques to check OPness that are sound but incomplete.
 
@@ -279,7 +293,7 @@ that access global variables is OP.
 
 Procedure `factorial' in Listing~\ref{lst:factorialSimple} is OP for a
 certain set of global states. If the global state is restricted to the
-set $\{g = -1, g = 3!\}$, procedure `factorial' always returns $n!$
+set $\{g = -1, g = 3!\}$, procedure `factorial' mimics $\lambda n.n!$
 which is a function. But for the global states $\{g =1, g = 3!\}$,
 procedure `factorial' is not a mathematical function. For argument
 value `$n = 3$' it may return 1 or 3!, thus for this set of global
@@ -426,7 +440,7 @@ supposed to mimic.
 
 \section{Background} \label{sec:background}
 This section first gives the definition of Observational purity. Next,
-we present some formalisms that we use define our approaches.
+we present some formalisms that we use define the approaches.
 
 \subsection{Programming Language}
 We make the following restrictions on the structure of the program for
@@ -436,6 +450,8 @@ the sake of simplicity of the analysis.
 \item The given procedure (`\foo') has a single argument i.e `\n'. And
   `\n' is never written inside `\foo'.
 \item Procedure `\foo' has a single global variable name `\g'.
+\item Procedure `\foo' has a special variable `\retVar' which is
+  assigned the return value.
 \item We are only analyzing procedure `\foo' and the other procedures
   in the program do not write to global variables that `\foo' refers
   to.
@@ -448,31 +464,182 @@ the sake of simplicity of the analysis.
 \end{itemize}
 
 Note : all of the above mentioned restrictions can be omitted.
-\subsection{SSA}
-This section shows how a program transformation allows a program to be
-represented in logic.
+
+
+In Figure~\ref{fig:grammar} we show the grammar for the programming
+language for which we have designed the static analysis approaches.
+Most of the statements are standard statements found in imperative
+languages. Other than that we have the `havoc' and the `assume'
+statement. The statement `havoc x' assigns any value to x from it's
+domain. And the statement `assume x' allows the execution of the
+program to proceed iff the predicate `x' holds at the given program
+point.
+
+\begin{figure}[hb!]
+  %% \includegraphics[trim={0 5cm  3cm 0}, width=6cm]{grammar.eps}
+  \begin{grammar}
+    <statement> ::= <ident> = <constant>
+    \alt <ident> = <logical-expr>
+    \alt <ident> = <arithmetic-expr>
+    \alt <statement>; <statement>
+    %% \alt if<logical-expr> then <statement> else <statement>
+    %% \alt while<logical-expr> do <statement>
+    \alt <ident> = foo(<params-list>)
+    \alt assume(<logical-expr>)
+    \alt <ident> = \foo(<ident>)
+    \alt havoc(<ident>)
+    %% \alt <ident>[<ident>] = <ident>
+    %% \alt <ident> = <ident>[<ident>]
+
+    %% <params-list> ::= <params-list> , <ident>
+    %% \alt <ident>
+
+    <arithmetic-expr> ::= <ident> "+" <ident>
+    \alt <ident> "-" <ident>
+    \alt <ident> "/" <ident>
+    \alt <ident> "*" <ident>
+    \alt <ident> "\%" <ident>
+ 
+    <logical-expr> ::= <ident> "<" <ident>
+    \alt <ident> ">" <ident>
+    \alt <ident> "==" <ident>
+    \alt <ident> $\leq$ <ident>
+    \alt <ident> $\geq$ <ident>
+    \alt <logical-expr> $\wedge$ <logical-expr>
+    \alt <logical-expr> $\vee$ <logical-expr>
+    \alt $\neg$<logical-expr>
+    \alt true
+    \alt false
+
+    <ident> ::= <local-ident>
+    \alt <global-ident>
+    
+    <procedure> ::= procedure \foo ($\n$) {<statement>;}
+  \end{grammar}
+  \caption{Grammar for our programming language}
+  \label{fig:grammar}
+\end{figure}
+
+\subsection{Our intermediate representation}\label{sec:intermediate}
+We transform the given procedure into the following representation to be able
+to represent it in logic. An instance of the transformed program wrt
+procedure `factorial' in Listing~\ref{lst:factorialSimple} is in
+Listing~\ref{lst:factorialTransformed}.
+
+Our analysis we expects the following :
+\begin{enumerate}
+\item A procedure call statement is not a part of an expression. If
+  it is, we break it down to multiple statements.
+\item Continuation of above, recursive calls may affect global
+  variables and the variable assigned the return value. Procedure
+  calls must be over-approximated using `havoc' statements.
+\item In the previous steps `x = \foo(y)' is replaced with
+  `havoc(x)'. The next statement should be `assume x = F(y)'.
+\item After all this, the program should be converted into SSA.
+\end{enumerate}
+
+\begin{lstlisting}[language=c, caption= {Procedure `factorial' from
+      Listing~\ref{lst:factorialSimple} converted to the form our
+      approach expects}, label=lst:factorialTransformed]
+int g = -1;
+int factorial( int n) {
+  if(n <= 1) {
+    retVar = 1;
+    gout = g;
+  } else if(g == -1 && n == 19) {
+    gbef1 = g;
+    havoc(temp1); 
+    havoc(g1);
+    assume(temp1 = F(18));  // newly added statement
+    gaft1 = g1;
+    g2 = 19 * temp1;
+    retVar = g2;
+    gout = g2;
+  } else if(g != -1 && n == 19) {
+    retVar = g;
+    gout = g;
+  } else {
+    gbef2 = g;
+    havoc(temp2);
+    havoc(g1);
+    assume(temp2 = F( n - 1 ));  //newly added statement
+    gaft2 = g1;
+    retVar = n * temp2;
+    gout = g1;
+  }
+}
+\end{lstlisting}
+
+In Listing~\ref{lst:factorialTransformed}, in comparison to procedure
+`factorial' in Listing~\ref{lst:factorialSimple}, the return statement
+(line\# 4) is replaced by an assignment statement (line\# 4). And in
+line\# 5, an extra variable `gout' is added that captures the value of
+the global variable at the end of the program. Similarly, variable
+`gbef1' (at line\# 7) is added to capture the value of the global
+variable before the procedure call; and variable `gaft1' is inserted
+at line\# 11 to capture the value of `g' after the procedure
+call. Also, havoc statements at line\# 8, 20 and 9, 21 over-approximate
+the return from the procedure call statement and updates to the global
+variable. The procedure call statement is substituted with function
+symbols in line\# 10 and 22, taking into account the given procedure
+call as a function symbol.
 
 \subsection{Path Condition}
-  %% The path condition $\pathCondition$ for a given procedure $\foo$ is
+  %% The path condition $\pathCondition$ for a given procedure $\foo$
+  %% is
   %% a formula that relates the incoming values of global variables and
   %% arguments to the outgoing values of the global variables and the
   %% return value, while assuming the recursive procedure call (if there
   %% is one) to be to an OP procedure. The recursive procedure call is
   %% represented as function symbol instead of inlining it.
 
-  The path condition $\pathCondition$ for procedure `\foo' is a
-  formula that represents the procedure `\foo' in logic.
-  $\pathCondition$ has the following set of free variables \{$\g,
-  \gout,\n,\\ \retVar, \gbef_1, \cdots \gbef_m, \gaft_1, \cdots
-  \gaft_m$\}. Variable $\g$ represents the value of the global
-  variable `\g' at the beginning of procedure `\foo' whereas $\gout$
-  represents value of `\g' at the end of `\foo'. Variable $\n$
-  represents the value of the argument, $\retVar$ the return
-  value. And $\gbef_i$ and $\gaft_i$ represent the value of `\g' before
-  and after the $i^{th}$ procedure call statement and there are $m$
-  procedure calls in `\foo'.
 
-\begin{definition}[trace]
+We need a representation of the given procedure in logic such that it
+captures the values of the argument, the return value and the values
+of the global variables at various program points. We track the values
+of the global variables using extra variables as explained in
+Section~\ref{sec:intermediate}.
+
+
+
+\begin{figure}
+  \begin{align*}
+    &(n <= 1 \wedge retVar = 1 \wedge gout = g) \\
+    &\vee (n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
+    &\wedge gaft1 = g1 \wedge g2 = 19 * temp1
+    \wedge retVar = g2) \\
+    &\vee (n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
+    \wedge n = 19 \wedge retVar = g = gout)\\
+    &\vee (n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
+    - 1) \wedge gaft2 = g1\\
+    &\wedge retVar = n * temp2 \wedge gout = g1)\\
+  \end{align*}
+  \caption{Formulae representing paths of procedure `factorial' in
+    Figure~\ref{fig:factorialTransformed} (assuming that
+    function $\F$ is equivalent to procedure `factorial').}
+  \label{fig:pathCondition}
+\end{figure}
+
+
+  %% The path condition $\pathCondition$ for procedure `\foo' is a
+  %% formula that represents the procedure `\foo' in logic.
+  %% $\pathCondition$ has the following set of free variables \{$\g,
+  %% \gout,\n,\\ \retVar, \gbef_1, \cdots \gbef_m, \gaft_1, \cdots
+  %% \gaft_m$\}. Variable $\g$ represents the value of the global
+  %% variable `\g' at the beginning of procedure `\foo' whereas $\gout$
+  %% represents value of `\g' at the end of `\foo'. Variable $\n$
+  %% represents the value of the argument, $\retVar$ the return
+  %% value. And $\gbef_i$ and $\gaft_i$ represent the value of `\g' before
+  %% and after the $i^{th}$ procedure call statement and there are $m$
+  %% procedure calls in `\foo'.
+
+
+\section{Invariant}
+
+To introduce the definition of an invariant we define trace and
+history.
+
+j\begin{definition}[trace]
   A trace $\trace$ is a complete execution of the procedure starting
   from a given global state and a tuple of formal arguments. A trace
   upon completion gives an end state and a return value. Traces may
@@ -485,13 +652,11 @@ represented in logic.
   trace begins in the state in which the previous trace ends.
 \end{definition}
 
-\section{Invariant}
-
 \begin{definition}[invariant]
   An invariant is a formula with function symbol $\F$ and the global
   variables of the given procedure as free variables. The invariant
   represents the set of global states that may arise before and after
-  each procedure call of the given procedure in a history or set of
+  each procedure call of the given procedure in a set of
   histories. Some variables here may be defined in terms of a function
   symbol $\F$, which in turn refers to the mathematical function that
   is equivalent to the given procedure.
@@ -500,19 +665,20 @@ represented in logic.
   be a invariant. If we substitute $\gstate$ for $g$ and $\F'$ for
   $\F$ in $\inv$, if $\inv[\gstate/g, \F'/\F]$ is true then, we say
   $(\gstate, \F') \satisfies \inv$. For instance let $\inv := g = -1
-  \vee g = \F(18) * 19$ then $(0, \lambda n. n!) \satisfies \inv$.
+  \vee g = \F(18) * 19$ then $(19!, \lambda n. n!) \satisfies \inv$.
 \end{definition}
 
 Note : Representing recursive calls using function symbols allows us
 to come-up with an automated invariant generation algorithm.
 
+\section{Observational purity}
 \begin{definition}[observational purity(invariant $\inv$)]
   A given set of procedures are observationally pure if in each
   history starting from a state in invariant $\inv$, all traces of
   each procedure with the same argument value return the same result.
 \end{definition}
 
-\subsection{Existential approach}
+\section{Existential approach}
 
 \begin{figure}[htp]
   \begin{algorithm}[H]
