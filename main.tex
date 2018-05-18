@@ -452,7 +452,7 @@ invariant automatically.
 
 \section{Background} \label{sec:background}
 This section first gives the definition of Observational purity. Next,
-we present some formalisms that we use define the approaches.
+we present some formalisms that we use to define the approaches.
 
 \subsection{Programming Language}
 We make the following restrictions on the structure of the program for
@@ -462,30 +462,25 @@ the sake of simplicity of the analysis.
 \item The given procedure (`\foo') has a single argument i.e `\n'. And
   `\n' is never written inside `\foo'.
 \item Procedure `\foo' has a single global variable name `\g'.
-\item Procedure `\foo' has a special variable `\retVar' which is
-  assigned the return value.
+\item A special variable `\retVar' which is assigned the return value.
 \item We are only analyzing procedure `\foo' and the other procedures
   in the program do not write to global variables that `\foo' refers
   to.
 \item No variable is used before it is defined, except global
   variables.
-\item All loops in procedure `\foo' have been replaced with separate
-  recursive procedures.
+\item All loops in procedure `\foo' are replaced with separate recursive procedures.
 \item The return value from the recursive procedure calls is assigned
   only to local variables.
 \end{itemize}
-
 Note : all of the above mentioned restrictions can be omitted.
-
 
 In Figure~\ref{fig:grammar} we show the grammar for the programming
 language for which we have designed the static analysis approaches.
-Most of the statements are standard statements found in imperative
-languages. Other than that we have the `havoc' and the `assume'
-statement. The statement `havoc x' assigns any value to x from it's
-domain. And the statement `assume x' allows the execution of the
-program to proceed iff the predicate `x' holds at the given program
-point.
+Most of the statements are standard statements in imperative
+languages, the rest we explain. The statement `havoc x' assigns any
+value to x from it's domain. And the statement `assume x' allows the
+execution of the program to proceed iff the predicate `x' holds at the
+given program point otherwise, it halts the execution.
 
 \begin{figure}[hb!]
   %% \includegraphics[trim={0 5cm  3cm 0}, width=6cm]{grammar.eps}
@@ -538,16 +533,16 @@ to represent it in logic. An instance of the transformed program wrt
 procedure `factorial' in Listing~\ref{lst:factorialSimple} is in
 Listing~\ref{lst:factorialTransformed}.
 
-Our analysis we expects the following :
+Our analysis expects the following :
 \begin{enumerate}
 \item A procedure call statement is not a part of an expression. If
-  it is, we break it down to multiple statements.
+  it is, partiton it into multiple statements.
 \item Continuation of above, recursive calls may affect global
   variables and the variable assigned the return value. Procedure
   calls must be over-approximated using `havoc' statements.
 \item In the previous steps `x = \foo(y)' is replaced with
-  `havoc(x)'. The next statement should be `assume x = F(y)'.
-\item After all this, the program should be converted into SSA.
+  `havoc(x)' followed by `assume x = F(y)'.
+\item After all this, the program should be converted to SSA form.
 \end{enumerate}
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' from
@@ -562,7 +557,7 @@ int factorial( int n) {
     gbef1 = g;
     havoc(temp1); 
     havoc(g1);
-    assume(temp1 = F(18));  // newly added statement
+    assume(temp1 = F(18));  // temp1 = factorial(18)
     gaft1 = g1;
     g2 = 19 * temp1;
     retVar = g2;
@@ -574,7 +569,7 @@ int factorial( int n) {
     gbef2 = g;
     havoc(temp2);
     havoc(g1);
-    assume(temp2 = F( n - 1 ));  //newly added statement
+    assume(temp2 = F( n - 1 ));  //temp2 = factorial(n-1)
     gaft2 = g1;
     retVar = n * temp2;
     gout = g1;
@@ -584,17 +579,18 @@ int factorial( int n) {
 
 In Listing~\ref{lst:factorialTransformed}, in comparison to procedure
 `factorial' in Listing~\ref{lst:factorialSimple}, the return statement
-(line\# 4) is replaced by an assignment statement (line\# 4). And in
-line\# 5, an extra variable `gout' is added that captures the value of
-the global variable at the end of the program. Similarly, variable
-`gbef1' (at line\# 7) is added to capture the value of the global
-variable before the procedure call; and variable `gaft1' is inserted
-at line\# 11 to capture the value of `g' after the procedure
-call. Also, havoc statements at line\# 8, 20 and 9, 21 over-approximate
-the return from the procedure call statement and updates to the global
-variable. The procedure call statement is substituted with function
-symbols in line\# 10 and 22, taking into account the given procedure
-call as a function symbol.
+(line\# 4) is replaced by an assignment to \retVar (line\# 4). And in
+line\# 5 of the transformed code, an extra variable `gout' is added
+that captures the value of the global variable at the end of the
+program. Similarly, variable `gbef1' (at line\# 7, transformed code)
+is added to capture the value of the global variable before the
+procedure call, and variable `gaft1' is inserted at line\# 11 to
+capture the value of `g' after the procedure call. Also, havoc
+statements at line\# 8, 20 and 9, 21 over-approximate the return from
+the procedure call statement and updates to the global variable
+respectively. The procedure call statement is substituted with
+function symbols in line\# 10 and 22, accounting the given procedure
+as a function.
 
 \subsection{Path Condition}
   %% The path condition $\pathCondition$ for a given procedure $\foo$
@@ -605,33 +601,36 @@ call as a function symbol.
   %% is one) to be to an OP procedure. The recursive procedure call is
   %% represented as function symbol instead of inlining it.
 
-
 We need a representation of the given procedure in logic such that it
-captures the values of the argument, the return value and the values
-of the global variables at various program points. We track the values
-of the global variables using extra variables as explained in
+captures the value of the argument, the return value and the values of
+the global variables at the boundries. We track the values of the
+global variables using extra variables as explained in
 Section~\ref{sec:intermediate}.
-
-
 
 \begin{figure}
   \begin{align*}
-    &(n <= 1 \wedge retVar = 1 \wedge gout = g) \\
-    &\vee (n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
+    \pathCondition :=
+    &(n \leq 1 \wedge retVar = 1 \wedge gout = g) \vee \\
+    &(n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
     &\wedge gaft1 = g1 \wedge g2 = 19 * temp1
-    \wedge retVar = g2) \\
-    &\vee (n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
-    \wedge n = 19 \wedge retVar = g = gout)\\
-    &\vee (n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
+    \wedge retVar = g2) \vee\\
+    &(n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
+    \wedge n = 19 \wedge retVar = g = gout) \vee\\
+    &(n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
     - 1) \wedge gaft2 = g1\\
     &\wedge retVar = n * temp2 \wedge gout = g1)\\
   \end{align*}
-  \caption{Formulae representing paths of procedure `factorial' in
-    Figure~\ref{fig:factorialTransformed} (assuming that
-    function $\F$ is equivalent to procedure `factorial').}
+  \caption{Formula representing procedure `factorial' in
+    Listing~\ref{lst:factorialTransformed} (assuming that function
+    $\F$ is equivalent to procedure `factorial').}
   \label{fig:pathCondition}
 \end{figure}
 
+In Figure~\ref{fig:pathCondition} each disjunct represents a
+straightline path in procedure `factorial'. For instace, $(n <= 1
+\wedge retVar = 1 \wedge gout = g)$ represents the case where $n \leq
+1$. Hereonwards, we will only use this formula, $\pathCondition$ to
+describe our analysis.
 
   %% The path condition $\pathCondition$ for procedure `\foo' is a
   %% formula that represents the procedure `\foo' in logic.
@@ -648,10 +647,10 @@ Section~\ref{sec:intermediate}.
 
 \section{Invariant}
 
-To introduce the definition of an invariant we define trace and
+To introduce the definition of an invariant we first define trace and
 history.
 
-j\begin{definition}[trace]
+\begin{definition}[trace]
   A trace $\trace$ is a complete execution of the procedure starting
   from a given global state and a tuple of formal arguments. A trace
   upon completion gives an end state and a return value. Traces may
@@ -665,13 +664,15 @@ j\begin{definition}[trace]
 \end{definition}
 
 \begin{definition}[invariant]
-  An invariant is a formula with function symbol $\F$ and the global
-  variables of the given procedure as free variables. The invariant
-  represents the set of global states that may arise before and after
-  each procedure call of the given procedure in a set of
-  histories. Some variables here may be defined in terms of a function
-  symbol $\F$, which in turn refers to the mathematical function that
-  is equivalent to the given procedure.
+  An invariant $\inv$ is a formula with function symbol $\F$ and the
+  global variables of the given procedure as free variables. The
+  invariant represents the set of global states that may arise before
+  and after each procedure call of the given procedure in a set of
+  histories. Thus, if a procedure begins in a global state that
+  satisfies invariant $\inv$ then it also ends in a global state that
+  satisfies $\inv$. Some variables may be defined in terms of a
+  function symbol $\F$, which in turn refers to the mathematical
+  function that is equivalent to the given procedure.
   
   Let $\gstate$ be a global state, and $\F'$ be a function, and $\inv$
   be a invariant. If we substitute $\gstate$ for $g$ and $\F'$ for
@@ -683,12 +684,52 @@ j\begin{definition}[trace]
 Note : Representing recursive calls using function symbols allows us
 to come-up with an automated invariant generation algorithm.
 
+The invariant has a free variable, which represents the function
+equivalent to the given procedure. Thus, such an invariant assumes
+that the given procedure is a mathematical function. This invariant is
+not well defined if the given procedure is not a mathematical
+function. 
+
+As expressed in the introduction, a procedure is OP only for a given
+set of reachable global states. So, if procedure \foo is OP for
+invariant $\inv$ it will also be OP for $\inv'$ where $\inv' \implies
+\inv$ but $\inv'$ be not be inductive. But the procedure may not be OP
+for $\inv''$ where $\inv'' \implies \inv$.
+
 \section{Observational purity}
 \begin{definition}[observational purity(invariant $\inv$)]
   A given set of procedures are observationally pure if in each
   history starting from a state in invariant $\inv$, all traces of
-  each procedure with the same argument value return the same result.
+  each procedure return the same result if the argument value is the
+  same. 
+  %% with the same argument value return the same result.
 \end{definition}
+
+\begin{lstlisting}[caption={Procedure `remember' : always returns the
+      argument from its first call}, label=lst:remember]
+int g = 0;
+int init = 0;
+int remember( int n) {
+  if(init = 0){
+    init = 1;
+    g = n;
+  }
+  return g;
+}
+\end{lstlisting}
+
+
+Note: if in a history all traces return the same result for an
+argument value, then we can find a function $\F$ that respects the
+given procedure. Now as it turns out, if the invariant is set of
+concrete states then there is a unique function that is equivalent to
+the given procedure. The invariant we use allows multiple functions to
+be equivalent to the given procedure. For instance, procedure
+`remember' in Listing~\ref{lst:remember} mimics a constant function
+for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge init=1$. Whereas,
+for the invariant $\inv := g=0 \wedge init=0 \vee g=2 \wedge init=1$;
+we have $\F = \lambda n.2$.
+
 
 \section{Existential approach}
 
