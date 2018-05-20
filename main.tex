@@ -451,36 +451,35 @@ invariant automatically.
 %% symbol (b) invariant, we give an approach to generate it automatically.
 
 \section{Background} \label{sec:background}
-This section first gives the definition of Observational purity. Next,
-we present some formalisms that we use to define the approaches.
 
 \subsection{Programming Language}
-We make the following restrictions on the structure of the program for
-the sake of simplicity of the analysis.
+We make the following restrictions on the structure of the program to
+simplify the analysis.
 
 \begin{itemize}
 \item The given procedure (`\foo') has a single argument i.e `\n'. And
   `\n' is never written inside `\foo'.
-\item Procedure `\foo' has a single global variable name `\g'.
-\item A special variable `\retVar' which is assigned the return value.
-\item We are only analyzing procedure `\foo' and the other procedures
-  in the program do not write to global variables that `\foo' refers
-  to.
-\item No variable is used before it is defined, except global
-  variables.
-\item All loops in procedure `\foo' are replaced with separate recursive procedures.
-\item The return value from the recursive procedure calls is assigned
-  only to local variables.
+\item Procedure `\foo' has a single global variable, named `\g'.
+\item Return statement is absent in our programming language. Instead
+  there is a special variable `\retVar', which is assigned the return
+  value.
+\item We analyze a single procedure in isolation and we assume that on
+  other procedure writes to the global variables accessed by `\foo'.
+\item All variable are defined before use, except global variables.
+\item All loops in procedure `\foo' are substituted with 
+  recursive procedures.
+\item Variable assigned the return value in a procedure call
+  statement is always a local variable.
 \end{itemize}
 Note : all of the above mentioned restrictions can be omitted.
 
-In Figure~\ref{fig:grammar} we show the grammar for the programming
-language for which we have designed the static analysis approaches.
-Most of the statements are standard statements in imperative
-languages, the rest we explain. The statement `havoc x' assigns any
-value to x from it's domain. And the statement `assume x' allows the
-execution of the program to proceed iff the predicate `x' holds at the
-given program point otherwise, it halts the execution.
+In Figure~\ref{fig:grammar} we present the grammar for the programming
+language which we have assumed for our static analysis approaches.
+Most of the statements are standard statements borrowed from
+imperative languages, the rest we explain. The statement `havoc x'
+assigns any value to x from it's domain. And the statement `assume x'
+allows the execution of the program to proceed iff the predicate `x'
+holds at the program point, otherwise it halts the execution.
 
 \begin{figure}[hb!]
   %% \includegraphics[trim={0 5cm  3cm 0}, width=6cm]{grammar.eps}
@@ -529,25 +528,28 @@ given program point otherwise, it halts the execution.
 
 \subsection{Our intermediate representation}\label{sec:intermediate}
 We transform the given procedure into the following representation to be able
-to represent it in logic. An instance of the transformed program wrt
-procedure `factorial' in Listing~\ref{lst:factorialSimple} is in
-Listing~\ref{lst:factorialTransformed}.
+to represent it in logic. For example procedure `factorial' in
+Listing~\ref{lst:factorialTransformed} is the transformed version of
+procedure factorial in Listing~\ref{lst:factorialSimple}.
 
 Our analysis expects the following :
 \begin{enumerate}
-\item A procedure call statement is not a part of an expression. If
-  it is, partiton it into multiple statements.
-\item Continuation of above, recursive calls may affect global
+\item Expressions do not have procedure call statements as sub-expressions. If
+  so, partition it into multiple statements.
+\item Continuation of above, recursive calls may modify global
   variables and the variable assigned the return value. Procedure
-  calls must be over-approximated using `havoc' statements.
-\item In the previous steps `x = \foo(y)' is replaced with
-  `havoc(x)' followed by `assume x = F(y)'.
-\item After all this, the program should be converted to SSA form.
+  calls must be over-approximated using `havoc' statements. i.e `x =
+  \foo(y)' should be replaced with `havoc x' followed by `havoc g'
+  where `g' is a global variable accessed by the given program.
+\item Add statement `assume x = $\F$(y)' after
+  the statement `havoc(x)'.
+\item Finally, the program should be converted to SSA form.
 \end{enumerate}
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' from
       Listing~\ref{lst:factorialSimple} converted to the form our
-      approach expects}, label=lst:factorialTransformed]
+      approach expects. We refer to this procedure as `transformed
+      factorial'.}, label=lst:factorialTransformed]
 int g = -1;
 int factorial( int n) {
   if(n <= 1) {
@@ -577,20 +579,21 @@ int factorial( int n) {
 }
 \end{lstlisting}
 
-In Listing~\ref{lst:factorialTransformed}, in comparison to procedure
+In procedure `transformed factorial'
+Listing~\ref{lst:factorialTransformed}, in comparison to procedure
 `factorial' in Listing~\ref{lst:factorialSimple}, the return statement
-(line\# 4) is replaced by an assignment to \retVar (line\# 4). And in
-line\# 5 of the transformed code, an extra variable `gout' is added
-that captures the value of the global variable at the end of the
-program. Similarly, variable `gbef1' (at line\# 7, transformed code)
-is added to capture the value of the global variable before the
-procedure call, and variable `gaft1' is inserted at line\# 11 to
-capture the value of `g' after the procedure call. Also, havoc
-statements at line\# 8, 20 and 9, 21 over-approximate the return from
-the procedure call statement and updates to the global variable
-respectively. The procedure call statement is substituted with
-function symbols in line\# 10 and 22, accounting the given procedure
-as a function.
+(line 4) is replaced by an assignment to variable `\retVar' (line
+4). After line 5 of `transformed factorial', an extra variable `gout'
+is assigned the value of global variable `g' (value of `g' at end of
+program).  Similarly, variable `gbef1' (line 7, `transformed
+factorial') is added to capture the value of the global variable
+before the procedure call (a program boundary), and variable `gaft1'
+is inserted at line 11 to capture the value of `g' after the procedure
+call. Also, havoc statements at line 8, 20 and 9, 21 over-approximate
+the return from the procedure call statement and updates to the global
+variable respectively. The procedure call statement is substituted
+with function symbols in line 10 and 22, accounting the given
+procedure as a function.
 
 \subsection{Path Condition}
   %% The path condition $\pathCondition$ for a given procedure $\foo$
@@ -603,7 +606,7 @@ as a function.
 
 We need a representation of the given procedure in logic such that it
 captures the value of the argument, the return value and the values of
-the global variables at the boundries. We track the values of the
+the global variables at the boundaries. We track the values of the
 global variables using extra variables as explained in
 Section~\ref{sec:intermediate}.
 
@@ -627,9 +630,9 @@ Section~\ref{sec:intermediate}.
 \end{figure}
 
 In Figure~\ref{fig:pathCondition} each disjunct represents a
-straightline path in procedure `factorial'. For instace, $(n <= 1
+straight-line execution of procedure `factorial'. For instance, $(n <= 1
 \wedge retVar = 1 \wedge gout = g)$ represents the case where $n \leq
-1$. Hereonwards, we will only use this formula, $\pathCondition$ to
+1$. Here onwards, we will only use this formula, $\pathCondition$ to
 describe our analysis.
 
   %% The path condition $\pathCondition$ for procedure `\foo' is a
@@ -669,8 +672,13 @@ history.
   invariant represents the set of global states that may arise before
   and after each procedure call of the given procedure in a set of
   histories. Thus, if a procedure begins in a global state that
-  satisfies invariant $\inv$ then it also ends in a global state that
-  satisfies $\inv$. Some variables may be defined in terms of a
+  satisfies invariant $\inv$ then the state before the procedure call
+  also satisfies $\inv$. Also, assuming the inner recursive call ends
+  in a state statisfying $\inv$, the global state at the end of the
+  procedure also satisfies $\inv$.
+  %% it also ends in a global state that
+  %% satisfies $\inv$.
+  Some variables may be defined in terms of a
   function symbol $\F$, which in turn refers to the mathematical
   function that is equivalent to the given procedure.
   
