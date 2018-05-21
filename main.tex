@@ -31,6 +31,7 @@
 \newcommand{\gaft}{\textit{gaft}}
 \newcommand{\satisfies}{\vdash}
 \newcommand{\fact}{\mathit{fact}}
+\newcommand{\formula}{\mu}
 
 
 \lstdefinestyle{mystyle}{
@@ -678,10 +679,10 @@ history.
   An invariant $\inv$ represents the set of global states at the
   boundaries of a procedure. $\inv$ is a formula, with 
   global variables accessed by the given procedure and a uninterpreted
-  function symbol $\F$ as the set of free varibles.
+  function symbol $\F$ as the set of free variables.
   %% If a procedure begins in state that satisfies $\inv$, then it ends
   %% in a state that satisfies $\inv$.
-  Similar to requres and ensures, $\inv$ is assumed at the beginning
+  Similar to requires and ensures, $\inv$ is assumed at the beginning
   of a procedure and ensured at the end. Also, ensured before a
   procedure call and assumed after it.
   The uninterpreted function symbol $\F$ is a placeholder for the
@@ -775,7 +776,11 @@ n.2$.
       \OPCheckE
        & \mi{(\inv :
         invariant, \pathCondition : path \; condition)} \equiv \\
-      &\inv \wedge \pathCondition \wedge \retVar = \F(\n)\\
+      & (\forall g, n, \retVar, \gout, \gbef_1 \cdots \gbef_m, \gaft_1
+      \cdots \gaft_m)\\
+      &\inv \wedge \inv[\gaft_1/\g] \wedge \inv[\gaft_2/\g] \wedge
+      \cdots \inv[\gaft_m/\g] \\
+      &\wedge \pathCondition \implies \retVar = \F(\n)\\
     \end{align*}
     \caption{Existential check : produces a formula whose
       satisfiability implies the given procedure is observationally
@@ -784,30 +789,34 @@ n.2$.
   \end{algorithm}  
 \end{figure}
 
-%% \begin{figure}[htp]
-%%   \begin{algorithm}[H]
-%%     \begin{align*}
-%%       \OPCheckE & \mi{(\inv :
-%%         invariant, \pathCondition : path \; condition)} \equiv \\
-%%        (\forall & \g) (\forall \n) (\forall \retVar) (\forall \gout) &(1)\\
-%%        (\forall & \gbef_1) (\forall \gbef_2) \cdots(\forall \gbef_m) &(2)\\
-%%        (\forall & \gaft_1) (\forall \gaft_2) \cdots(\forall \gaft_m)
-%%       \{& (3)\\
-%%       & \inv \wedge \pathCondition \wedge & (4)\\
-%%       & \inv[\gaft_1/\g] \wedge \inv[\gaft_2/\g] \cdots \wedge
-%%       \inv[\gaft_m/\g] & (5)\\
-%%       & \implies (\retVar = \F(\n) \wedge \inv[\gout/\g] \wedge & (6) \\
-%%       & \inv[\gbef_1/\g] \wedge \inv[\gbef_2/\g] \cdots \wedge
-%%       \inv[\gbef_m/\g]) & (7) \\
-%%        \}&\\
-%%     \end{align*}
-%%     \caption{Existential check : produces a formula whose
-%%       satisfiability implies the given procedure is observationally
-%%       pure} 
-%%     \label{algo:someOPcheckCombined}
-%%   \end{algorithm}  
-%% \end{figure}
+The existential approach in Figure~\ref{algo:someOPcheckCombined}
+encodes a formula $\formula_e$. In formula $\formula_e$, the invariant
+is assumed at the beginning of the procedure, and after each procedure
+call ( $m$ procedure calls in total).  We abstract all the recursive
+procedure calls in the original procedure using function symbol $\F$
+in $\pathCondition$.  Next, the return value is constrained to be
+equivalent to $\F(n)$, where $n$ is the parameter value. Formula
+$\formula_e$ has a single free variable, $\F$ and it is equivalent to
+the return value from the procedure for all values of the parameter
+`n' and all values of the global variable `g' at the boundaries.
+Thus, if $\formula_e$ is SAT, it implies that there exists a function
+which mimics the given procedure in all cases.
 
+The check encoded in Figure~\ref{algo:someOPcheckCombined} cannot be
+expressed using standard requires and ensures statements (to the best
+of our knowledge). In the intra-procedural analysis, the validity of
+the ensures statements is verified. The statements `ensures x' and
+`requires y'are replaced by `assert x' and `assumes y'
+respectively. Next, the assume and assert statements along with the
+program are converted to a formula; checking if there the state
+$\neg$x is reachable at the assert statment. In our analysis, we check
+a weaker condition. We check if $\retVar = \F(n)$ is reachable. But
+this suffices safety for our analysis.
+
+%% In standard assertin checking, we check if there is a path in the
+%% program such that a state in $\neg$x is reachable for the statement
+%% `assert x'. Whereas in the existential check, we just check if there
+%% is a satisfying function for the respective formula. 
 \section{Impurity witness approach}
 \section{is invariant inductive}
 
