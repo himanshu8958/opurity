@@ -602,13 +602,19 @@ procedure as a function.
   %% arguments to the outgoing values of the global variables and the
   %% return value, while assuming the recursive procedure call (if there
   %% is one) to be to an OP procedure. The recursive procedure call is
-  %% represented as function symbol instead of inlining it.
+%% represented as function symbol instead of inlining it.
 
-We need a representation of the given procedure in logic such that it
-captures the value of the argument, the return value and the values of
-the global variables at the boundaries. We track the values of the
-global variables using extra variables as explained in
+We represent the given procedure in logic, such that it captures the
+value of the argument, the return value and the values of the global
+variables at the boundaries. We track the values of the global
+variables using extra variables as explained in
 Section~\ref{sec:intermediate}.
+
+%% We need a representation of the given procedure in logic such that it
+%% captures the value of the argument, the return value and the values of
+%% the global variables at the boundaries. We track the values of the
+%% global variables using extra variables as explained in
+%% Section~\ref{sec:intermediate}.
 
 \begin{figure}
   \begin{align*}
@@ -630,7 +636,8 @@ Section~\ref{sec:intermediate}.
 \end{figure}
 
 In Figure~\ref{fig:pathCondition} each disjunct represents a
-straight-line execution of procedure `factorial'. For instance, $(n <= 1
+straight-line execution of procedure `factorial' (from beginning,
+until end) . For instance, $(n <= 1
 \wedge retVar = 1 \wedge gout = g)$ represents the case where $n \leq
 1$. Here onwards, we will only use this formula, $\pathCondition$ to
 describe our analysis.
@@ -656,8 +663,9 @@ history.
 \begin{definition}[trace]
   A trace $\trace$ is a complete execution of the procedure starting
   from a given global state and a tuple of formal arguments. A trace
-  upon completion gives an end state and a return value. Traces may
-  have sub-traces, which by definition are traces (recursive calls).
+  upon completion gives an end state and a return value.\\ 
+ Traces may have sub-traces, which by definition are traces
+  (recursive calls).
 \end{definition}
 
 \begin{definition}[history]
@@ -667,50 +675,66 @@ history.
 \end{definition}
 
 \begin{definition}[invariant]
-  An invariant $\inv$ is a formula with function symbol $\F$ and the
-  global variables of the given procedure as free variables. The
-  invariant represents the set of global states that may arise before
-  and after each procedure call of the given procedure in a set of
-  histories. Thus, if a procedure begins in a global state that
-  satisfies invariant $\inv$ then the state before the procedure call
-  also satisfies $\inv$. Also, assuming the inner recursive call ends
-  in a state statisfying $\inv$, the global state at the end of the
-  procedure also satisfies $\inv$.
-  %% it also ends in a global state that
-  %% satisfies $\inv$.
-  Some variables may be defined in terms of a
-  function symbol $\F$, which in turn refers to the mathematical
-  function that is equivalent to the given procedure.
+  An invariant $\inv$ represents the set of global states at the
+  boundaries of a procedure. $\inv$ is a formula, with 
+  global variables accessed by the given procedure and a uninterpreted
+  function symbol $\F$ as the set of free varibles.
+  %% If a procedure begins in state that satisfies $\inv$, then it ends
+  %% in a state that satisfies $\inv$.
+  Similar to requres and ensures, $\inv$ is assumed at the beginning
+  of a procedure and ensured at the end. Also, ensured before a
+  procedure call and assumed after it.
+  The uninterpreted function symbol $\F$ is a placeholder for the
+  mathematical function equivalent to the given procedure. Thus, this
+  invariant assumes that the given procedure is a mathematical
+  function and is undefined otherwise.
+  %% An invariant $\inv$ is a formula with an uniterpreted function
+  %% symbol $\F$ and the global variables accessed by the given procedure
+  %% as free variables.
+  
+  %% Similar to requires and ensures clauses, $\inv$ holds before a
+  %% procedure call and it is assumed after the procedure call.
+  
+  %% %% It represents the set of global states that may
+  %% %% arise before and after each procedure call of the given procedure in
+  %% %% a set of histories. Thus, if a procedure begins in a global state
+  %% %% that satisfies invariant $\inv$ then the state before the procedure
+  %% %% call also satisfies $\inv$.
+  %% %% Also, assuming the inner recursive call
+  %% %% ends in a state statisfying $\inv$, the global state at the end of
+  %% %% the procedure also satisfies $\inv$.
+  %% %% it also ends in a global state that
+  %% %% satisfies $\inv$.
+  %% Some variables may be defined in terms of a
+  %% function symbol $\F$, which in turn refers to the mathematical
+  %% function that is equivalent to the given procedure.
   
   Let $\gstate$ be a global state, and $\F'$ be a function, and $\inv$
   be a invariant. If we substitute $\gstate$ for $g$ and $\F'$ for
   $\F$ in $\inv$, if $\inv[\gstate/g, \F'/\F]$ is true then, we say
   $(\gstate, \F') \satisfies \inv$. For instance let $\inv := g = -1
-  \vee g = \F(18) * 19$ then $(19!, \lambda n. n!) \satisfies \inv$.
+  \vee g = \F(18) * 3$ then $(3!, \lambda n. n!) \satisfies \inv$.
 \end{definition}
 
 Note : Representing recursive calls using function symbols allows us
 to come-up with an automated invariant generation algorithm.
 
-The invariant has a free variable, which represents the function
-equivalent to the given procedure. Thus, such an invariant assumes
-that the given procedure is a mathematical function. This invariant is
-not well defined if the given procedure is not a mathematical
-function. 
-
-As expressed in the introduction, a procedure is OP only for a given
-set of reachable global states. So, if procedure \foo is OP for
-invariant $\inv$ it will also be OP for $\inv'$ where $\inv' \implies
-\inv$ but $\inv'$ be not be inductive. But the procedure may not be OP
-for $\inv''$ where $\inv'' \implies \inv$.
+%% A procedure is OP only for a given
+%% set of reachable global states. So, if procedure $\foo$ is OP for
+%% invariant $\inv$ it will also be OP for $\inv'$ where $\inv' \implies
+%% \inv$ but $\inv'$ be not be inductive. But the procedure may not be OP
+%% for $\inv''$ where $\inv'' \implies \inv$.
 
 \section{Observational purity}
 \begin{definition}[observational purity(invariant $\inv$)]
-  A given set of procedures are observationally pure if in each
-  history starting from a state in invariant $\inv$, all traces of
-  each procedure return the same result if the argument value is the
-  same. 
-  %% with the same argument value return the same result.
+ A given set of procedures are observationally pure if in each history
+ starting from a state in invariant $\inv$, all traces of each
+ procedure with the same argument value return the same result.
+ 
+ %% procedure return the same result if the traces started with the same
+ %% argument value.
+ %% argument value is the same.
+ %% with the same argument value return the same result.
 \end{definition}
 
 \begin{lstlisting}[caption={Procedure `remember' : always returns the
@@ -729,14 +753,18 @@ int remember( int n) {
 
 Note: if in a history all traces return the same result for an
 argument value, then we can find a function $\F$ that respects the
-given procedure. Now as it turns out, if the invariant is set of
-concrete states then there is a unique function that is equivalent to
-the given procedure. The invariant we use allows multiple functions to
-be equivalent to the given procedure. For instance, procedure
-`remember' in Listing~\ref{lst:remember} mimics a constant function
-for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge init=1$. Whereas,
-for the invariant $\inv := g=0 \wedge init=0 \vee g=2 \wedge init=1$;
-we have $\F = \lambda n.2$.
+given procedure. But, the given procedure may mimic a different
+function $\F'$ in another history. If the invariant is set of concrete
+states then there is a unique function that is equivalent to the given
+procedure. But, our invariant allows function symbols. This allows an
+OP procedure to mimic different functions in different histories.
+%% The invariant we use allows multiple functions to
+%% be equivalent to the given procedure.
+For instance, procedure `remember' in Listing~\ref{lst:remember}
+mimics a constant function for $\inv := g=0 \wedge init=0 \vee g= \F()
+\wedge init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0
+\vee g=2 \wedge init=1$; the procedure mimics the function $\lambda
+n.2$.
 
 
 \section{Existential approach}
