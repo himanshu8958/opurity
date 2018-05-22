@@ -114,4 +114,6 @@ theme: Copenhagen
    * allow state changes in specifications
    * matrix chain multipication
    * can talk about JML ( maybe in the intro)
+
+
    
