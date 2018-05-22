@@ -105,4 +105,13 @@ theme: Copenhagen
       * example ( PC of transformed factorial)
       * Talk about the set of varialble you add for the boundries ( Ex : $g_{out}$, $g_{bef}$, )
       * quantification ( is it left for later)
-      * 
+      
+# may 21, 2018
+## Abstract
+   * specification language allowing procedures
+   * Invariant that assumes procedure as OP
+   * static analysis that terminates on SMT solver
+   * allow state changes in specifications
+   * matrix chain multipication
+   * can talk about JML ( maybe in the intro)
+   
