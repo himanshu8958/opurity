@@ -260,20 +260,25 @@
   %% Observational purity checks if a given procedure is a pure function
   %% of it's arguments modulo the side effects.
   (option 1)\\
-  A procedure that is a pure function of the arguments, modulo side
+  A procedure that is a pure function of its arguments modulo side
   effect to the global state is Observationally pure (OP). We present
   a pair of static analysis approaches that entail OPness. In-order to
   statically check OPness, we need an invariant on the global states
   at the boundaries of the procedure. Allowing the invariant to be
   defined in terms of the given procedure (assuming it is OP)
   simplifies invariant construction. This also allows us to
-  automatically check OPness for recursive procedures.\\
+  automatically check OPness for recursive procedures. \dots\\
 
   (option 2)\\ A specification language that includes procedure calls
   will greatly improve ease of expression. JML currently allows only
-  pure functions to be used in the specifications. We give A procedure
-  that is a pure function of the arguments modulo side effects on the
-  global state, this properly is Observational purity \dots
+  pure functions to be used in the specifications. This is overly
+  restrictive, as the procedure might have benign side effects.
+  We give a pair of static analysis techniques to check if a given
+  (potentially recursive, with side effects) procedure is a function
+  of it's arguments. \dots
+  %% We give A procedure
+  %% that is a pure function of the arguments modulo side effects on the
+  %% global state, this properly is Observational purity \dots
 
   %% (
   %% In this direction, we propose a definition that
