@@ -290,7 +290,7 @@
   
   %% A procedure that is a pure function of it's arguments is
   %% Observationally pure. 
-\keywords{static analysis, Program analysis}
+\keywords{static analysis, Program analysis, Observational purity}
 \end{abstract}
 
 \section{Introduction}
@@ -308,19 +308,18 @@ procedure is \textit{Observationally pure(OP)}.
 %% function of the argument values; independent of the value of the
 %% global variables.
 %% Essentially, we ensure
-Ensuring, existence of a mathematical function that mimics the given
-procedure and shares it's signature. Implying, input-output behaviour
-of the procedure is independent of any global state. This has many
-applications.  For instance, implementations of dynamic programming
-problems without the memoization would mimic the input-output
-behaviour as of the optimal implementations. Checking whether a given
-procedure is OP, is undecidable. In this paper, we propose a pair of
-static analysis techniques to check OPness that are sound but
-incomplete.
+Ensuring, existence of a mathematical function (function) that mimics
+the given procedure and shares it's signature. Implying, input-output
+behaviour of the procedure is independent of any global state. This
+has many applications.  For instance, implementations of dynamic
+programming problems without the memoization would mimic the
+input-output behaviour as of the optimal implementations. Checking
+whether a given procedure is OP, is undecidable. In this paper, we
+propose a pair of static analysis techniques to check OPness that are
+sound but incomplete.
 
-All logical and arithmetic operators are mathematical functions
-(function), and functional composition is closed under the set of
-functions. 
+All logical and arithmetic operators are functions, and functional
+composition is closed under the set of functions.
 %% this property of being a function is closed under
 %% composition.
 %% their composition is also a mathematical function
@@ -329,17 +328,17 @@ Hence, in the absence of global variables, all procedures
 are a function of their formal arguments. This paper focuses on
 checking if a procedure that access global variables is OP.
 
-OPness is a property of a procedure and the respective reachable
-global states.  Procedure `factorial' in
+OPness is a property of a procedure and the set of reachable global
+states at its boundaries. Procedure `factorial' in
 Listing~\ref{lst:factorialSimple} is OP if the global state is
-restricted to the set $\{g = -1, g = 3!\}$, and it mimics $\lambda
-n.n!$. But for the global states $\{g = 1, g = 3!\}$, procedure
-`factorial' is not a mathematical function. For argument value `$n =
-3$' it may return `1' or `3!'.  We assume that this set of global
-states can be represented in the underlying logic and we refer to it
-as \textit{invariant}.  The global states reachable at all boundaries,
-of each procedure call, of the given procedure must satisfy the
-invariant.
+restricted to the set $\{g = -1, g = 3!\}$, and it mimics the function
+$\lambda n.n!$. But for the global states $\{g = 1, g = 3!\}$,
+procedure `factorial' is not a mathematical function. For argument
+value `$n = 3$' it may return `1' or `3!'.  We assume that this set of
+global states can be represented in the underlying logic and we refer
+to it as \textit{invariant}.  The global states reachable at all
+boundaries, of each procedure call, of the given procedure must
+satisfy the invariant.
 %% The global states reachable at all the
 %% boundaries of the given procedure in all executions must satisfy the
 %% invariant.
@@ -347,23 +346,22 @@ invariant.
 %% for all procedure calls, the global state at the beginning of, as well
 %% as at the end of the procedure call must satisfy the invariant.
 
-To check if a given procedure is OP, we ensure that for all
-reachable global states, for each argument value, there is a single
-result. Now, this can be modelled using standard pre and post
-conditions. The pre condition holds at the beginning of the procedure
-and the post condition holds at its end. Both the pre condition and
-the post condition can be substituted by the invariant ( in-order to
-verify the invariant). This does
-not constrain the return value of the procedure. However, the return value
-from a recursive call might flow into a global variable. Thus,
-the return from the procedure must be modelled in the post condition;
-to re-establish $\inv$.
-For procedure `factorial' in Listing~\ref{lst:factorialSimple} we can
-use the invariant `$\inv : g = -1 \vee g = 6$' and the function
-`factorial' can be modelled as `$ f := k \leq 1 \implies \fact[k] == 1
-\wedge k >1 \implies \fact[k] == \fact[k-1]*k$'. Thus, the
-pre-condition is `$\inv$' and the post-condition is `$\inv \wedge f
-\wedge \retVar = fact[n]$'.
+To check if a given procedure is OP, we ensure that for all reachable
+global states, for each argument value, there is a single result. Now,
+this can be modelled using standard pre and post conditions. The pre
+condition holds at the beginning of the procedure and the post
+condition holds at its end. Both the pre condition and the post
+condition can be substituted by the invariant $\inv$ ( in-order to
+verify the invariant). This does not constrain the return value of the
+procedure. However, the return value from a recursive call may flow
+into a global variable. Thus, the return from the procedure must be
+modelled in the post condition; to re-establish $\inv$.  For procedure
+`factorial' in Listing~\ref{lst:factorialSimple} we can use the
+invariant `$\inv : g = -1 \vee g = 6$' and the function `factorial'
+can be modelled as `$ f := k \leq 1 \implies \fact[k] == 1 \wedge k >1
+\implies \fact[k] == \fact[k-1]*k$'. Thus, the pre-condition is
+`$\inv$' and the post-condition is `$\inv \wedge f \wedge \retVar =
+fact[n]$'.
 
 The above mentioned idea is valid (modulo usability). Its issues are
 (a) theorem provers often fail to prove such assertions (as is the
@@ -372,8 +370,8 @@ logic takes considerable effort.  Instead of formalizing the function
 for the given procedure, why not equate the result from the procedure
 to that of an uninterpreted function symbol?  And then, ask the
 question whether an assignment for the function symbol exists? If yes,
-then the procedure is OP otherwise, it is not OP.
-This is our existential approach.
+then the procedure is OP, otherwise it is not OP.  This is our
+existential approach.
 %% Now, this kind of a query is also hard for theorem provers. Later, we
 %% show another technique that borrows from this idea, and is able to
 %% prove procedures such as `factorial' in
@@ -404,8 +402,8 @@ then ask the question that do the two instances of the given procedure
 mimic each other, for all argument values, and all states satisfying
 the invariant? If yes, then we show that the given procedure is
 OP. Otherwise, we construct a witness to the impurity of the given
-procedure. We construct a pair of traces, such that both begin in a
-global state in the invariant, the same argument value but return
+procedure. We can construct a pair of traces, such that both begin in
+a global state in the invariant, the same argument value but return
 different results. We call this the `impurity witness approach'.
 %% Then, ask the question that does a
 %% pair of traces exist such that both start with the same parameter but
@@ -453,7 +451,8 @@ given procedure. In Section~\ref{sec:background}, we define OPness in
 a way such that non-termination does not cause non-OPness. OP is
 violated if for a given invariant on the reachable global states, for
 a given argument value there is a non-unique return value. And in-case
-of non-termination there isn't a return value.
+of non-termination there isn't a return value. Hence, a
+non-terminating procedure is OP.
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
       returns factorial of `n' and memoizes result for argument value
@@ -475,11 +474,11 @@ int factorial( int n) {
 
 %% Programmers on rely many library procedures to be mathematical
 %% function. For instance, procedures like `sine' and `cos'.
-One direct application of this work is automatic memoization.
-Dynamic programming algorithms (such as procedure `factorial' in
+One direct application of this work is automatic memoization.  Dynamic
+programming algorithms (such as procedure `factorial' in
 Listing~\ref{lst:factorialSimple}) use memoization to store
-pre-computed solutions to the sub-problem so that it can look-up the
-solution when needed, thus trading memory for compute time. Our
+pre-computed solutions to the sub-problem so that the results can be
+looked-up when needed, thus trading memory for compute time. Our
 technique can check if it is safe to memoize the results produced by a
 procedure. By safety, we refer to preserving the input-output
 behaviour. We propose two static analysis approaches to check this
@@ -506,24 +505,26 @@ simplify the analysis.
   we have a special variable `\retVar', which is assigned the return
   value.
 \item We analyze a single procedure in isolation and we assume that no
-  other procedure writes to the global variables accessed by `\foo'.
+  other procedure writes to the global variables accessed by procedure
+  `\foo'.
 \item All variable are defined before use, except global variables.
 \item All loops in procedure `\foo' are substituted with 
   recursive procedures.
 \item Variable assigned the return value in a procedure call
   statement is always a local variable.
 \end{itemize}
-Note : all of the above mentioned restrictions can be omitted. They
-are included for convenience.
+%% Note : all of the above mentioned restrictions can be omitted. They
+%% are for convenience.
 
-In Figure~\ref{fig:grammar} we present the grammar for the programming
+In Figure~\ref{fig:grammar}, we present the grammar for the programming
 language which we have assumed for our static analysis approaches.
 Most of the statements are standard statements borrowed from
 imperative languages, the rest we explain. The statement `havoc x'
-assigns any value to variable `x' from it's declared domain. And the
-statement `assume x' allows the execution of the program to proceed if
-the predicate `x' holds at the program point, otherwise it halts the
-execution.
+assigns any value from the domain of the variable `x' to variable `x'.
+%% to variable `x' from the declared domain of `x'
+And the statement `assume x' allows the execution of the program to
+proceed if the predicate `x' holds at the program point, otherwise it
+halts the execution.
 
 \begin{figure}[hb!]
   %% \includegraphics[trim={0 5cm  3cm 0}, width=6cm]{grammar.eps}
@@ -571,29 +572,50 @@ execution.
 \end{figure}
 
 \subsection{Our intermediate representation}\label{sec:intermediate}
-We transform the given procedure into the following representation to
-be able to represent it in logic. For example procedure `factorial' in
-Listing~\ref{lst:factorialTransformed} is the transformed version of
+We transform the given procedure into the following representation
+inorder to represent it in logic.
+%% to
+%% be able to represent it in logic.
+For example procedure `factorial' in
+Listing~\ref{lst:factorialTransformed}, is the transformed version of
 procedure `factorial' in Listing~\ref{lst:factorialSimple}.
 
 Our analysis expects the following :
 \begin{enumerate}
-\item Expressions do not have procedure call statements as sub-expressions. If
-  so, partition it into multiple statements.
-\item Continuation of above, recursive calls may modify global
-  variables. Also, the variable assigned the return value from the
-  procedure call gets modified. Procedure calls must be
-  over-approximated using `havoc' statements. i.e `x = \foo(y)' is
-  replaced with `havoc x' followed by `havoc g' where `g' is a
-  global variable accessed by the given program.
-\item We add the statement `assume x = $\F$(y)' after the statement
-  `havoc(x)'.
-\item Next, we add extra variables to store the value of the global
-  variables at the procedure boundaries. Before the $\mathit{i^{th}}$
+\item Expressions do not have procedure call statements as
+  sub-expressions. 
+  %% If
+  %% so, partition it into multiple statements.
+\item Procedure calls are approximated using function symbols. The
+  statement `x = \foo(y)' is replaced with `x = \F(y)'. Since
+  procedure calls may modify global variables, we add the statement
+  `havoc g' for each global variable `g' accessible from the
+  procedure.
+  
+  %% A
+  %% procedure call may modify global variables, thus we add the
+  %% statement `havoc g' for all global variables `g' accessible from the
+  %% procedure.
+%% \item Continuation of above, recursive calls may modify global
+%%   variables. Also, the variable assigned the return value from the
+%%   procedure call gets modified. Procedure calls must be
+%%   over-approximated using `havoc' statements. i.e `x = \foo(y)' is
+%%   replaced with `havoc x' followed by `havoc g' where `g' is a
+%%   global variable accessed by the given procedure.
+%% \item 
+%%   We add the statement `assume x = $\F$(y)' after the statement
+%%   `havoc(x)'.
+\item Next, the procedure must have extra variables to store the value
+  of global variables at procedure boundaries.
+  %% we add extra variables to store the value of the global
+  %% variables at the procedure boundaries.
+  Before the $\mathit{i^{th}}$
   procedure call, we add the statement `gbef$_i$ = g' and after it we
-  add `gaft$_i$ = g'. Similarly, we add the statement `gout = g',
+  add `gaft$_i$ = g'. Similarly, we add the statement `gout = g'
   after the assignment to the variable `\retVar'.
-\item Finally, the program should be converted to SSA form.
+\item The procedure should be in SSA form. The procedure should be
+  converted to SSA after the above mentioned points have been
+  satisfied.
 \end{enumerate}
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' from
@@ -607,9 +629,8 @@ int factorial( int n) {
     gout = g;
   } else if(g == -1 && n == 19) {
     gbef1 = g;
-    havoc(temp1); 
+    temp1 = F(18);  // temp1 = factorial(18)
     havoc(g1);
-    assume(temp1 = F(18));  // temp1 = factorial(18)
     gaft1 = g1;
     g2 = 19 * temp1;
     retVar = g2;
@@ -619,9 +640,8 @@ int factorial( int n) {
     gout = g;
   } else {
     gbef2 = g;
-    havoc(temp2);
-    havoc(g1);
-    assume(temp2 = F( n - 1 ));  //temp2 = factorial(n-1)
+    temp2 = F( n - 1 );  //temp2 = factorial(n-1)
+    havoc(g1);    
     gaft2 = g1;
     retVar = n * temp2;
     gout = g1;
@@ -629,27 +649,42 @@ int factorial( int n) {
 }
 \end{lstlisting}
 
-In procedure `transformed factorial'
-Listing~\ref{lst:factorialTransformed}, in comparison to procedure
-`factorial' in Listing~\ref{lst:factorialSimple}, the return statement
-(line 4) is replaced by an assignment to variable `\retVar' (line
-4). After line 5 of `transformed factorial', an extra variable `gout'
-is assigned the value of global variable `g' (value of `g' at end of
-program).  Similarly, variable `gbef1' (line 7, `transformed
-factorial') is added to capture the value of the global variable
-before the procedure call (a program boundary), and variable `gaft1'
-is inserted at line 11 to capture the value of `g' after the procedure
-call. Also, havoc statements at line 8, 20 and 9, 21 over-approximate
-the return from the procedure call statement and updates to the global
-variable respectively. The procedure call statement is substituted
-with function symbols in line 10 and 22, accounting the given
-procedure as a function.
+%% In procedure `transformed factorial'
+%% Listing~\ref{lst:factorialTransformed}, in comparison to procedure
+%% `factorial' in Listing~\ref{lst:factorialSimple}, the return statement
+%% (line 4) is replaced by an assignment to variable `\retVar' (line
+%% 4). After line 5 of `transformed factorial', an extra variable `gout'
+%% is assigned the value of global variable `g' (value of `g' at end of
+%% program).  Similarly, variable `gbef1' (line 7, `transformed
+%% factorial') is added to capture the value of the global variable
+%% before the procedure call (a program boundary), and variable `gaft1'
+%% is inserted at line 11 to capture the value of `g' after the procedure
+%% call. Also, havoc statements at line 8, 20 and 9, 21 over-approximate
+%% the return from the procedure call statement and updates to the global
+%% variable respectively. The procedure call statement is substituted
+%% with function symbols in line 10 and 22, accounting the given
+%% procedure as a function.
+
+Now comparing procedure `transformed factorial' and procedure
+`factorial' from Listings~\ref{lst:factorialTransformed} and
+\ref{lst:factorialSimple} respectively. The return statement (line 4)
+in procedure `factorial' is replaced by assignment to variable
+`\retVar' (line 4). Also, we have an added statement (line #5) in
+`transformed factorial', an assignment statement to `gout'; inorder to
+store the value of variable `g' at the procedure boundary. Similarly,
+variable `gbef1' (line 7) is added in `transformed factorial' to
+capture the value of the global variable before the procedure call and
+assignment to variable `gaft1' is inserted at line 11 to capture the
+value of `g' after the procedure call. Also, havoc statements at line
+9 and 20 over-approximate any side effects to the global
+variables. And in lines 8 and 19, the procedure call statements are
+substituted for function symbols.
 
 \subsection{Path Condition}
-We represent the given procedure in logic, such that it captures the
-value of the argument, the return value and the values of the global
-variables at the boundaries. We track the values of the global
-variables using extra variables as explained in
+For our analysis we represent the given procedure in logic, such that
+it captures the value of the argument, the return value and the values
+of the global variables at the boundaries. We track the values of the
+global variables using extra variables as explained in
 Section~\ref{sec:intermediate}.
 
 \begin{figure}
@@ -671,7 +706,7 @@ Section~\ref{sec:intermediate}.
   \label{fig:pathCondition}
 \end{figure}
 
-In Figure~\ref{fig:pathCondition} each disjunct represents a
+In Figure~\ref{fig:pathCondition}, each disjunct represents a
 straight-line execution of procedure `factorial' (from beginning,
 until end) . For instance, $(n <= 1
 \wedge retVar = 1 \wedge gout = g)$ represents the case where $n \leq
@@ -847,7 +882,7 @@ at the program point.
 %% $\neg$x is reachable at the assert statement.
 In our analysis, we check
 a weaker condition. We check if $\retVar = \F(n)$ is reachable. But
-this suffices safety for our analysis.
+this suffices for our analysis.
 
 %% In standard assertin checking, we check if there is a path in the
 %% program such that a state in $\neg$x is reachable for the statement
