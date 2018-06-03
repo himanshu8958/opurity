@@ -587,7 +587,7 @@ Our analysis expects the following :
   %% If
   %% so, partition it into multiple statements.
 \item Procedure calls are approximated using function symbols. The
-  statement `x = \foo(y)' is replaced with `x = \F(y)'. Since
+  statement `x = \foo(y)' is replaced with `x = $\F$(y)'. Since
   procedure calls may modify global variables, we add the statement
   `havoc g' for each global variable `g' accessible from the
   procedure.
@@ -669,7 +669,7 @@ Now comparing procedure `transformed factorial' and procedure
 `factorial' from Listings~\ref{lst:factorialTransformed} and
 \ref{lst:factorialSimple} respectively. The return statement (line 4)
 in procedure `factorial' is replaced by assignment to variable
-`\retVar' (line 4). Also, we have an added statement (line #5) in
+`\retVar' (line 4). Also, we have an added statement (line 5) in
 `transformed factorial', an assignment statement to `gout'; inorder to
 store the value of variable `g' at the procedure boundary. Similarly,
 variable `gbef1' (line 7) is added in `transformed factorial' to
