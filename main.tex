@@ -12,6 +12,7 @@
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{syntax}
+\usepackage{amssymb}
 \newcommand{\foo}{\textit{foo}}
 \newcommand{\trace}{\pi}
 \newcommand{\inv}{\mathit{inv}}
@@ -32,7 +33,7 @@
 \newcommand{\satisfies}{\vdash}
 \newcommand{\fact}{\mathit{fact}}
 \newcommand{\formula}{\mu}
-
+\newcommand{\integer}{\mathbb{N}}
 
 \lstdefinestyle{mystyle}{
   basicstyle=\footnotesize, 
@@ -259,23 +260,27 @@
 
   %% Observational purity checks if a given procedure is a pure function
   %% of it's arguments modulo the side effects.
-  (option 1)\\
-  A procedure that is a pure function of its arguments modulo side
-  effect to the global state is Observationally pure (OP). We present
-  a pair of static analysis approaches that entail OPness. In-order to
-  statically check OPness, we need an invariant on the global states
-  at the boundaries of the procedure. Allowing the invariant to be
-  defined in terms of the given procedure (assuming it is OP)
-  simplifies invariant construction. This also allows us to
-  automatically check OPness for recursive procedures. \dots\\
+  %% (option 1)\\
+  %% A procedure that is a pure function of its arguments modulo side
+  %% effect to the global state is Observationally pure (OP). We present
+  %% a pair of static analysis approaches that entail OPness. In-order to
+  %% statically check OPness, we need an invariant on the global states
+  %% at the boundaries of the procedure. Allowing the invariant to be
+  %% defined in terms of the given procedure (assuming it is OP)
+  %% simplifies invariant construction. This also allows us to
+  %% automatically check OPness for recursive procedures. \dots\\
 
-  (option 2)\\ A specification language that includes procedure calls
+  %% (option 2)\\
+  A specification language that includes procedure calls
   will greatly improve ease of expression. JML currently allows only
-  pure functions to be used in the specifications. This is overly
-  restrictive, as the procedure might have benign side effects.
+  pure procedures to be used in the specifications. This is overly
+  restrictive, as the procedure might have benign side effects, which
+  are not observable to other procedures.
   We give a pair of static analysis techniques to check if a given
   (potentially recursive, with side effects) procedure is a function
-  of it's arguments. \dots
+  of it's arguments.
+
+  
   %% We give A procedure
   %% that is a pure function of the arguments modulo side effects on the
   %% global state, this properly is Observational purity \dots
@@ -304,21 +309,22 @@ deep understanding of the procedure's (expected) functionality.
 %% procedure.
 In this paper, we talk about a general property that is a necessary
 condition for the correctness of many procedures. If the return value
-from a procedure is dependent only on the formal arguments, the given
+from a procedure is dependent only on the formal arguments even if the
+procedure reads/writes to global variables, the given
 procedure is \textit{Observationally pure(OP)}.
 %% Thus, OP procedures return equivalent to a mathematical
 %% function of the argument values; independent of the value of the
 %% global variables.
 %% Essentially, we ensure
-Ensuring, existence of a mathematical function (function) that mimics
-the given procedure and shares it's signature. Implying, input-output
-behaviour of the procedure is independent of any global state. This
-has many applications.  For instance, implementations of dynamic
-programming problems without the memoization would mimic the
-input-output behaviour as of the optimal implementations. Checking
-whether a given procedure is OP, is undecidable. In this paper, we
-propose a pair of static analysis techniques to check OPness that are
-sound but incomplete.
+Thus ensuring the existence of a mathematical-function (function) that
+mimics the given procedure. Implying, input-output behaviour of the
+procedure is independent of any global state. This has many
+applications. For instance, implementations of dynamic programming
+problems without memoization would mimic the input-output
+behaviour of the implementations with memoization. Checking whether a given
+procedure is OP, is undecidable. In this paper, we propose a pair of
+static analysis techniques to check OPness that are sound but
+incomplete.
 
 All logical and arithmetic operators are functions, and functional
 composition is closed under the set of functions.
@@ -360,10 +366,10 @@ into a global variable. Thus, the return from the procedure must be
 modelled in the post condition; to re-establish $\inv$.  For procedure
 `factorial' in Listing~\ref{lst:factorialSimple} we can use the
 invariant `$\inv : g = -1 \vee g = 6$' and the function `factorial'
-can be modelled as `$ f := k \leq 1 \implies \fact[k] == 1 \wedge k >1
-\implies \fact[k] == \fact[k-1]*k$'. Thus, the pre-condition is
+can be modelled as `$ f := k \leq 1 \implies \fact[k] = 1 \wedge k >1
+\implies \fact[k] = \fact[k-1]*k$'. Thus, the pre-condition is
 `$\inv$' and the post-condition is `$\inv \wedge f \wedge \retVar =
-fact[n]$'.
+fact[n]$' where $\retVar$ is the return variable.
 
 The above mentioned idea is valid (modulo usability). Its issues are
 (a) theorem provers often fail to prove such assertions (as is the
@@ -380,7 +386,7 @@ existential approach.
 %% Listing~\ref{lst:factorialSimple} to be OP.
 
 Abstracting using function symbols goes a long way. It helps in
-representing the post-condition is an easy manner, also it aids in
+representing the post-condition in an easy manner and also it aids in
 describing the invariant. 
 %% also in describing the invariant on the global states.
 %% The result from a recursive procedure call may flow to a global
@@ -392,8 +398,8 @@ describing the invariant.
 For procedure `factorial', we can use the invariant $\inv_{\F}:=g = -1
 \vee g = \F(2) * 3$. The symbol $\F(2)$ in the invariant represents
 the return value for argument $n = 2$ from the procedure `factorial'
-assuming it is a mathematical function. Note that invariant used here
-is valid if the given procedure is OP, otherwise it is not well
+assuming it is a mathematical function. Note that the invariant used
+here is valid if the given procedure is OP, otherwise it is not well
 defined.
 
 %% should I talk about why F(2) *3 instead of F(3) ?
@@ -412,7 +418,7 @@ different results. We call this the `impurity witness approach'.
 %% return different results. We call this the impurity witness
 %% approach
 This approach also makes use of  invariant with uninterpreted function
-symbols same as the previous approach.
+symbols like the previous approach.
 
 %% This invariant over the global variables, can optimistically
 %% assume that the given procedure is observationally pure, this is a
@@ -518,11 +524,12 @@ simplify the analysis.
 %% Note : all of the above mentioned restrictions can be omitted. They
 %% are for convenience.
 
-In Figure~\ref{fig:grammar}, we present the grammar for the programming
-language which we have assumed for our static analysis approaches.
-Most of the statements are standard statements borrowed from
-imperative languages, the rest we explain. The statement `havoc x'
-assigns any value from the domain of the variable `x' to variable `x'.
+In Figure~\ref{fig:grammar}, we present the grammar for the
+programming language which we have assumed for our static analysis
+approaches.  Most of the statements are standard statements borrowed
+from imperative languages. The rest of them are explained next. The
+statement `havoc x' assigns any value from the domain of the variable
+`x' to variable `x'.
 %% to variable `x' from the declared domain of `x'
 And the statement `assume x' allows the execution of the program to
 proceed if the predicate `x' holds at the program point, otherwise it
@@ -575,7 +582,7 @@ halts the execution.
 
 \subsection{Our intermediate representation}\label{sec:intermediate}
 We transform the given procedure into the following representation
-inorder to represent it in logic.
+in-order to represent it in logic.
 %% to
 %% be able to represent it in logic.
 For example procedure `factorial' in
@@ -672,7 +679,7 @@ Now comparing procedure `transformed factorial' and procedure
 \ref{lst:factorialSimple} respectively. The return statement (line 4)
 in procedure `factorial' is replaced by assignment to variable
 `\retVar' (line 4). Also, we have an added statement (li5) in
-`transformed factorial', an assignment statement to `gout'; inorder to
+`transformed factorial', an assignment statement to `gout'; in-order to
 store the value of variable `g' at the procedure boundary. Similarly,
 variable `gbef1' (line 7) is added in `transformed factorial' to
 capture the value of the global variable before the procedure call and
@@ -833,7 +840,7 @@ mimics a constant function for $\inv := g=0 \wedge init=0 \vee g= \F()
 \vee g=2 \wedge init=1$; the procedure mimics the function $\lambda
 n.2$.
 
-\section{Existential approach}
+\section{Existential approach}\label{sec:existential}
 
 \begin{figure}[htp]
   \begin{algorithm}[H]
@@ -891,7 +898,7 @@ this suffices for our analysis.
 %% program such that a state in $\neg$x is reachable for the statement
 %% `assert x'. Whereas in the existential check, we just check if there
 %% is a satisfying function for the respective formula. 
-\section{Impurity witness approach}
+\section{Impurity witness approach}\label{sec:impurityWitness}
 
 \begin{figure}[htp]
   \begin{algorithm}[H]
@@ -931,20 +938,74 @@ the given procedure exists such that the traces start with the same
 parameter value, and potentially different values for the global
 variables return different results, then the procedure is not OP. In
 this case, we have a witness to the non-OPness of the given
-proceudre. Otherwise, we prove that the given proceudre is OP.
+procedure. Otherwise, we prove that the given procedure is OP.
 
 The check encoded in Figure~\ref{algo:pairwiseOPcheckCombined}, cannot
-be expressed in standard requires and ensures ( again, to the best of
+be expressed in standard requires and ensures (again, to the best of
 our knowledge). As the approach compares the given procedure with
-itself, standard approaches do not suffice. But works such as
-\cite{lahiri2013differential} can be extened to express this condition. 
+itself, standard requires and ensures do not suffice. But works such as
+\cite{lahiri2013differential} can be extended to express this. 
+
 
 \section{Comparing the two approaches}
-\section{Experimental Results}
-\section{Related work}
-in paper ~\cite{leino2008boogie} heello
 
-\section{Conclusions}
+\begin{lstlisting}[caption={Procedure `bar': illustrates that
+      existential approach is more precise that the impurity witness
+      approach.}, label=lst:comparison]
+int bar(int n) { 
+  return g; 
+}
+\end{lstlisting}
+
+The existential approach in Section~\ref{sec:existential} is more
+precise than the impurity witness approach in
+Section~\ref{sec:impurityWitness}. Existential approach is an
+optimistic whereas the impurity witness is a pessimistic approach. For
+instance in procedure `bar' in Listing~\ref{lst:comparison}, is
+observationally pure for the invariant $(g = \F(0) \vee g = \F(1))$
+and it mimics the mathematical function $\forall n. \F(0) = \F(1) =
+\F(n)$ (thus, it must be a a constant function). Now, the existential
+approach marks this procedure as OP whereas the impurity witness
+approach marks it as non-OP.
+
+Al thought the existential approach is more precise, the impurity
+witness approach performs better with SAT-SMT solvers. In case of the
+existential approach the solver has to find a satisfying assignment
+for the free variable $\F$. Whereas, in case of the impurity witness
+approach, the inequivalence is contradicted (if procedure is OP) using
+FOL with interpreted functions.
+
+\section{Experimental Results}
+
+\section{Conclusion}
+\subsection{Related work}
+JML does not allow any side-effects for Library procedures, thus
+specifiers use pure replacements instead. Barnett defines
+Observational purity~\cite{barnett200499} but their work cannot prove
+self recursive procedures to be OP and also need user
+annotations. They use a information flow based technique to prove OP
+of procedures.
+
+The idea of comparing a program to itself~\cite{lahiri2013differential},
+\cite{partush2013abstract} is closely related to the impurity witness
+approach. DAC~\cite{lahiri2013differential} uses this idea for
+finding the assertions that failed in a version of a program with
+respect to another version. Whereas, Partush and
+Yahav~\cite{partush2013abstract} focus on finding the parameter values
+for which the two versions of the procedure differ.
+
+Naumann~\cite{naumann2007observational} like
+\cite{barnett2006allowing} call a procedure OP if it is
+output-equivalent to a procedure which is a pure function (without
+side-effects). These works present/use a theory for simulations,
+closely related to ownership types.
+
+Cok~\cite{cok2008extensions} take a different approach of restricting
+the programming language in order to make OP checking simpler. In the
+restricted language called Joe-E, OP methods have all objects reachable
+from the parameters marked as immutable
+\subsection{Future work}
+
 %
 
 %
