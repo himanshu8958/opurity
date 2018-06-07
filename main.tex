@@ -320,7 +320,7 @@ Thus ensuring the existence of a mathematical-function (function) that
 mimics the input-output behaviour of the given procedure. Thus, the
 input-output behaviour of the procedure is independent of the global
 state. This has many applications. For instance, non-optimal
-implimentations of dynamic programming algorithms that do not use
+implementations of dynamic programming algorithms that do not use
 memoization can be refactored to use memoization automatically.
 %% implementations of
 %% dynamic programming problems without memoization mimic the
@@ -374,7 +374,7 @@ can be modelled as `$ f := k \leq 1 \implies \fact[k] = 1 \wedge k >1
 \implies \fact[k] = \fact[k-1]*k$'. Thus, the pre-condition is
 `$\inv$' and the post-condition is `$\inv \wedge f \wedge \retVar =
 fact[n]$' where $\retVar$ is the return variable. This post-condition
-will not only check the validity of the invariat but also that the
+will not only check the validity of the invariant but also that the
 given procedure is OP. 
 
 The above mentioned idea is valid (modulo usability). Its issues are
@@ -684,7 +684,7 @@ Now comparing procedure `transformed factorial' and procedure
 `factorial' from Listings~\ref{lst:factorialTransformed} and
 \ref{lst:factorialSimple} respectively. The return statement (line 4)
 in procedure `factorial' is replaced by assignment to variable
-`\retVar' (line 4). Also, we have an added statement (li5) in
+`\retVar' (line 4). Also, we have an added statement (line 5) in
 `transformed factorial', an assignment statement to `gout'; in-order to
 store the value of variable `g' at the procedure boundary. Similarly,
 variable `gbef1' (line 7) is added in `transformed factorial' to
@@ -1008,7 +1008,7 @@ this work is closely related but they solve a different problem.
 
 Cok~\cite{cok2008extensions} builds upon Barnett's
 work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
-partitoning the set of methods into ``pure'', ``secret'' and ``query''
+partitioning the set of methods into ``pure'', ``secret'' and ``query''
 methods, each scoped to a particular data group. The query methods are
 OP. They give a set of rules to be followed by methods in each
 group. Thus, structuring for modular reasoning about OPness.
