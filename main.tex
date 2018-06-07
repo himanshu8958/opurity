@@ -290,7 +290,9 @@
   
   %% A procedure that is a pure function of it's arguments is
   %% Observationally pure. 
-\keywords{static analysis, Program analysis, Observational purity}
+\keywords{specification languages, documentation tools, observational
+  purity, pure method, formal methods, program verification,
+  programming by contract, static analysis}
 \end{abstract}
 
 \section{Introduction}
@@ -669,7 +671,7 @@ Now comparing procedure `transformed factorial' and procedure
 `factorial' from Listings~\ref{lst:factorialTransformed} and
 \ref{lst:factorialSimple} respectively. The return statement (line 4)
 in procedure `factorial' is replaced by assignment to variable
-`\retVar' (line 4). Also, we have an added statement (line 5) in
+`\retVar' (line 4). Also, we have an added statement (li5) in
 `transformed factorial', an assignment statement to `gout'; inorder to
 store the value of variable `g' at the procedure boundary. Similarly,
 variable `gbef1' (line 7) is added in `transformed factorial' to
@@ -839,11 +841,11 @@ n.2$.
       \OPCheckE
        & \mi{(\inv :
         invariant, \pathCondition : path \; condition)} \equiv \\
-      & (\forall g, n, \retVar, \gout, \gbef_1 \cdots \gbef_m, \gaft_1
-      \cdots \gaft_m)\\
       &\inv \wedge \inv[\gaft_1/\g] \wedge \inv[\gaft_2/\g] \wedge
       \cdots \inv[\gaft_m/\g] \\
-      &\wedge \pathCondition \implies \retVar = \F(\n)\\
+      &\wedge \pathCondition \implies ( \retVar = \F(\n)\\
+            & \wedge \inv[\gout/\g] \wedge  \inv[\gbef_1/\g] \wedge
+      \inv[\gbef_2/\g] \wedge \cdots inv[\gbef_m/\g]) \\
     \end{align*}
     \caption{Existential check : produces a formula whose
       satisfiability implies the given procedure is observationally
@@ -851,6 +853,7 @@ n.2$.
     \label{algo:someOPcheckCombined}
   \end{algorithm}  
 \end{figure}
+
 
 The existential approach in Figure~\ref{algo:someOPcheckCombined}
 encodes a formula $\formula_e$. In formula $\formula_e$, the invariant
@@ -889,23 +892,57 @@ this suffices for our analysis.
 %% `assert x'. Whereas in the existential check, we just check if there
 %% is a satisfying function for the respective formula. 
 \section{Impurity witness approach}
-\section{is invariant inductive}
 
-%% \begin{figure}[htp]
-%%   \begin{algorithm}[H]
-%%     \begin{align*}
-%%       is-Inductive & \mi{(\inv :
-%%         invariant, \pathCondition : path \; condition)} \equiv \\
-%%       &\inv \wedge \pathCondition \implies \inv[\g'/\g]
-%%     \end{align*}
-%%     \caption{Is Inductive: is true iff the given invariant is inductive} 
-%%     \label{algo:someOPcheckCombined}
-%%   \end{algorithm}  
-%% \end{figure}
+\begin{figure}[htp]
+  \begin{algorithm}[H]
+    \begin{align*}
+      \OPCheckA &\mi{(\inv : invariant,
+        \pathCondition: path\; condition)} \equiv &\\
+      &\inv[\g_\alpha/\g] \wedge \inv[\g_\beta/\g]  & (1)\\
+      & \wedge \inv[\gaft_{\alpha1}/\g] \wedge
+      \inv[\gaft_{\alpha2}/\g] \cdots \wedge \inv[\gaft_{\alpha m}/\g]
+      & (2)\\
+      & \wedge \inv[\gaft_{\beta1}/\g] \wedge \inv[\gaft_{\beta2}/\g]
+      \cdots \wedge \inv[\gaft_{\beta m}/\g] & (3)\\
+      &\wedge \n_\alpha = \n_\beta  & (4)\\
+      &\wedge \pathCondition[\g_\alpha/\g, \n_\alpha/\n, \retVar_\alpha/\retVar,
+        \gout_\alpha/\gout, & (5)\\
+        &\gbef_{\alpha1}/\gbef_1 \cdots, \gaft_{\alpha 1}/\gaft_1, \cdots
+        \gaft_{\alpha m}/\gaft_m]  & (6)\\
+      &\wedge \pathCondition[\g_\beta/\g, \n_\beta/\n, \retVar_\beta/\retVar,
+        \gout_\beta/\gout, & (7)\\
+        &\gbef_{\beta1}/\gbef_1 \cdots, \gaft_{\beta 1}/\gaft_1, \cdots
+        \gaft_{\beta m}/\gaft_m] & (8)\\
+      &\wedge (\retVar_\alpha \neq \retVar_\beta \vee \neg\inv[\gbef_{\alpha1}/\g] \vee
+       \cdots \neg\inv[\gbef_{\alpha m}/\g] & (9) \\
+        &\vee \neg\inv[\gout_\alpha/\g])  & (10)\\
+    \end{align*}
+    \caption{Impurity witness : produces a formula whose unsatisfiability
+    implies observational purity.}
+    \label{algo:pairwiseOPcheckCombined}
+  \end{algorithm}  
+\end{figure}
 
-\subsection{Comparing the two approaches}
-\section{Comparison of Impurity witness approach with other approaches}
-The goal of this section is to 
+The impurity witness approach in
+Figure~\ref{algo:pairwiseOPcheckCombined} encodes a formula
+$\formula_{iw}$. If $\formula_{iw}$ is UNSAT the given procedure is
+OP. The idea encoded in $\formula_{iw}$ is that if a pair of traces of
+the given procedure exists such that the traces start with the same
+parameter value, and potentially different values for the global
+variables return different results, then the procedure is not OP. In
+this case, we have a witness to the non-OPness of the given
+proceudre. Otherwise, we prove that the given proceudre is OP.
+
+The check encoded in Figure~\ref{algo:pairwiseOPcheckCombined}, cannot
+be expressed in standard requires and ensures ( again, to the best of
+our knowledge). As the approach compares the given procedure with
+itself, standard approaches do not suffice. But works such as
+\cite{lahiri2013differential} can be extened to express this condition. 
+
+\section{Comparing the two approaches}
+\section{Experimental Results}
+\section{Related work}
+in paper ~\cite{leino2008boogie} heello
 
 \section{Conclusions}
 %
@@ -913,15 +950,18 @@ The goal of this section is to
 %
 % ---- Bibliography ----
 %
-\begin{thebibliography}{5}
-%
-\bibitem {clar:eke}
-Clarke, F., a, I.:
-Nonlinear oscillations and
-boundary-value problems for Hamiltonian systems.
-Arch. Rat. a. Anal. 78, 315--333 (1982)
+%% \bibliographystyle{plainnat}
+\bibliographystyle{splncs}
+\bibliography{references}
+%% \begin{thebibliography}{5}
+
+%% \bibitem {clar:eke}
+%% Clarke, F., a, I.:
+%% Nonlinear oscillations and
+%% boundary-value problems for Hamiltonian systems.
+%% Arch. Rat. a. Anal. 78, 315--333 (1982)
 
 
-\end{thebibliography}
+%% \end{thebibliography}
 
 \end{document}

@@ -1,5 +1,5 @@
 ---
-title: Structure of information for ATVA Paper
+title: Structure of manuscript
 author: Himanshu
 theme: Copenhagen
 ---
