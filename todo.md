@@ -20,4 +20,5 @@ theme: Copenhagen
    David R cok ( Extensions of the theory of OP ...)
    * the above mentioned paper uses the terms opure and opurity, can
    we use the same terms?
-7. read cok paper
+7. read cok paper		(done)
+8. talk about why F(2) *3 instead of F(3). 
