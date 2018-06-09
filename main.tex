@@ -7,6 +7,8 @@
 %
 \usepackage{makeidx}  % allows for indexgeneration
 %% himanshu
+\usepackage[title]{appendix}
+
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{amsmath}
@@ -34,6 +36,22 @@
 \newcommand{\fact}{\mathit{fact}}
 \newcommand{\formula}{\mu}
 \newcommand{\integer}{\mathbb{N}}
+\newcommand{\vci}[2]{\mathit{valid \mhyphen consistent \mhyphen
+    invariant(#1, #2)}}
+\newcommand{\atEntry}[1]{\mathit{at \mhyphen entry(#1)}}
+\newcommand{\beforeCall}[1]{\mathit{before \mhyphen call(#1)}}
+\newcommand{\return}[1]{\mathit{return(#1)}}
+\newcommand{\atEnd}[1]{\mathit{at \mhyphen end(#1)}}
+\newcommand{\tSegment}{\tau}
+\newcommand{\param}[1]{\mathit{argument(#1)}}
+\newcommand{\segDepth}[2]{\mathit{segment \mhyphen depth(#1, #2)}} %trace, segment
+\newcommand{\subTrace}{\pi_{sub}}
+\newcommand{\segment}[2]{\mathit{segment(#1, #2)}} %trace, N
+\newcommand{\pairFormula}{\mathit{f_{pairwise}}}
+\newcommand{\depth}[1]{\mathit{depth(#1)}}
+\newcommand{\level}[1]{\mathit{level(#1)}}
+\newcommand{\state}{\sigma}
+\newcommand{\afterCall}[1]{\mathit{after \mhyphen call(#1)}} 
 
 \lstdefinestyle{mystyle}{
   basicstyle=\footnotesize, 
@@ -283,13 +301,13 @@
 
   Specification languages for imperative languages such as Spec\#,
   JML, Eiffel allow procedure calls in the contracts of the
-  procedure. Inorder to tame interference between the runtime checking
+  procedure. In order to tame interference between the runtime checking
   of the specifications and the implementation, a notion of purity is
   needed. Strong purity allows no side effects whereas weak purity
   allows no side effects on pre-existing objects. Another way to look
   at purity is as follows : does the side-effect affect the
   input-output behaviour of the given procedure or other procedures?
-  If not, such a procedue is called \textit{observationally
+  If not, such a procedure is called \textit{observationally
     Pure}. Specifications in JML allow only strongly pure procedures
   which is overly restrictive. A procedure may have benign side
   effects which do not affect the input-output behaviour of the
@@ -368,7 +386,7 @@ the standard implementation for `factorial'.
 
 OPness is a property of a procedure and the set of \textit{reachable
   global states} where \textit{reachable global states} represents the
-set of global states that are encountered at the boundries of the procedure,
+set of global states that are encountered at the boundaries of the procedure,
 in a sequence of executions
 of the given procedure  and a \textit{global state} is an assignment to
 the global variables. Procedure `factorial' in
@@ -818,20 +836,256 @@ expressed using standard requires and ensures statements (to the best
 of our knowledge). In the intra-procedural analysis, the validity of
 the ensures statements is verified. We ensure that if the procedure
 has an `ensures x' statement, then the state $\neg$x is not reachable
-at the program point.
-%% The statements `ensures x' and
-%% `requires y' are replaced by `assert x' and `assumes y'
-%% respectively. Next, the assume and assert statements along with the
-%% program are converted to a formula; checking if there the state
-%% $\neg$x is reachable at the assert statement.
-In our analysis, we check
-a weaker condition. We check if $\retVar = \F(n)$ is reachable. But
-this suffices for our analysis.
+at the program point.  In our analysis, we check a weaker
+condition. We check if $\retVar = \F(n)$ is satisfiable. But this
+suffices for our analysis.
 
-%% In standard assertin checking, we check if there is a path in the
-%% program such that a state in $\neg$x is reachable for the statement
-%% `assert x'. Whereas in the existential check, we just check if there
-%% is a satisfying function for the respective formula. 
+\subsection{Proof of correctness}
+\begin{definition}[local state]
+  A local state is a mapping from the local variables to their
+  values. 
+\end{definition}
+
+\begin{definition}[global state]
+  A global state $\gstate$ is a mapping from the global variables to
+  their values.
+\end{definition}
+
+\begin{definition}[state]
+  A state is a pair consisting of a global state and a stack of local
+  states. We use the symbol $\state$ to denote the state of a program
+  at a program point.
+\end{definition}
+
+\begin{definition}[argument(trace $\rightarrow$ value)]
+  $\param{\trace}$ denotes the mapping of the argument `$\n$' to its
+  value in the beginning of $\trace$.
+\end{definition}
+
+\begin{definition}[returns(trace $\rightarrow$ value)]
+  $\return{\trace}$ denotes the mapping of the variable\\ $\retVar$ to
+  its value at the end of trace $\trace$.
+\end{definition}
+
+\begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
+    value] 
+  %% $\atEntry{x}$ denotes $\gstate$, such that $\gstate$ is the global
+  %% state at the starting point of $x$ where $x$ is a history, trace or
+  %% trace segment.
+  $\\\atEntry{x}$ denotes the value of global variable $\g$ at the
+  starting point of $x$ where $x$ is a history, trace or trace
+  segment. 
+\end{definition}
+
+\begin{definition}[at-end(history/trace/trace-segment) $\rightarrow$
+    value]
+  $\atEnd{x}$ denotes the\\ value of the global variable $\g$ at the end
+  of $x$, where $x$ is a history, trace or a trace segment. 
+%%   $\atEnd{x}$ denotes $\gstate$, such that $\gstate$ is the global
+%%   state at the end of $x$ where $x$ is a history, trace or trace
+%%   segment.
+%% \e
+\end{definition}
+
+\begin{definition}[before-call(history/trace/trace-segment)
+    $\rightarrow$ value]
+  $\beforeCall{x}$ denotes the value of global variable $\g$ before
+  the first procedure call statement in $x$, where $x$ is a history,
+  trace or a trace segment. $\beforeCall{x}$ is undefined if $x$ does
+  not have a procedure call statement.
+  %% $\beforeCall{x}$ denotes $\gstate$, such that $\gstate$ is the
+  %% global state before the first procedure call statement in $x$, where
+  %% $x$ is a history, trace or trace segment. $\beforeCall{x}$ is
+  %% undefined if $x$ does not have a procedure call statement.
+\end{definition}
+
+\begin{definition}[after-call(history/trace/trace-segment)
+    $\rightarrow$ value]
+  $\afterCall{x}$ denotes the value of the global variable $\g$ after
+  the the first procedure call statement in $x$, where $x$ is a
+  history or a trace. $\afterCall{x}$ is undefined if $x$ does not
+  have a procedure call.
+  %% $\afterCall{x}$ denotes $\gstate$, such that $\gstate$ is the state
+  %% in $x$ after the first procedure call statement, where $x$ is a
+  %% history or a trace. $\afterCall{x}$ is undefined if $x$ does not
+  %% have a procedure call.
+\end{definition}
+
+\begin{definition}[sub-trace]
+  A sub-trace $\subTrace$ is a trace such that there exists a trace
+  $\trace$ such that $\beforeCall{\trace} = \atEntry{\subTrace}$,
+  $\afterCall{\trace} = \atEnd{\subTrace}$, trace $\trace$ has a
+  procedure call statement $\foo(k)$ and $k = \param{\subTrace}$.
+\end{definition}
+
+\begin{definition}[trace-segment]
+   trace segment $\tSegment$ is a maximal continuous sub-sequence of a
+   trace such that it does not span a procedure entry or exit.
+\end{definition}
+
+\begin{definition}[prefix\; trace\; segment]
+  A prefix trace segment is a trace segment that begins at the entry
+  of procedure `\foo' and ends at the point just before a recursive
+  call.
+\end{definition}
+
+\begin{definition}[suffix\; trace\; segment]
+  A prefix trace segment is a trace segment just after a recursive
+  call and ends at the end of the procedure `\foo'.
+\end{definition}
+
+\begin{definition}[whole\; trace\; segment]
+  A trace-segment that is a complete trace that does not have a
+  recursive call.
+\end{definition}
+
+\begin{definition}[segment(trace, $\integer$)
+    $\rightarrow$ trace segment]
+  $\segment{\trace}{n}$ returns the $n^{th}$ trace-segment of trace
+  $\trace$. The trace-segments of a trace are ordered in the order of
+  execution.
+\end{definition}
+
+\begin{definition}[segment-depth(trace segment, trace)$\rightarrow
+    \integer$)] Let $\trace$ be trace and $\tSegment$ be a trace
+  segment in $\trace$. Let $\tSegment' = \segment{\trace}{1}$.
+  $\segDepth{\tSegment}{\trace}$ is the difference in depth of stack
+  in $\tSegment$ and $\tSegment'$, plus 1.
+\end{definition}
+
+
+\begin{definition}[valid and consistent invariant( Function,
+    Formula)]
+  \label{def:validConsistentInvariant}
+  $\\\vci{\F}{\inv}$ is a boolean property that is true if for all
+  traces and prefix-trace-segments $x$ of procedure `\foo' such that
+  $(\atEntry{x}, \F) \satisfies \inv$ the following holds
+
+  \begin{enumerate}
+  \item if $x$ is a trace.
+    \begin{enumerate}
+    \item If $x$ has a recursive call
+      \begin{enumerate}
+      \item then $(\beforeCall{x}, \F) \satisfies \inv$ and
+      \item let $x$ have the procedure call statement, say $y =
+        \foo(z)$. Then we change the value of $y$ to $y'$ and the
+        value of the global variable $\g$ to $g'$ after the procedure
+        call statement such that $y' = \F(z)$ and $(g', \F)
+        \satisfies \inv$.
+      \end{enumerate}
+      Then $\return{x} = \F(\n)$, where $\n$ is the argument to
+      trace $x$ and $(\atEnd{x}, \F) \satisfies \inv$.
+    \item if $x$ does not have a recursive call
+      then $(\atEnd{x}, \F) \satisfies \inv$ and $\return{x} =
+      \F(\n)$, where $\n$ is the argument to trace $x$.
+    \end{enumerate}
+  \item if $x$ is a prefix trace segment.\\
+    Then $(\atEnd{x}, \F) \satisfies \inv$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}\label{lemma:interface}
+  If $\OPCheckE\mi{(\inv : invariant, \pathCondition : path \;
+    condition)}$ (Algorithm~\ref{algo:someOPcheckCombined}) returns
+  formula $\formula$ and $\F'$ be any function such that $\F'
+  \satisfies \formula$ then\\ $\vci{\inv}{\F'}$ holds.
+\end{lemma}
+
+
+\begin{lemma} \label{lemma:trace}
+Let $\trace$ be any trace, $\inv$ be any formula and $\F$ be any
+mathematical function such that $\vci{\F}{\inv}$ and
+$(\atEntry{\trace}, \F) \satisfies \inv$ then,\\ $\return{\trace} =
+\F(\param{\trace})$ and $(\atEnd{\trace}, \F) \satisfies \inv$.
+\end{lemma}
+
+\begin{proof}
+  To prove this lemma we will first show that for each transitive sub-trace
+  $\subTrace$ of $\trace$, $(\atEntry{\subTrace}, \F) \satisfies
+  \inv$. Next, Trace $\trace$ will have an innermost trace (say
+  $\subTrace^0$), which by definition cannot have a recursive
+  call. Sub-trace $\subTrace^0$ respects function $\F$ because
+  $\vci{\F}{\inv}$ holds. Next, we will prove that the sub-trace
+  surrounding $\subTrace^0$, say $\subTrace^1$ respects function $\F$
+  as $\vci{\F}{\inv}$ holds. Next, the sub-trace surrounding
+  $\subTrace^1$. And so on. This way, one by one, starting from the
+  inner most sub-trace we prove that each surrounding sub-trace
+  respects function $\F$.
+
+  Inductive Hypothesis $P(n)$: Let $\inv$ be a formula, $\F$ be an
+  function, $\trace$ and $\subTrace$ be any traces, $\tSegment$ be a
+  trace-segment such that $\vci{\F}{\inv}$, $(\atEntry{\trace}, \F)
+  \satisfies \inv$, $\tSegment = \segment{\trace}{n}$,
+  $(\atEntry{\tSegment}, \F) \satisfies \inv$,\\
+  $\segDepth{\tSegment}{\subTrace} = 1$, then $(\atEnd{\tSegment}, \F)
+  \satisfies \inv$ and if $\tSegment$ is a suffix-trace-segment or a
+  whole-trace-segment then $\return{\subTrace} =
+  \F(\param{\trace})$.
+  
+  Base case : Let $\tSegment = \segment{\trace}{0}$. We have,
+  $(\atEntry{\trace}, \F) \satisfies \inv$, thus $(\atEntry{\tSegment},
+  \F) \satisfies \inv$ as $\atEntry{\tSegment} =
+  \atEntry{\trace}$. $(\atEnd{\tSegment}, \F) \satisfies \inv$, as
+  $\vci{\F}{\inv}$ holds. If $\tSegment$ has a return statement then,
+  $\tSegment$ is a whole-trace-segment, $\subTrace = \tSegment =
+  \trace$ and $\return{\subTrace} = \F(\n)$ holds because of
+  $\vci{\F}{\inv}$.
+
+  Inductive case: Assuming $P(0), P(1) \cdots P(n)$ and
+  proving $P(n+1)$. Let $\tSegment =
+  \segment{\trace}{n+1}$. $\tSegment_{pre} = \segment{\trace}{n}$. Let
+  $\trace_{pre}$ be a trace such that
+  $\segDepth{\tSegment_{pre}}{\trace_{pre}} = 1$.
+  $\atEntry{\tSegment} = \atEnd{\tSegment_{pre}}$ ,thus
+  $(\atEntry{\tSegment}, \F) \satisfies \inv$. Now, we have 3 cases
+  depending upon whether $\tSegment$ is a prefix, suffix or a whole
+  trace segment.
+
+  \begin{enumerate}
+  \item If $\tSegment$ is prefix-trace-segment.\\
+    We have $\tSegment_{pre}$ is a prefix-trace-segment.  Next,
+    $(\atEnd{\tSegment},\F) \satisfies \inv$ as \\$\vci{\F}{\inv}$
+    holds.
+
+  \item If $\tSegment$ is a whole-trace-segment.\\
+    We have $\trace_{pre}$ is a prefix-trace-segment. $\tSegment =
+    \subTrace$ as $\tSegment$ is a whole-trace-segment and from
+    $\vci{\F}{\inv}$ we have \\$(\atEnd{\subTrace}, \F) \satisfies \inv$
+    and $\return{\subTrace} = \F(\n)$.
+
+  \item If $\tSegment$ is suffix-trace-segment.\\
+    $\tSegment_{pre}$ is either a suffix-trace-segment or a
+    whole-trace-segment, and from the
+    inductive hypothesis we have $\return{\trace_{pre}} = \F(\n)$. let
+    $\tSegment_{other}$ be the other trace-segment in trace
+    $\subTrace$, $\tSegment_{other}$ is a
+    prefix-trace-segment. $\tSegment_{other} = \segment{\trace}{y}$
+    and $y < n$, because of the structure of trace $\subTrace$. Trace
+    $\subTrace$ is equivalent to trace-segment $\tSegment_{other}$ followed by a
+    recursive call, then followed by trace-segment $\tSegment$.  Also
+    $\atEntry{\subTrace} = \atEntry{\tSegment_{other}}$, thus
+    $(\atEntry{\subTrace}, \F)
+    \satisfies \inv$ from the inductive hypothesis. Also
+    $\beforeCall{\subTrace} = \atEnd{\tSegment_{other}}$, and from the
+    inductive hypothesis we have $(\atEnd{\tSegment_{other}}, \F)
+    \satisfies \inv$, thus $(\beforeCall{\subTrace}, \F)
+    \satisfies \inv$. Now, as $\vci{\F}{\inv}$ holds we
+    have, $(\atEnd{\subTrace}, \F) \satisfies \inv$ and
+    $\return{\subTrace} = \F(\n)$.
+  \end{enumerate}
+  
+  Hence proved.
+\end{proof}
+
+\begin{theorem} \label{theorem:swopGivesWop}
+  Let $\inv$ be a formula and $\F$ be a function such that
+  \\$\OPCheckE\mi{(\inv : invariant, \pathCondition : path \;
+    condition)}$ returns formula $\formula$ and $\F \satisfies
+  \formula$. Then procedure `\foo' is observationally pure wrt all
+  global states $\gstate$ such that $(\gstate, \F) \satisfies \inv$.
+\end{theorem}
+
+
 \section{Impurity witness approach}\label{sec:impurityWitness}
 
 \begin{figure}[htp]
@@ -880,6 +1134,65 @@ our knowledge). As the approach compares the given procedure with
 itself, standard requires and ensures do not suffice. But works such as
 \cite{lahiri2013differential} can be extended to express this. 
 
+\subsection{Proof of Correctness}
+In this section we will prove that if Impurity witness procedure
+(Algorithm~\ref{algo:pairwiseOPcheckCombined}) returns formula
+$\formula$ for procedure `\foo' and $\formula$ is UNSAT then procedure
+`\foo' is observationally pure.
+
+The formula produced by $\OPCheckA \mi{(\inv, \pathCondition)}$
+for \label{opcheckBreakdown} simplicity can be broken down into two
+parts. Let the formula produced by $\OPCheckA \mi{(\inv,
+  \pathCondition)}$ be $\pairFormula$ and $\pairFormula = \formula_1
+\wedge \formula_2$.\\
+Where $\formula_1$ is : conjucts in line (1) $\cdots$ (8) in
+Algorithm~\ref{algo:pairwiseOPcheckCombined}.\\
+And $\formula_2$ is : conjucts in line (9) and (10) in
+Algorithm~\ref{algo:pairwiseOPcheckCombined}.\\
+
+\begin{lemma}\label{lemma:funcRef}
+  $\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
+  \retVar_1 = \F_{outer}(n_1)$, $\forall \F \forall(X) \formula_1
+  \implies \retVar_1 = \retVar_2$ and $\forall \F \exists \F_{outer}
+  \forall (X) \formula_1 \implies \retVar_1 = \F_{outer}(n_1) =
+  \retVar_2$ be formulae $\formula_{func}$, $\formula_{ret}$ and $\formula_3$
+  respectively then $\formula_{func} = \formula_{ret} = \formula_3$.
+\end{lemma}
+
+\begin{lemma}\label{lemma:forAllOuterAInner}
+  Let $\forall \F \exists \F_{outer} \forall (X) \formula_1
+  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))$ and
+  $\forall \F \forall (X) \formula_1 \implies \neg \formula_2$ be
+  $\formula_3$ and $\formula_4$ respectively. $\formula_3$ and
+  $\formula_4$ are equivalent.
+\end{lemma}
+
+\begin{lemma}\label{lemma:combiningF}
+  Let $\exists \F \forall (X) \formula_1 \implies (\neg \formula_2
+  \wedge \retVar_1 = \F(\n_1))$ and $\forall \F \exists \F_{outer}
+  \forall (X) \formula_1 \implies (\neg \formula_2 \wedge \retVar_1 =
+  \F_{outer}(\n_1))$ be Formulae $\formula_{merged}$ and
+  $\formula_{outer}$ respectively. Then $\formula_{outer} \implies
+  \formula_{merged}$.
+\end{lemma}
+
+
+\begin{lemma} \label{lemma:pairwise}
+  Let $\inv$ be any formula, $\pathCondition$ be a path condition for
+  procedure `\foo', \\$\OPCheckA \mi{(\inv, \pathCondition)}$ return
+  formula $\pairFormula$ such that $\pairFormula$ is
+  unsatisfiable, $\inv$ is satisfiable and $\OPCheckE \mi{(\inv,
+    \pathCondition)}$ returns formula $\formula'$ then $\formula'$ is
+  satisfiable.
+\end{lemma}
+
+\begin{theorem} \label{theorem:impurityWitness}
+  Let $\inv$ be an invariant, $T$ be a path condition,
+  $\OPCheckA \mi{(\inv, T)}$ return formula $\formula$ such that
+  $\formula$ is UNSAT, $\inv$ is SAT. Method `\foo' is
+  observationally pure for all states $\state$ such that $\state
+  \satisfies \inv$.
+\end{theorem}
 
 \section{Comparing the two approaches}
 
@@ -951,8 +1264,357 @@ group. Thus, structuring for modular reasoning about OPness.
 Finifter~\cite{cok2008extensions} takes a different approach of restricting
 the programming language in order to make OP checking simpler. In the
 restricted language called Joe-E, OP methods have all objects reachable
-from the parameters marked as immutable
-\subsection{Future work}
+from the parameters marked as immutable.
+
+Salcianu~\cite{sualcianu2005purity} gives a static analysis
+that checks if a method modifies the pre-existing state. All the
+operators used in specifications do not have side effects. If a
+procedure does not modify the pre-existing state it is called pure and
+~\cite{barnett200499} suggests that such procedures can be used in
+specifications. Our work in comparison generalizes further by
+allowing procedures that modify pre-existing state but behave as
+mathematical functions in specifications. We would like to point out
+that in their work they manually marked library methods that did
+caching but were semantically preserving as pure.
+
+\nocite{barnett2004spec}
+\nocite{lahiri2013differential}
+\nocite{de2008z3}
+\nocite{alpern1988detecting}
+\nocite{sondergaard1990referential}
+\nocite{flanagan2001avoiding}
+\nocite{sualcianu2005purity}
+\nocite{cytron1991efficiently}
+\nocite{leino2008boogie}
+
+
+%% \appendix
+\begin{subappendices}
+\renewcommand{\thesection}{\Alph{section}}
+
+
+\section{Proof of Lemma~\ref{lemma:interface}}
+
+\begin{proof}
+  In Algorithm~\ref{algo:someOPcheckCombined} the returned formula is
+  $\formula$ and $\F' \satisfies \formula$. Lets substitute $\F'$ in
+  $\formula$ for the free variable $\F$ to get $(\forall \g) (\forall
+  \n) (\forall \retVar) (\forall \gout) (\forall \gbef_1) (\forall
+  \gbef_2) \cdots \\(\forall \gaft_1) (\forall \gaft_2) \cdots \{\inv[\F'/\F]
+  \wedge \pathCondition[\F'/\F] \wedge \inv[\gaft_1/\g, \F'/\F] \wedge
+  \\\inv[\gaft_2/\g, \F'/\F] \cdots \implies (\retVar = \F'(\n) \wedge
+  \inv[\gout/\g, \F'/\F] \wedge \inv[\gbef_1/\g, \F'/\F] \wedge
+  \inv[\gbef_2/\g, \F'/\F]
+  \cdots) \}$, lets call this formula $\formula'$.
+
+  $\formula'$ is valid, since $\F' \satisfies \formula$ and $\formula'
+  = \formula[\F'/\F]$. Let $x$ be a trace or a trace segment, such
+  that $(\atEntry{x}, \F') \satisfies \inv$ then
+  \begin{enumerate}
+  \item if $x$ is a trace.
+    \begin{enumerate}
+    \item if $x$ has a recursive call
+      \begin{enumerate}
+      \item \label{beforeCallInRec} $(\beforeCall{x}, \F') \satisfies
+        \inv$ holds as the conjuncts in the conclusion of $\formula'$,
+        \\$\inv[\gbef_1/\g, \F'/\F]$, $\inv[\gbef_2/\g, \F'/\F] \cdots
+        \inv[\gbef_n/\g, \F'/\F]$ are satisfied for each $i^{th}$ call
+        statement.
+      \item the premise in $\formula'$, the conjunct
+        $\pathCondition[\F'/\F]$, constraints the recursive call's
+        return value to respect function $\F'$. Next, the 
+        conclusion in formula $\formula'$ has the conjuncts
+        $\inv[\gout/\g,  \F'/\F]$ and $\retVar = \F'(\param{x})$. Thus,
+        $(\atEnd{x}, \F') \satisfies \inv$ and $\return{x} =
+        \F'(\param{x})$.
+      \end{enumerate}
+    \item if $x$ does not have a recursive call.\\ In the conclusion
+      in formula $\formula'$, we have $\inv[\gout/\g, \F'/\F]$ and\\
+      $\retVar = \F'(\param{x})$. Thus, we have $(\atEnd{x}, \F')
+      \satisfies \inv$ and $\return{x} = \F'(\param{x})$.
+    \end{enumerate}
+  \item If $x$ is a prefix trace segment \\we have, 
+    trace $\trace$ must exist such that $\segDepth{x}{\trace} =
+    1$. And we have\\ $(\atEntry{x}, \F') \satisfies \inv$. Now we can
+    apply the above mentioned point \ref{beforeCallInRec}, we get
+    $(\beforeCall{\trace}, \F') \satisfies \inv$, and
+    $\beforeCall{\trace} = \atEnd{x}$. Thus, we have $(\atEnd{x}, \F')
+    \satisfies \inv$.
+  \end{enumerate}
+  
+  Hence proved.
+\end{proof}
+
+\section{Proof of theorem~\ref{theorem:swopGivesWop}}
+\begin{proof}
+  Inductive hypothesis $P(k)$ : Let $\inv$ be an invariant, $\history$
+  be a history, $\gstate$ be a global state, such that $(\atEntry{\history},
+  \F) \satisfies \inv$, $(\gstate, \F)
+  \satisfies \inv$, the $k^{th}$ trace in $\history$ be $\trace_k$
+  then $(\atEntry{\trace_k}, \F) \satisfies \inv$, $(\atEnd{\trace_k},
+  \F) \satisfies \inv$ and $\return{\trace_k} = \F(\n_k)$ where $\n_k$
+  is the argument to trace $\trace_k$.
+  
+  Base case : Let trace $\trace_1$ be the first trace of history
+  $\history$ and since $\atEntry{\history} = \atEntry{\trace_1}$ we
+  have $(\atEntry{\trace_1}, \F) \satisfies \inv$. From
+  lemma~\ref{lemma:trace} we have $(\atEnd{\trace_1}, \F) \satisfies
+  \inv$, and also $\return{\trace_1} = \F(\n_1)$.
+  
+  Inductive case : Assuming P(k) and proving P(k + 1). From the
+  inductive hypothesis we have $(\atEnd{\trace_k}, \F) \satisfies
+  \inv$. Also, $\atEnd{\trace_k} = \atEntry{\trace_{k+1}}$. Thus,
+  $(\atEntry{\trace_{k+1}}, \F) \satisfies \inv$ and from
+  lemma~\ref{lemma:trace}, we can conclude $(\atEnd{\trace_{k+1}}, \F)
+  \satisfies \inv$ and $\return{\trace_{k+1}} = \F(\n_{k+1})$ where
+  $\n_{k+1}$ is the argument to $\trace_{k+1}$.
+
+  Hence proved.
+\end{proof}
+
+
+\section{Proof of Lemma~\ref{lemma:funcRef}}
+\begin{proof}
+  We will prove that both $\formula_{func}$ and $\formula_{ret}$ are
+  equivalent to formula $\formula_3$.
+  \begin{enumerate}
+  \item Proving $\formula_{func}$ and $\formula_3$ equivalent.\\
+    In formula $\formula_1$ there are two instances of
+    $\pathCondition$. For one instance of $\pathCondition$ variable $\retVar$ is renamed
+    to $\retVar_1$ whereas for the other, it is renamed to
+    $\retVar_2$. And all variables have equivalent
+    constraints.
+    Thus, if there exist 
+    an assignment for one instance of sub-formula
+    $\pathCondition$ in $\formula_1$, the same assignment can be
+    mapped to the other instance of $\pathCondition$.
+    %% is also and assignment for the
+    %% other instance
+    Hence $\retVar_1 = \retVar_2$.\\
+    Thus, we have $\formula_{func}$ and $\formula_3$ are equivalent.
+  \item Proving $\formula_{ret}$ and $\formula_3$ equivalent.\\
+    Here we will show that given $\formula_{ret}$ is valid, we can
+    construct a function $\F$ such that for each domain value $n_1$,
+    it would map it function $\F$ to value $\retVar_1$.
+    
+    Proving by contradiction. Let us assume that $\formula_{ret}$
+    holds, but we cannot construct a
+    function $\F$ such that it would be equivalent to $\retVar_1$ for
+    each domain value. Let us consider the case that a value
+    from the domain is not mapped to a unique value in the range.
+    Since function $\F$ maps 
+    %% (see section \ref{onlyTerminatinTraces}). Since function $\F$ maps
+    variable $\n_1$ to $\retVar_1$ and such a function cannot exist;
+    it means that $\retVar_1 \neq \retVar_2$ is possible, which
+    implies $\formula_{ret}$ is not valid.
+    %% The other
+    %% case is that a value from the domain is not mapped to an element
+    %% in the range. Such a case would arise if the trace is non
+    %% terminating. And in this case both the formulae are true.
+    Hence this
+    is a contradiction.
+
+    Hence proved.
+  \end{enumerate}
+\end{proof}
+
+\section{Proof of Lemma~\ref{lemma:forAllOuterAInner}}
+\begin{proof}
+\begin{align*}
+  \formula_3 =&\\
+  &\forall \F \exists \F_{outer} \forall (X) \formula_1
+  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))\\
+=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
+(\neg(\retVar_1 \neq \retVar_2 \\
+&\vee \neg\inv[\gbef_{p1}/\g] \vee \neg\inv[\gbef_{p2}/\g] \cdots 
+\vee \neg\inv[\gout/\g]) \wedge\\
+&\retVar_1 = \F_{outer}(\n_1))\\
+=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
+(\retVar_1 = \retVar_2 = \F_{outer}(\n_1) \wedge\\
+&\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
+=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
+(\retVar_1 = \retVar_2 = \F_{outer}(\n_1)) \wedge\\
+&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
+\inv[\gbef_{p1}/\g] \wedge
+\inv[\gbef_{p2}/\g]\\
+&\cdots \wedge \inv[\gout/\g]\\
+=&\forall \F \forall (X) \formula_1 \implies
+\retVar_1 = \retVar_2 \wedge  &(lemma~\ref{lemma:funcRef})\\
+&  \forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
+\inv[\gbef_{p1}/\g] \wedge \\
+&\inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
+=&\forall \F \forall (X) \formula_1 \implies
+\retVar_1 = \retVar_2 \wedge &(\F_{outer} \not \in free\mhyphen
+var(a) a \in \{\formula_1, \inv\})\\
+&\forall \F \forall (X) \formula_1 \implies (
+\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge\\
+&\inv[\gout/\g])\\
+=&\forall \F \forall (X) \formula_1 \implies (
+\retVar_1 = \retVar_2 \wedge \inv[\gbef_{p1}/\g] \wedge \\
+&\inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
+=&\forall \F \forall (X) \formula_1 \implies \neg
+\formula_2\\
+=& \formula_4\\
+%% =&\forall \F \forall (X) \formula_1 \implies
+%% \retVar_1 = \retVar_2 \wedge
+%% &(\F_{outer} \not \in free\mhyphen variable(\formula_1))\\
+%% &\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
+%% \inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
+%% \inv[\gout/\g])\\
+%% =&\forall \F \forall (X) \formula_1 \implies
+%% \retVar_1 = \retVar_2 = \F(n_1) \wedge
+%% & (lemma~\ref{lemma:funcRef})\\
+%% &\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
+%% \inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
+%% \inv[\gout/\g])\\
+%% =&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
+%%  \retVar_1 = \retVar_2 = \F(n_1)\wedge\\
+%% &\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
+%%  \inv[\gout/\g])\\
+%%  =&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
+%%  \neg \formula_2 \wedge \retVar_1 = \F(n_1))\\
+%%  =& \formula_3
+\end{align*}
+Hence proved.
+\end{proof}
+
+\section{Proof of Lemma~\ref{lemma:combiningF}}
+
+\begin{proof}
+  Assuming $\formula_{outer}$ is valid we will inductively build a
+  function $\F'$ such that we can substitute it for both functions
+  $\F$ and $\F_{outer}$ in formula $\formula_{outer}$. Thus,
+essentially finding a function that satisfies formula
+$\formula_{merged}$.
+
+
+  %% $(\forall (X) \formula_1 \implies (\neg
+  %% \formula_2 \wedge \retVar_1 = \F(\n_1)))[\F'/\F]$ is valid.
+
+  %% In order to build this function $\F'$ we need tools to traverse over
+  %% the domain of $\F'$ with respect to the formula
+  %% $\formula_{outer}$. The following are the definitions.
+We will use the following definitions to traverse the domain of
+function $\F'$ with respect to formula $\formula_{outer}$.
+
+  \begin{definition}[depth(dom $\F \rightarrow \integer$)]
+$\depth{n} = 1 + min(\depth{k})$ where $n \in dom \;\F'$ such that
+$(\forall (X) \formula_1 \implies (\neg
+  \formula_2 \wedge \retVar_1 =
+\F_{outer}(\n_1)))[\F'(\n)/\F_{outer}(\n_1),\\ \F'(k)/\F(k_1),
+\F'(k)/\F(k_2)]$ is valid, where $k_1$ and $k_2$ are the arguments to
+the inner procedure calls in the two instances of $\pathCondition$ in
+formula $\formula_1$. Next, $x$ such that $x \in dom \; \F'$ has depth
+0 if in the above mentioned formula by substituting $x$ for $\n$ leads
+to a case such that value of $\retVar_1$ is independent of $k_1$.
+
+    %% value $\F(k)$ is substituted in formula $\formula_{outer}$ to get
+    %% the mapping for $n$. $\depth{n} = 0$ if no substitutions are
+    %% necessary to get the mapped value for $n$.
+  \end{definition}
+
+  \begin{definition}[level($\integer$) $\rightarrow$ subset of dom $\F$]
+    $\level{n}$ gives the set $X$ of domain elements of $\F$ such
+    $\forall v \in X \depth{v} \leq n$.
+\end{definition}
+
+  Inductive hypothesis $P(n)$ : Let $\formula_{outer}$ be valid then
+  there exist a function $\F'$ such that $\forall k \in \level{n}
+  \implies \{\forall (X-\{n_1\}) \formula_1 \implies (\neg
+  \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))\}[\F'/\F_{outer},
+    k/n_1, \F'/\F]$.
+
+Base case $P(0)$ : Let $p \in \level{0}$. The corresponding value for
+$p$ can be produced only if $\pathCondition$ has a disjunct which does
+not refer the function $\F$, otherwise $\level{0}$ is an empty set. If
+$\level{0}$ is not an empty set then, it satisfies the inductive
+hypothesis, as all satisfying functions replacing $\formula_{outer}$
+respect each other on these arguments. This is because the mappings
+are essentially encoded in the formula itself and $\formula_{outer}$
+holds. If $\level{0} = \phi$ then the hypothesis holds vacuously.
+
+%% $\level{0}$ can be empty only if procedure `\foo' does
+%%   not have a base case thus, `\foo' never terminates; in this case we
+%%   are done. If $\level{0}$ is not empty, since $\formula_{outer}$ is
+%%   valid we have that for all functions substituted for the inner
+%%   procedure call, there exists a function that respects the value
+%%   $\retVar$; function $\F'$ also respects $\retVar$.
+  
+Inductive case : Assuming $P(k)$ holds, proving for $P(k+1)$. We have
+that up-to the $k^{th}$ level there exists a function $\F'$ that
+satisfies the inductive hypothesis. Next, we can find the values of
+the $\n$ such that it leads to an element of the set $\level{k}$ as
+the argument to the inner procedure call in procedure $\foo$. Thus,
+essentially giving us the elements of set $\level{k+1}$.  And for all
+such newly discovered members of set $\level{k+1}$ we have that the
+inductive hypothesis holds as we know that $\formula_{outer}$
+holds. This is because in $\formula_{outer}$, for all functions that
+replace the inner procedure call, there exists a function
+$\F_{outer}$, which represents the return value.
+
+
+%% We
+%%   have that up-to the $n^{th}$ level there exists a function $\F'$ that
+%%   satisfies $\formula_{merged}$. Next, because $\formula_{outer}$
+%%   holds, we have $\formula_{merged}$ also holds up-to $\level{n+1}$ as
+%%   $\formula_{merged}$ holds up-to $\level{n}$ and $\formula_{outer}$, so we
+%%   can substitute $\F$ with $\F'$ up-to $\level{n}$. This also describes
+%%   function $\F'$ for $\level{n}$.
+  
+Hence proved.
+\end{proof}
+
+\section{Proof of Lemma~\ref{lemma:pairwise}}
+
+\begin{proof}
+  Let $X$ be the set of free variables in formula
+  $\pairFormula$ except the mathematical function $\F$. We have
+  $\pairFormula = \formula_1 \wedge \formula_2$. Formula
+  $\formula_1$ and $\formula_2$ are listed above in Section
+  \ref{opcheckBreakdown}.
+  
+  $\pairFormula$ is UNSAT; it is equivalent to say $\exists \F
+  \exists(X) \pairFormula$ is false. Thus, we have $\forall \F
+  \forall (X) \neg \pairFormula$ is true. Next, we have $\forall \F
+  \forall (X) \neg \pairFormula = \forall \F \forall (X) \neg(
+  \formula_1 \wedge \formula_2) = \forall \F \forall (X) \neg
+  \formula_1 \vee \neg \formula_2 = \forall \F \forall (X) \formula_1
+  \implies \neg \formula_2$. Let $\formula_3 = \forall \F \forall (X)
+  \formula_1 \implies \neg \formula_2$.
+
+  Next, we have the following properties :
+  \begin{enumerate}
+  \item $\formula_{pairwise}$ is unsatisfiable $\implies \formula_3$
+    is valid (illustrated above). 
+  \item Let $\forall \F \exists \F_{outer} \forall (X) \formula_1
+  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))$ be
+  formula $\formula_4$
+    From lemma~\ref{lemma:forAllOuterAInner} we have $\formula_3 =
+    \formula_4$.
+  \item Let $\formula_{merged}$ be $\exists \F \forall (X) \formula_1
+    \implies (\neg \formula_2 \wedge \retVar_1 = \F(\n_1))$. From
+    lemma~\ref{lemma:combiningF} we have $\formula_4 \implies
+    \formula_{merged}$. 
+  \item Since formula $\formula_{merged}$ holds we have $\forall (X) \formula_1
+    \implies (\neg \formula_2 \wedge \retVar_1 = \F(\n_1))$ is
+    Satisfiable. Thus, $\formula'$ is satisfiable.
+  \end{enumerate}
+Hence proved.
+\end{proof}
+
+\section{Proof of Theorem~\ref{theorem:impurityWitness}}
+
+\begin{proof}
+  We have $\OPCheckA \mi{(\inv, T)}$ for method `\foo' returns formula
+  $\formula$ such that $\formula$ is UNSAT. From
+  lemma~\ref{lemma:pairwise} we have that $\OPCheckE \mi{(\inv, T)}$
+  would return formula $\formula'$ such that $\formula'$ is SAT, which
+  implies that `\foo' is static observationally pure. Hence we
+  can apply theorem~\ref{theorem:swopGivesWop}.\\
+  Hence proved.
+\end{proof}
+
+\end{subappendices}
 
 %
 
