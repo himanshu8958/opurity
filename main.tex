@@ -300,12 +300,12 @@
   %% independent of the global state.
 
   Specification languages for imperative languages such as Spec\#,
-  JML, Eiffel allow procedure calls in the contracts of the
-  procedure. In order to tame interference between the runtime checking
-  of the specifications and the implementation, a notion of purity is
-  needed. Strong purity allows no side effects whereas weak purity
-  allows no side effects on pre-existing objects. Another way to look
-  at purity is as follows : does the side-effect affect the
+  JML, Eiffel allow procedure calls in the contracts of the procedure.
+  The specification must not alter the behaviour of the
+  implimentation, to impose this behaviour a notion of purity is
+  needed for procedures which is not overly restrictive. Strong purity
+  allows no side effects whereas weak purity allows no side effects on
+  pre-existing objects. Another direction : do side-effects affect the
   input-output behaviour of the given procedure or other procedures?
   If not, such a procedure is called \textit{observationally
     Pure}. Specifications in JML allow only strongly pure procedures
@@ -314,12 +314,12 @@
   procedure; thus, there is a need for observational purity.
 
   We formalize a notion of observational purity and a conditional
-  invariant which is defined only if the procedure is observationally
-  pure.  We present two sound static analysis approaches that can
-  check observational purity of a procedure. These techniques do not
-  require any user annotations for array-free programs and are
-  applicable to recursive procedures, which is beyond the scope of
-  current literature.
+  invariant which is well defined only if the procedure is
+  observationally pure.  We present two sound static analysis
+  approaches that can check observational purity of a procedure. These
+  techniques do not require any user annotations for array-free
+  programs and are applicable to recursive procedures, which is beyond
+  the scope of current literature.
 
   \keywords{specification languages, observational purity, pure procedure,
   programming by contract, static analysis}
