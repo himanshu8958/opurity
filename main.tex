@@ -300,14 +300,14 @@
   %% independent of the global state.
 
   Specification languages for imperative languages such as Spec\#,
-  JML, Eiffel allow procedure calls in the contracts of the procedure.
-  The specification must not alter the behaviour of the
-  implimentation, to impose this behaviour a notion of purity is
-  needed for procedures which is not overly restrictive. Strong purity
-  allows no side effects whereas weak purity allows no side effects on
-  pre-existing objects. Another direction : do side-effects affect the
+  JML, Eiffel allow procedure calls in contracts of a procedure.  The
+  specification must not alter the behaviour of the implementation, to
+  impose this behaviour a notion of purity is needed for procedures
+  which is not overly restrictive. Strong purity allows no side
+  effects whereas weak purity allows no side effects on pre-existing
+  objects. Another direction : do the side-effects affect the
   input-output behaviour of the given procedure or other procedures?
-  If not, such a procedure is called \textit{observationally
+  If not, such a procedure is \textit{observationally
     Pure}. Specifications in JML allow only strongly pure procedures
   which is overly restrictive. A procedure may have benign side
   effects which do not affect the input-output behaviour of the
@@ -328,23 +328,27 @@
 \section{Introduction}
 Verifying functional properties of procedures is a hard task.
 Formalizing such properties of a procedure requires deep understanding
-of the procedure's (expected) functionality.  In this paper, we talk
-about a general property that is a necessary condition for the
-correctness of many procedures. If the return value from a procedure
-is dependent only on the formal arguments even if the procedure
+of the procedure's (expected) functionality. Many procedures
+(especially in libraries) implement some mathematical
+function, this paper gives a sound technique to check if this holds
+for a given procedure. If the return value from a procedure is
+dependent only on the formal arguments even if the procedure
 reads/writes to global variables, the given procedure is considered as
 \textit{Observationally pure(OP)}.  If a procedure $\foo$ is
 observationally pure, then there exists a mathematical function $\F$
 such that $\F$ mimics the input-output behaviour of $\foo$, and both
 $\foo$ and $\F$ have the same signature.  Thus, the input-output
-behaviour of procedure $\foo$ is independent of the value of the
-global variables.  This has many applications. For instance,
-non-optimal implementations of dynamic programming algorithms that do
-not use memoization can be refactored to use memoization
-automatically.  Checking whether a given procedure is OP is
-undecidable. In this paper, we propose a pair of static analysis
-techniques to check OPness that are proved to be sound i.e they give a
-valid answer on termination.
+behaviour of procedure $\foo$ is independent of the
+global variables. This property is a generalization of referential
+transparency. 
+%% For instance,
+%% non-optimal implementations of dynamic programming algorithms that do
+%% not use memoization can be refactored to use memoization
+%% automatically.
+Checking whether a given procedure is OP is undecidable. In this
+paper, we propose a pair of static analysis techniques to check OPness
+that are proved to be sound i.e they give a valid answer if the
+approach terminates.
 
 All arithmetic and logical operators are mathematical-functions, and
 functional composition is closed under the set of functions
