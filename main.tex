@@ -301,14 +301,14 @@
 
   Specification languages for imperative languages such as Spec\#,
   JML, Eiffel allow procedure calls in contracts of a procedure.  The
-  specification must not alter the behaviour of the implementation, to
-  impose this behaviour a notion of purity is needed for procedures
-  which is not overly restrictive. Strong purity allows no side
-  effects whereas weak purity allows no side effects on pre-existing
-  objects. Another direction : do the side-effects affect the
-  input-output behaviour of the given procedure or other procedures?
-  If not, such a procedure is \textit{observationally
-    Pure}. Specifications in JML allow only strongly pure procedures
+  behaviour of the implimentation must not vary depending on the
+  presence of the specification. Inorder to safely use procedure calls
+  in specifications, there must be a restriction on the
+  implimentation.  Strong purity allows no side effects whereas weak
+  purity allows no side effects on pre-existing objects. Another
+  direction : \textit{observational purity} : generalization of
+  referential transparency such that it allows only benign side
+  effects. Specifications in JML allow only strongly pure procedures
   which is overly restrictive. A procedure may have benign side
   effects which do not affect the input-output behaviour of the
   procedure; thus, there is a need for observational purity.
