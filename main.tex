@@ -571,7 +571,7 @@ of procedure `factorial' in Listing~\ref{lst:factorialSimple}.
 Our analysis expects the following :
 \begin{enumerate}
 \item Expressions do not have procedure call statements as
-  sub-expressions. 
+  sub-expressions.
 \item Procedure calls are approximated using function symbols. The
   statement `x = \foo(y)' is replaced with `x = $\F$(y)'. Since
   procedure calls may modify global variables, we add the statement
@@ -579,7 +579,7 @@ Our analysis expects the following :
   procedure.
 \item The input procedure has `m' procedure calls.
 \item Next, the procedure must have extra variables to store the value
-  of global variables at procedure boundaries.  Before the
+  of global variables at procedure boundaries. Before the
   $\mathit{i^{th}}$ procedure call, we add the statement `gbef$_i$ =
   g' and after it we add `gaft$_i$ = g'. Similarly, we add the
   statement `gout = g' after the assignment to the variable `\retVar'.
@@ -593,7 +593,7 @@ Our analysis expects the following :
       approach expects. We refer to this procedure as `transformed
       factorial'.}, label=lst:factorialTransformed]
 int g = -1;
-int transformedFactorial( int n) {
+int transformedFactorial( int n) { // redo
   if(n <= 1) {
     retVar = 1;
     gout = g;
@@ -605,16 +605,16 @@ int transformedFactorial( int n) {
     g2 = 19 * temp1;
     retVar = g2;
     gout = g2;
-  } else if(g != -1 && n == 19) {
+  } else if (g != -1 && n == 19) {
     retVar = g;
     gout = g;
   } else {
     gbef2 = g;
     temp2 = F( n - 1 );  //temp2 = factorial(n-1)
-    havoc(g1);    
-    gaft2 = g1;
+    havoc(g2);
+    gaft2 = g3;
     retVar = n * temp2;
-    gout = g1;
+    gout = g3;
   }
 }
 \end{lstlisting}
@@ -682,10 +682,9 @@ in Figure~\ref{fig:pathCondition}. Each disjunct in
 Figure~\ref{fig:pathCondition} represents a straight-line execution of
 procedure `factorial' (from beginning, until end) . For instance, $(n
 <= 1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $n
-\leq 1$. Here onwards, we will only use this formula, $\pathCondition$
-to describe our analysis.
-
-
+\leq 1$.
+%% Here onwards, we will only use this formula, $\pathCondition$
+%% to describe our analysis.
 
 Representation of a program in logic is straight forward once it is
 converted to our intermediate representation in
@@ -701,9 +700,8 @@ To introduce the definition of an invariant we first define
 \begin{definition}[trace]
   A trace $\trace$ is a complete execution of the procedure starting
   from a given global state and a tuple of formal arguments. A trace
-  upon completion gives an end state and a return value.\\ 
- Traces may have sub-traces, which by definition are traces
-  (recursive calls).
+  upon completion gives an end state and a return value.\\ Traces may
+  have sub-traces, which by definition are traces (recursive calls).
 \end{definition}
 
 \begin{definition}[history]
