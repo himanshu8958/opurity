@@ -1107,65 +1107,6 @@ our knowledge). As the approach compares the given procedure with
 itself, standard requires and ensures do not suffice. But works such as
 \cite{lahiri2013differential} can be used to express this property. 
 
-\subsection{Proof of Correctness}
-In this section we will prove that if Impurity witness procedure
-(Algorithm~\ref{algo:pairwiseOPcheckCombined}) returns formula
-$\formula$ for procedure `\foo' and $\formula$ is UNSAT then procedure
-`\foo' is observationally pure.
-
-The formula produced by $\OPCheckA \mi{(\inv, \pathCondition)}$
-nfor \label{opcheckBreakdown} simplicity can be broken down into two
-parts. Let the formula produced by $\OPCheckA \mi{(\inv,
-  \pathCondition)}$ be $\pairFormula$ and $\pairFormula = \formula_1
-\wedge \formula_2$.\\
-Where $\formula_1$ is : conjucts in line (1) $\cdots$ (8) in
-Algorithm~\ref{algo:pairwiseOPcheckCombined}.\\
-And $\formula_2$ is : conjucts in line (9) and (10) in
-Algorithm~\ref{algo:pairwiseOPcheckCombined}.\\
-
-\begin{lemma}\label{lemma:funcRef}
-  $\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
-  \retVar_1 = \F_{outer}(n_1)$, $\forall \F \forall(X) \formula_1
-  \implies \retVar_1 = \retVar_2$ and $\forall \F \exists \F_{outer}
-  \forall (X) \formula_1 \implies \retVar_1 = \F_{outer}(n_1) =
-  \retVar_2$ be formulae $\formula_{func}$, $\formula_{ret}$ and $\formula_3$
-  respectively then $\formula_{func} = \formula_{ret} = \formula_3$.
-\end{lemma}
-
-\begin{lemma}\label{lemma:forAllOuterAInner}
-  Let $\forall \F \exists \F_{outer} \forall (X) \formula_1
-  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))$ and
-  $\forall \F \forall (X) \formula_1 \implies \neg \formula_2$ be
-  $\formula_3$ and $\formula_4$ respectively. $\formula_3$ and
-  $\formula_4$ are equivalent.
-\end{lemma}
-
-\begin{lemma}\label{lemma:combiningF}
-  Let $\exists \F \forall (X) \formula_1 \implies (\neg \formula_2
-  \wedge \retVar_1 = \F(\n_1))$ and $\forall \F \exists \F_{outer}
-  \forall (X) \formula_1 \implies (\neg \formula_2 \wedge \retVar_1 =
-  \F_{outer}(\n_1))$ be Formulae $\formula_{merged}$ and
-  $\formula_{outer}$ respectively. Then $\formula_{outer} \implies
-  \formula_{merged}$.
-\end{lemma}
-
-
-\begin{lemma} \label{lemma:pairwise}
-  Let $\inv$ be any formula, $\pathCondition$ be a path condition for
-  procedure `\foo', \\$\OPCheckA \mi{(\inv, \pathCondition)}$ return
-  formula $\pairFormula$ such that $\pairFormula$ is
-  unsatisfiable, $\inv$ is satisfiable and $\OPCheckE \mi{(\inv,
-    \pathCondition)}$ returns formula $\formula'$ then $\formula'$ is
-  satisfiable.
-\end{lemma}
-
-\begin{theorem} \label{theorem:impurityWitness}
-  Let $\inv$ be an invariant, $T$ be a path condition,
-  $\OPCheckA \mi{(\inv, T)}$ return formula $\formula$ such that
-  $\formula$ is UNSAT, $\inv$ is SAT. Method `\foo' is
-  observationally pure for all states $\state$ such that $\state
-  \satisfies \inv$.
-\end{theorem}
 
 \section{Comparing the two approaches}
 
