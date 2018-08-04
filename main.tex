@@ -299,48 +299,48 @@
   %% write to global variables, but their input-output behaviour is
   %% independent of the global state.
 
-  Specification languages for imperative languages such as Spec\#,
-  JML, Eiffel allow procedure calls in contracts of a procedure.  The
-  behaviour of the implementation must not vary depending on the
-  presence of the specification. Inorder to safely use procedure calls
-  in specifications, there must be a restriction on the
-  implementation.  Strong purity allows no side effects whereas weak
-  purity allows no side effects on pre-existing objects. Another
-  direction : \textit{observational purity} : generalization of
-  referential transparency such that it allows only benign side
-  effects. Specifications in JML allow only strongly pure procedures
-  which is overly restrictive. A procedure may have benign side
-  effects which do not affect the input-output behaviour of the
-  procedure; thus, there is a need for observational purity.
+Specification languages for imperative languages such as Spec\#, JML,
+Eiffel allow procedure calls in contracts of a procedure. The
+behaviour of the implementation must not vary depending on the
+presence of the specification. Inorder to safely use procedure calls
+in specifications, there must be a restriction on the
+implementation. Strong purity allows no side effects whereas weak
+purity allows no side effects on pre-existing objects. Another
+direction is \textit{observational purity} : generalization of
+referential transparency such that it allows only benign side
+effects. Specifications in JML allow only strongly pure procedures
+which is overly restrictive. A procedure may have benign side effects
+which do not affect the input-output behaviour of the procedure; thus,
+there is a need for observational purity.
 
-  We formalize a notion of observational purity and a conditional
-  invariant which is well defined only if the procedure is
-  observationally pure.  We present two sound static analysis
-  approaches that can check observational purity of a procedure. These
-  techniques do not require any user annotations for array-free
-  programs and are applicable to recursive procedures, which is beyond
-  the scope of current literature.
+We formalize a notion of observational purity and a conditional
+invariant which is well defined only if the procedure is
+observationally pure.  We present two static analysis approaches that
+can check observational purity of a procedure. These techniques do not
+require any user annotations for array-free programs and are
+applicable to recursive procedures, which is beyond the scope of
+current literature.
 
-  \keywords{specification languages, observational purity, pure procedure,
-  programming by contract, static analysis}
+  \keywords{specification languages, observational purity, pure
+    procedure, programming by contract, static analysis}
 \end{abstract}
 
 \section{Introduction}
 Verifying functional properties of procedures is a hard task.
 Formalizing such properties of a procedure requires deep understanding
 of the procedure's (expected) functionality. Many procedures
-(especially in libraries) implement some mathematical
-function, this paper gives a sound technique to check if this holds
-for a given procedure. If the return value from a procedure is
-dependent only on the formal arguments even if the procedure
-reads/writes to global variables, the given procedure is considered as
+(especially in libraries) implement some mathematical function, this
+paper gives a pair of techniques to check if this holds for a given
+procedure. If the return value from a procedure is dependent only on
+the formal arguments even if the procedure reads/writes to global
+variables, the given procedure is considered as
 \textit{Observationally pure(OP)}.  If a procedure $\foo$ is
 observationally pure, then there exists a mathematical function $\F$
-such that $\F$ mimics the input-output behaviour of $\foo$, and both
-$\foo$ and $\F$ have the same signature.  Thus, the input-output
-behaviour of procedure $\foo$ is independent of the
-global variables. This property is a generalization of referential
-transparency. 
+such that $\F$ mimics the input-output behaviour of $\foo$ in all
+sequence of procedure calls to $\foo$ , and both $\foo$ and $\F$ have
+the same signature.  Thus, the input-output behaviour of procedure
+$\foo$ is independent of the global variables. This property is a
+generalization of referential transparency.
 %% For instance,
 %% non-optimal implementations of dynamic programming algorithms that do
 %% not use memoization can be refactored to use memoization
@@ -391,7 +391,7 @@ OPness is a property of a procedure and the set of reachable global
 states. Where \textit{reachable global states} represents the set of
 global states that are encountered at the boundaries of the procedure
 in a sequence of executions of the given procedure. Also a
-\textit{global state} is an assignment to the set of global
+\textit{global state} is the assignment to the set of global
 variables. Procedure `factorial' in Listing~\ref{lst:factorialSimple}
 is OP if the global state is restricted to the set $\{\{g = -1\}, \{g
 = 3!\}\}$, the procedure mimics the function $\lambda n.n!$. But for
@@ -457,11 +457,11 @@ use of invariant with uninterpreted function symbols like the previous
 approach.
 
 Since observational purity is a property on the return values from a
-procedure, this problem is closely related with the termination of
-procedures. In Section~\ref{sec:background}, we define OPness in a way
-such that non-termination does not cause non-OPness. OP is violated if
-for a given invariant on the reachable global states, for a given
-argument value there is a non-unique return value. And in-case of
+procedure, this problem is closely related to the halting problem. In
+Section~\ref{sec:background}, we define OPness in a way such that
+non-termination does not cause non-OPness. OP is violated if for a
+given invariant on the reachable global states, for a given argument
+value there is a non-unique return value. And in-case of
 non-termination there isn't a return value. Hence, a non-terminating
 procedure is OP.
 
@@ -892,8 +892,7 @@ Although the existential approach is more precise, the impurity
 witness approach performs better with SAT-SMT solvers. In case of the
 existential approach the solver has to find a satisfying assignment
 for the free variable $\F$. Whereas, in case of the impurity witness
-approach, the inequivalence is contradicted (if procedure is OP) using
-FOL with interpreted functions.
+approach, the inequivalence is contradicted (if procedure is OP).
 
 \section{Experimental Results}
 
@@ -960,326 +959,6 @@ caching but were semantically preserving as pure.
 \renewcommand{\thesection}{\Alph{section}}
 
 
-\section{Proof of Lemma~\ref{lemma:interface}}
-
-\begin{proof}
-  In Algorithm~\ref{algo:someOPcheckCombined} the returned formula is
-  $\formula$ and $\F' \satisfies \formula$. Lets substitute $\F'$ in
-  $\formula$ for the free variable $\F$ to get $(\forall \g) (\forall
-  \n) (\forall \retVar) (\forall \gout) (\forall \gbef_1) (\forall
-  \gbef_2) \cdots \\(\forall \gaft_1) (\forall \gaft_2) \cdots \{\inv[\F'/\F]
-  \wedge \pathCondition[\F'/\F] \wedge \inv[\gaft_1/\g, \F'/\F] \wedge
-  \\\inv[\gaft_2/\g, \F'/\F] \cdots \implies (\retVar = \F'(\n) \wedge
-  \inv[\gout/\g, \F'/\F] \wedge \inv[\gbef_1/\g, \F'/\F] \wedge
-  \inv[\gbef_2/\g, \F'/\F]
-  \cdots) \}$, lets call this formula $\formula'$.
-
-  $\formula'$ is valid, since $\F' \satisfies \formula$ and $\formula'
-  = \formula[\F'/\F]$. Let $x$ be a trace or a trace segment, such
-  that $(\atEntry{x}, \F') \satisfies \inv$ then
-  \begin{enumerate}
-  \item if $x$ is a trace.
-    \begin{enumerate}
-    \item if $x$ has a recursive call
-      \begin{enumerate}
-      \item \label{beforeCallInRec} $(\beforeCall{x}, \F') \satisfies
-        \inv$ holds as the conjuncts in the conclusion of $\formula'$,
-        \\$\inv[\gbef_1/\g, \F'/\F]$, $\inv[\gbef_2/\g, \F'/\F] \cdots
-        \inv[\gbef_n/\g, \F'/\F]$ are satisfied for each $i^{th}$ call
-        statement.
-      \item the premise in $\formula'$, the conjunct
-        $\pathCondition[\F'/\F]$, constraints the recursive call's
-        return value to respect function $\F'$. Next, the 
-        conclusion in formula $\formula'$ has the conjuncts
-        $\inv[\gout/\g,  \F'/\F]$ and $\retVar = \F'(\param{x})$. Thus,
-        $(\atEnd{x}, \F') \satisfies \inv$ and $\return{x} =
-        \F'(\param{x})$.
-      \end{enumerate}
-    \item if $x$ does not have a recursive call.\\ In the conclusion
-      in formula $\formula'$, we have $\inv[\gout/\g, \F'/\F]$ and\\
-      $\retVar = \F'(\param{x})$. Thus, we have $(\atEnd{x}, \F')
-      \satisfies \inv$ and $\return{x} = \F'(\param{x})$.
-    \end{enumerate}
-  \item If $x$ is a prefix trace segment \\we have, 
-    trace $\trace$ must exist such that $\segDepth{x}{\trace} =
-    1$. And we have\\ $(\atEntry{x}, \F') \satisfies \inv$. Now we can
-    apply the above mentioned point \ref{beforeCallInRec}, we get
-    $(\beforeCall{\trace}, \F') \satisfies \inv$, and
-    $\beforeCall{\trace} = \atEnd{x}$. Thus, we have $(\atEnd{x}, \F')
-    \satisfies \inv$.
-  \end{enumerate}
-  
-  Hence proved.
-\end{proof}
-
-\section{Proof of theorem~\ref{theorem:swopGivesWop}}
-\begin{proof}
-  Inductive hypothesis $P(k)$ : Let $\inv$ be an invariant, $\history$
-  be a history, $\gstate$ be a global state, such that $(\atEntry{\history},
-  \F) \satisfies \inv$, $(\gstate, \F)
-  \satisfies \inv$, the $k^{th}$ trace in $\history$ be $\trace_k$
-  then $(\atEntry{\trace_k}, \F) \satisfies \inv$, $(\atEnd{\trace_k},
-  \F) \satisfies \inv$ and $\return{\trace_k} = \F(\n_k)$ where $\n_k$
-  is the argument to trace $\trace_k$.
-  
-  Base case : Let trace $\trace_1$ be the first trace of history
-  $\history$ and since $\atEntry{\history} = \atEntry{\trace_1}$ we
-  have $(\atEntry{\trace_1}, \F) \satisfies \inv$. From
-  lemma~\ref{lemma:trace} we have $(\atEnd{\trace_1}, \F) \satisfies
-  \inv$, and also $\return{\trace_1} = \F(\n_1)$.
-  
-  Inductive case : Assuming P(k) and proving P(k + 1). From the
-  inductive hypothesis we have $(\atEnd{\trace_k}, \F) \satisfies
-  \inv$. Also, $\atEnd{\trace_k} = \atEntry{\trace_{k+1}}$. Thus,
-  $(\atEntry{\trace_{k+1}}, \F) \satisfies \inv$ and from
-  lemma~\ref{lemma:trace}, we can conclude $(\atEnd{\trace_{k+1}}, \F)
-  \satisfies \inv$ and $\return{\trace_{k+1}} = \F(\n_{k+1})$ where
-  $\n_{k+1}$ is the argument to $\trace_{k+1}$.
-
-  Hence proved.
-\end{proof}
-
-
-\section{Proof of Lemma~\ref{lemma:funcRef}}
-\begin{proof}
-  We will prove that both $\formula_{func}$ and $\formula_{ret}$ are
-  equivalent to formula $\formula_3$.
-  \begin{enumerate}
-  \item Proving $\formula_{func}$ and $\formula_3$ equivalent.\\
-    In formula $\formula_1$ there are two instances of
-    $\pathCondition$. For one instance of $\pathCondition$ variable $\retVar$ is renamed
-    to $\retVar_1$ whereas for the other, it is renamed to
-    $\retVar_2$. And all variables have equivalent
-    constraints.
-    Thus, if there exist 
-    an assignment for one instance of sub-formula
-    $\pathCondition$ in $\formula_1$, the same assignment can be
-    mapped to the other instance of $\pathCondition$.
-    %% is also and assignment for the
-    %% other instance
-    Hence $\retVar_1 = \retVar_2$.\\
-    Thus, we have $\formula_{func}$ and $\formula_3$ are equivalent.
-  \item Proving $\formula_{ret}$ and $\formula_3$ equivalent.\\
-    Here we will show that given $\formula_{ret}$ is valid, we can
-    construct a function $\F$ such that for each domain value $n_1$,
-    it would map it function $\F$ to value $\retVar_1$.
-    
-    Proving by contradiction. Let us assume that $\formula_{ret}$
-    holds, but we cannot construct a
-    function $\F$ such that it would be equivalent to $\retVar_1$ for
-    each domain value. Let us consider the case that a value
-    from the domain is not mapped to a unique value in the range.
-    Since function $\F$ maps 
-    %% (see section \ref{onlyTerminatinTraces}). Since function $\F$ maps
-    variable $\n_1$ to $\retVar_1$ and such a function cannot exist;
-    it means that $\retVar_1 \neq \retVar_2$ is possible, which
-    implies $\formula_{ret}$ is not valid.
-    %% The other
-    %% case is that a value from the domain is not mapped to an element
-    %% in the range. Such a case would arise if the trace is non
-    %% terminating. And in this case both the formulae are true.
-    Hence this
-    is a contradiction.
-
-    Hence proved.
-  \end{enumerate}
-\end{proof}
-
-\section{Proof of Lemma~\ref{lemma:forAllOuterAInner}}
-\begin{proof}
-\begin{align*}
-  \formula_3 =&\\
-  &\forall \F \exists \F_{outer} \forall (X) \formula_1
-  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))\\
-=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
-(\neg(\retVar_1 \neq \retVar_2 \\
-&\vee \neg\inv[\gbef_{p1}/\g] \vee \neg\inv[\gbef_{p2}/\g] \cdots 
-\vee \neg\inv[\gout/\g]) \wedge\\
-&\retVar_1 = \F_{outer}(\n_1))\\
-=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
-(\retVar_1 = \retVar_2 = \F_{outer}(\n_1) \wedge\\
-&\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
-=&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
-(\retVar_1 = \retVar_2 = \F_{outer}(\n_1)) \wedge\\
-&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies
-\inv[\gbef_{p1}/\g] \wedge
-\inv[\gbef_{p2}/\g]\\
-&\cdots \wedge \inv[\gout/\g]\\
-=&\forall \F \forall (X) \formula_1 \implies
-\retVar_1 = \retVar_2 \wedge  &(lemma~\ref{lemma:funcRef})\\
-&  \forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
-\inv[\gbef_{p1}/\g] \wedge \\
-&\inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
-=&\forall \F \forall (X) \formula_1 \implies
-\retVar_1 = \retVar_2 \wedge &(\F_{outer} \not \in free\mhyphen
-var(a) a \in \{\formula_1, \inv\})\\
-&\forall \F \forall (X) \formula_1 \implies (
-\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge\\
-&\inv[\gout/\g])\\
-=&\forall \F \forall (X) \formula_1 \implies (
-\retVar_1 = \retVar_2 \wedge \inv[\gbef_{p1}/\g] \wedge \\
-&\inv[\gbef_{p2}/\g] \cdots \wedge \inv[\gout/\g])\\
-=&\forall \F \forall (X) \formula_1 \implies \neg
-\formula_2\\
-=& \formula_4\\
-%% =&\forall \F \forall (X) \formula_1 \implies
-%% \retVar_1 = \retVar_2 \wedge
-%% &(\F_{outer} \not \in free\mhyphen variable(\formula_1))\\
-%% &\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
-%% \inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
-%% \inv[\gout/\g])\\
-%% =&\forall \F \forall (X) \formula_1 \implies
-%% \retVar_1 = \retVar_2 = \F(n_1) \wedge
-%% & (lemma~\ref{lemma:funcRef})\\
-%% &\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
-%% \inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
-%% \inv[\gout/\g])\\
-%% =&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
-%%  \retVar_1 = \retVar_2 = \F(n_1)\wedge\\
-%% &\inv[\gbef_{p1}/\g] \wedge \inv[\gbef_{p2}/\g] \cdots \wedge
-%%  \inv[\gout/\g])\\
-%%  =&\forall \F \exists \F_{outer} \forall (X) \formula_1 \implies (
-%%  \neg \formula_2 \wedge \retVar_1 = \F(n_1))\\
-%%  =& \formula_3
-\end{align*}
-Hence proved.
-\end{proof}
-
-\section{Proof of Lemma~\ref{lemma:combiningF}}
-
-\begin{proof}
-  Assuming $\formula_{outer}$ is valid we will inductively build a
-  function $\F'$ such that we can substitute it for both functions
-  $\F$ and $\F_{outer}$ in formula $\formula_{outer}$. Thus,
-essentially finding a function that satisfies formula
-$\formula_{merged}$.
-
-
-  %% $(\forall (X) \formula_1 \implies (\neg
-  %% \formula_2 \wedge \retVar_1 = \F(\n_1)))[\F'/\F]$ is valid.
-
-  %% In order to build this function $\F'$ we need tools to traverse over
-  %% the domain of $\F'$ with respect to the formula
-  %% $\formula_{outer}$. The following are the definitions.
-We will use the following definitions to traverse the domain of
-function $\F'$ with respect to formula $\formula_{outer}$.
-
-  \begin{definition}[depth(dom $\F \rightarrow \integer$)]
-$\depth{n} = 1 + min(\depth{k})$ where $n \in dom \;\F'$ such that
-$(\forall (X) \formula_1 \implies (\neg
-  \formula_2 \wedge \retVar_1 =
-\F_{outer}(\n_1)))[\F'(\n)/\F_{outer}(\n_1),\\ \F'(k)/\F(k_1),
-\F'(k)/\F(k_2)]$ is valid, where $k_1$ and $k_2$ are the arguments to
-the inner procedure calls in the two instances of $\pathCondition$ in
-formula $\formula_1$. Next, $x$ such that $x \in dom \; \F'$ has depth
-0 if in the above mentioned formula by substituting $x$ for $\n$ leads
-to a case such that value of $\retVar_1$ is independent of $k_1$.
-
-    %% value $\F(k)$ is substituted in formula $\formula_{outer}$ to get
-    %% the mapping for $n$. $\depth{n} = 0$ if no substitutions are
-    %% necessary to get the mapped value for $n$.
-  \end{definition}
-
-  \begin{definition}[level($\integer$) $\rightarrow$ subset of dom $\F$]
-    $\level{n}$ gives the set $X$ of domain elements of $\F$ such
-    $\forall v \in X \depth{v} \leq n$.
-\end{definition}
-
-  Inductive hypothesis $P(n)$ : Let $\formula_{outer}$ be valid then
-  there exist a function $\F'$ such that $\forall k \in \level{n}
-  \implies \{\forall (X-\{n_1\}) \formula_1 \implies (\neg
-  \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))\}[\F'/\F_{outer},
-    k/n_1, \F'/\F]$.
-
-Base case $P(0)$ : Let $p \in \level{0}$. The corresponding value for
-$p$ can be produced only if $\pathCondition$ has a disjunct which does
-not refer the function $\F$, otherwise $\level{0}$ is an empty set. If
-$\level{0}$ is not an empty set then, it satisfies the inductive
-hypothesis, as all satisfying functions replacing $\formula_{outer}$
-respect each other on these arguments. This is because the mappings
-are essentially encoded in the formula itself and $\formula_{outer}$
-holds. If $\level{0} = \phi$ then the hypothesis holds vacuously.
-
-%% $\level{0}$ can be empty only if procedure `\foo' does
-%%   not have a base case thus, `\foo' never terminates; in this case we
-%%   are done. If $\level{0}$ is not empty, since $\formula_{outer}$ is
-%%   valid we have that for all functions substituted for the inner
-%%   procedure call, there exists a function that respects the value
-%%   $\retVar$; function $\F'$ also respects $\retVar$.
-  
-Inductive case : Assuming $P(k)$ holds, proving for $P(k+1)$. We have
-that up-to the $k^{th}$ level there exists a function $\F'$ that
-satisfies the inductive hypothesis. Next, we can find the values of
-the $\n$ such that it leads to an element of the set $\level{k}$ as
-the argument to the inner procedure call in procedure $\foo$. Thus,
-essentially giving us the elements of set $\level{k+1}$.  And for all
-such newly discovered members of set $\level{k+1}$ we have that the
-inductive hypothesis holds as we know that $\formula_{outer}$
-holds. This is because in $\formula_{outer}$, for all functions that
-replace the inner procedure call, there exists a function
-$\F_{outer}$, which represents the return value.
-
-
-%% We
-%%   have that up-to the $n^{th}$ level there exists a function $\F'$ that
-%%   satisfies $\formula_{merged}$. Next, because $\formula_{outer}$
-%%   holds, we have $\formula_{merged}$ also holds up-to $\level{n+1}$ as
-%%   $\formula_{merged}$ holds up-to $\level{n}$ and $\formula_{outer}$, so we
-%%   can substitute $\F$ with $\F'$ up-to $\level{n}$. This also describes
-%%   function $\F'$ for $\level{n}$.
-  
-Hence proved.
-\end{proof}
-
-\section{Proof of Lemma~\ref{lemma:pairwise}}
-
-\begin{proof}
-  Let $X$ be the set of free variables in formula
-  $\pairFormula$ except the mathematical function $\F$. We have
-  $\pairFormula = \formula_1 \wedge \formula_2$. Formula
-  $\formula_1$ and $\formula_2$ are listed above in Section
-  \ref{opcheckBreakdown}.
-  
-  $\pairFormula$ is UNSAT; it is equivalent to say $\exists \F
-  \exists(X) \pairFormula$ is false. Thus, we have $\forall \F
-  \forall (X) \neg \pairFormula$ is true. Next, we have $\forall \F
-  \forall (X) \neg \pairFormula = \forall \F \forall (X) \neg(
-  \formula_1 \wedge \formula_2) = \forall \F \forall (X) \neg
-  \formula_1 \vee \neg \formula_2 = \forall \F \forall (X) \formula_1
-  \implies \neg \formula_2$. Let $\formula_3 = \forall \F \forall (X)
-  \formula_1 \implies \neg \formula_2$.
-
-  Next, we have the following properties :
-  \begin{enumerate}
-  \item $\formula_{pairwise}$ is unsatisfiable $\implies \formula_3$
-    is valid (illustrated above). 
-  \item Let $\forall \F \exists \F_{outer} \forall (X) \formula_1
-  \implies (\neg \formula_2 \wedge \retVar_1 = \F_{outer}(\n_1))$ be
-  formula $\formula_4$
-    From lemma~\ref{lemma:forAllOuterAInner} we have $\formula_3 =
-    \formula_4$.
-  \item Let $\formula_{merged}$ be $\exists \F \forall (X) \formula_1
-    \implies (\neg \formula_2 \wedge \retVar_1 = \F(\n_1))$. From
-    lemma~\ref{lemma:combiningF} we have $\formula_4 \implies
-    \formula_{merged}$. 
-  \item Since formula $\formula_{merged}$ holds we have $\forall (X) \formula_1
-    \implies (\neg \formula_2 \wedge \retVar_1 = \F(\n_1))$ is
-    Satisfiable. Thus, $\formula'$ is satisfiable.
-  \end{enumerate}
-Hence proved.
-\end{proof}
-
-\section{Proof of Theorem~\ref{theorem:impurityWitness}}
-
-\begin{proof}
-  We have $\OPCheckA \mi{(\inv, T)}$ for method `\foo' returns formula
-  $\formula$ such that $\formula$ is UNSAT. From
-  lemma~\ref{lemma:pairwise} we have that $\OPCheckE \mi{(\inv, T)}$
-  would return formula $\formula'$ such that $\formula'$ is SAT, which
-  implies that `\foo' is static observationally pure. Hence we
-  can apply theorem~\ref{theorem:swopGivesWop}.\\
-  Hence proved.
-\end{proof}
 
 \end{subappendices}
 
