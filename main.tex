@@ -1091,20 +1091,21 @@ $(\atEntry{\trace}, \F) \satisfies \inv$ then,\\ $\return{\trace} =
 \end{figure}
 
 The impurity witness approach in
-Algorithm~\ref{algo:pairwiseOPcheckCombined} encodes a formula
+Algorithm~\ref{algo:pairwiseOPcheckCombined} encodes formula
 $\formula_{iw}$. If $\formula_{iw}$ is UNSAT the given procedure is
 OP. The idea encoded in $\formula_{iw}$ is that if a pair of traces of
 the given procedure exists such that the traces start with the same
 parameter value, and potentially different values for the global
 variables return different results, then the procedure is not OP. In
 this case, we have a witness to the non-OPness of the given
-procedure. Otherwise, we prove that the given procedure is OP.
+procedure. Otherwise, we prove that the given procedure is OP (this
+proof will be mentioned in the final version of this paper).
 
 The check encoded in Figure~\ref{algo:pairwiseOPcheckCombined}, cannot
 be expressed in standard requires and ensures (again, to the best of
 our knowledge). As the approach compares the given procedure with
 itself, standard requires and ensures do not suffice. But works such as
-\cite{lahiri2013differential} can be extended to express this. 
+\cite{lahiri2013differential} can be used to express this property. 
 
 \subsection{Proof of Correctness}
 In this section we will prove that if Impurity witness procedure
@@ -1113,7 +1114,7 @@ $\formula$ for procedure `\foo' and $\formula$ is UNSAT then procedure
 `\foo' is observationally pure.
 
 The formula produced by $\OPCheckA \mi{(\inv, \pathCondition)}$
-for \label{opcheckBreakdown} simplicity can be broken down into two
+nfor \label{opcheckBreakdown} simplicity can be broken down into two
 parts. Let the formula produced by $\OPCheckA \mi{(\inv,
   \pathCondition)}$ be $\pairFormula$ and $\pairFormula = \formula_1
 \wedge \formula_2$.\\
