@@ -711,55 +711,31 @@ To introduce the definition of an invariant we first define
 \end{definition}
 
 \begin{definition}[invariant]
-  An invariant $\inv$ represents the set of global states at the
-  boundaries of a procedure. $\inv$ is a formula, with 
-  global variables accessed by the given procedure and a uninterpreted
-  function symbol $\F$ as the set of free variables.
-  %% If a procedure begins in state that satisfies $\inv$, then it ends
-  %% in a state that satisfies $\inv$.
-  The uninterpreted function symbol $\F$ is a placeholder for the
-  mathematical function equivalent to the given procedure.
-  
-
-  %% An invariant $\inv$ is a formula with an uniterpreted function
-  %% symbol $\F$ and the global variables accessed by the given procedure
-  %% as free variables.
-  
-  %% Similar to pre-condition and post-conditions clauses, $\inv$ holds before a
-  %% procedure call and it is assumed after the procedure call.
-  
-  %% %% It represents the set of global states that may
-  %% %% arise before and after each procedure call of the given procedure in
-  %% %% a set of histories. Thus, if a procedure begins in a global state
-  %% %% that satisfies invariant $\inv$ then the state before the procedure
-  %% %% call also satisfies $\inv$.
-  %% %% Also, assuming the inner recursive call
-  %% %% ends in a state statisfying $\inv$, the global state at the end of
-  %% %% the procedure also satisfies $\inv$.
-  %% %% it also ends in a global state that
-  %% %% satisfies $\inv$.
-  %% Some variables may be defined in terms of a
-  %% function symbol $\F$, which in turn refers to the mathematical
-  %% function that is equivalent to the given procedure.
-  
+  Invariant $\inv$ represents the set of global states at the
+  boundaries of a procedure. $\inv$ is a formula, with global
+  variables accessed by the given procedure and a uninterpreted
+  function symbol $\F$ as the set of free variables. The uninterpreted
+  function symbol $\F$ is a placeholder for the mathematical function
+  equivalent to the given procedure. The initial global state
+  satisfies the invariant.
 \end{definition}
 
-An invariant $\inv$ is assumed at the beginning of the procedure and
-asserted at the end. Also, asserted before a procedure call and
-assumed after the procedure call. This treatment of the invariant
-$\inv$ is very similar to how pre-conditions and post-conditions are
-handled for recursive procedures. But, the invariant used here assumes
-that the given procedure is observationally pure, invariant has the
-free variable $\F$ which is also used to abstract over procedure
-calls. The invariant is defined only if the given procedure is
-observationally pure otherwise it is undefined.
+Invariant $\inv$ is assumed at the beginning of the procedure and
+asserted at the end. Also, $\inv$ is asserted before the procedure
+call and assumed after the procedure call. Above mentioned treatment
+is similar to handling of pre-conditions and post-conditions for
+recursive procedures. The invariant used here assumes that the given
+procedure is observationally pure, it has the free variable $\F$ which
+is also used to abstract over procedure calls. The invariant is
+defined only if the given procedure is observationally pure otherwise
+it is undefined.
 
 Let $\gstate$ be a global state, and $\F'$ be a function, and $\inv$
 be a invariant. If we substitute $\gstate$ for $g$ and $\F'$ for $\F$
 in $\inv$ and it is true, then we say that $(\gstate, \F')$ satisfies
-$\inv$, which is denoted as $\inv[\gstate/g, \F'/\F] \implies
-(\gstate, \F') \satisfies \inv$. For instance let $\inv := g = -1 \vee
-g = \F(18) * 3$ then $(3!, \lambda n. n!) \satisfies \inv$.
+$\inv$, which is denoted as $(\gstate, \F') \satisfies \inv$. For
+instance let $\inv := g = -1 \vee g = \F(18) * 3$ then $(3!, \lambda
+n. n!) \satisfies \inv$.
 
 \section{Observational purity}
 \begin{definition}[observational purity(invariant $\inv$)]
@@ -781,20 +757,18 @@ int remember( int n) {
 }
 \end{lstlisting}
 
-In a history, if all traces return the same result for an
-argument value, then we can find a function $\F$ that respects the
-given procedure. But, the given procedure may mimic a different
-function $\F'$ in another history. If the invariant is a set of concrete
-states then there is a unique function that is equivalent to the given
-procedure. But, our invariant allows function symbols. This allows an
-OP procedure to mimic different functions in different histories.
-%% The invariant we use allows multiple functions to
-%% be equivalent to the given procedure.
-For instance, procedure `remember' in Listing~\ref{lst:remember}
-mimics a constant function for $\inv := g=0 \wedge init=0 \vee g= \F()
-\wedge init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0
-\vee g=2 \wedge init=1$; the procedure mimics the function $\lambda
-n.2$.
+In a history, if all traces return the same result for an argument
+value, there exists a function $\F$ that respects the given
+procedure. In a history, the given procedure mimics a unique function,
+but the mimicked function varies across histories. If the invariant is
+a set of concrete states then there exists a unique function that is
+equivalent to the given procedure across histories. But, our invariant
+allows function symbols. Use of the function symbol allows an OP
+procedure to mimic different functions across histories. For instance,
+procedure `remember' in Listing~\ref{lst:remember} mimics a constant
+function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
+init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
+g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
 
 \section{Existential approach}\label{sec:existential}
 
@@ -832,11 +806,10 @@ procedure.
 
 The check encoded in Figure~\ref{algo:someOPcheckCombined} cannot be
 expressed using standard requires and ensures statements (to the best
-of our knowledge). In the intra-procedural analysis, the validity of
-the ensures statements is verified. We ensure that if the procedure
-has an `ensures x' statement, then the state $\neg$x is not reachable
-at the program point.  In our analysis, we check a weaker
-condition. We check if $\retVar = \F(n)$ is satisfiable. But this
+of our knowledge). In the standard pre-post verification, the
+unreachability of the negation of the post-condition is ensured. In
+contrast, our analysis just requires that the post condition is
+reachable. We check if $\retVar = \F(n)$ is satisfiable, But this
 suffices for our analysis.
 
 \subsection{Proof of correctness}
