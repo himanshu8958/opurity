@@ -887,7 +887,8 @@ approach marks this procedure as OP whereas the impurity witness
 approach marks it as non-OP. The existential approach marks this
 example OP, considering a function $\lambda n. 2$. Whereas there are
 many functions $\F'$ such that $\F'(0) \neq \F'(1)$, now the procedure
-`bar' is not OP for the invariant $(g = \F(0) \vee g = \F(1))[\F'/\F]$.
+`bar' is not OP for the invariant $(g = \F(0) \vee g =
+\F(1))[\F'/\F]$.
 
 Although the existential approach is more precise, the impurity
 witness approach performs better with SAT-SMT solvers. In case of the
@@ -907,42 +908,43 @@ self recursive procedures to be OP and also need user
 annotations. They use a information flow based technique to prove OP
 of procedures.
 
-The idea of comparing a program to itself~\cite{lahiri2013differential}
-\cite{partush2013abstract} is closely related to the impurity witness
-approach. DAC~\cite{lahiri2013differential} uses this idea for
-finding the assertions that failed in a version of a program with
-respect to another version. Whereas, Partush and
-Yahav~\cite{partush2013abstract} focus on finding the parameter values
-for which the two versions of the procedure differ.
+The idea of comparing a program to
+itself~\cite{lahiri2013differential} \cite{partush2013abstract} is
+closely related to the impurity witness
+approach. DAC~\cite{lahiri2013differential} uses this idea for finding
+the assertions that failed in a version of a program with respect to
+another version. Whereas, Partush and Yahav~\cite{partush2013abstract}
+focus on finding the parameter values for which the two versions of
+the procedure differ.
 
 Naumann~\cite{naumann2007observational} calls a procedure OP if it is
 output-equivalent to a procedure which is a side-effect free. And
-side-effect-freeness does not entail OPness. This works present/use
-a theory for simulations, closely related to ownership types. Thus
-this work is closely related but they solve a different problem.
+side-effect-freeness does not entail OPness. This works present/use a
+theory for simulations, closely related to ownership types. Thus this
+work is closely related but they solve a different problem.
 
 Cok~\cite{cok2008extensions} builds upon Barnett's
 work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
-partitioning the set of methods into ``pure'', ``secret'' and ``query''
-methods, each scoped to a particular data group. The query methods are
-OP. They give a set of rules to be followed by methods in each
-group. Thus, structuring for modular reasoning about OPness.
+partitioning the set of methods into ``pure'', ``secret'' and
+``query'' methods, each scoped to a particular data group. The query
+methods are OP. They give a set of rules to be followed by methods in
+each group. Thus, structuring for modular reasoning about OPness.
 
-Finifter~\cite{cok2008extensions} takes a different approach of restricting
-the programming language in order to make OP checking simpler. In the
-restricted language called Joe-E, OP methods have all objects reachable
-from the parameters marked as immutable.
+Finifter~\cite{cok2008extensions} takes a different approach of
+restricting the programming language in order to make OP checking
+simpler. In the restricted language called Joe-E, OP methods have all
+objects reachable from the parameters marked as immutable.
 
-Salcianu~\cite{sualcianu2005purity} gives a static analysis
-that checks if a method modifies the pre-existing state. All the
-operators used in specifications do not have side effects. If a
-procedure does not modify the pre-existing state it is called pure and
+Salcianu~\cite{sualcianu2005purity} gives a static analysis that
+checks if a method modifies the pre-existing state. All the operators
+used in specifications do not have side effects. If a procedure does
+not modify the pre-existing state it is called pure and
 ~\cite{barnett200499} suggests that such procedures can be used in
-specifications. Our work in comparison generalizes further by
-allowing procedures that modify pre-existing state but behave as
-mathematical functions in specifications. We would like to point out
-that in their work they manually marked library methods that did
-caching but were semantically preserving as pure.
+specifications. Our work in comparison generalizes further by allowing
+procedures that modify pre-existing state but behave as mathematical
+functions in specifications. We would like to point out that in their
+work they manually marked library methods that did caching but were
+semantically preserving as pure.
 
 \nocite{barnett2004spec}
 \nocite{lahiri2013differential}
