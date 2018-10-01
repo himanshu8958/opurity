@@ -301,18 +301,23 @@ Microsoft Research India \\
   %% independent of the global state.
 
 Specification languages for imperative languages such as Spec\#, JML,
-Eiffel allow procedure calls in contracts of a procedure. The
-behaviour of the implementation must not vary depending on the
-presence of the specification. Inorder to safely use procedure calls
-in specifications, there must be a restriction on the
-implementation. Strong purity allows no side effects whereas weak
-purity allows no side effects on pre-existing objects. Another
-direction is \textit{observational purity} : generalization of
-referential transparency such that it allows only benign side
-effects. Specifications in JML allow only strongly pure procedures
-which is overly restrictive. A procedure may have benign side effects
-which do not affect the input-output behaviour of the procedure; thus,
-there is a need for observational purity.
+Eiffel allow procedure calls in contracts of a procedure.  As always,
+the presence of the specification must not influence the behaviour of
+the procedure.
+%% The
+%% behaviour of the implementation must not vary depending on the
+%% presence of the specification
+Thus, inorder to safely use procedure calls in specifications, the
+procedures must be restricted. Strong purity allows no side effects
+whereas weak purity allows no side effects on pre-existing
+objects. Another direction is \textit{observational purity} :
+generalization of referential transparency such that it allows only
+benign side effects, which do not affect the input output behaviour of
+the procedure.
+%% Specifications in JML allow only strongly pure
+%% procedures which is overly restrictive. A procedure may have benign
+%% side effects which do not affect the input-output behaviour of the
+%% procedure; thus, there is a need for observational purity.
 
 We formalize a notion of observational purity and a conditional
 invariant which is well defined only if the procedure is
@@ -322,7 +327,7 @@ require any user annotations for array-free programs and are
 applicable to recursive procedures, which is beyond the scope of
 current literature.
 
-  \keywords{specification languages, observational purity, pure
+\keywords{specification languages, observational purity, pure
     procedure, programming by contract, static analysis}
 \end{abstract}
 
@@ -331,14 +336,14 @@ Verifying functional properties of procedures is a hard task.
 Formalizing such properties of a procedure requires deep understanding
 of the procedure's (expected) functionality. Many procedures
 (especially in libraries) implement some mathematical function, this
-paper gives a pair of techniques to check if this holds for a given
-procedure. If the return value from a procedure is dependent only on
-the formal arguments even if the procedure reads/writes to global
-variables, the given procedure is considered as
+paper gives a pair of techniques to check if a given procedure
+implements some mathematical function. If the return value from a
+procedure is dependent only on the formal arguments even if the
+procedure reads/writes to global variables, the given procedure is
 \textit{Observationally pure(OP)}.  If a procedure $\foo$ is
 observationally pure, then there exists a mathematical function $\F$
 such that $\F$ mimics the input-output behaviour of $\foo$ in all
-sequence of procedure calls to $\foo$ , and both $\foo$ and $\F$ have
+sequence of procedure calls to $\foo$ , and both $\foo$ and $\F$ share
 the same signature.  Thus, the input-output behaviour of procedure
 $\foo$ is independent of the global variables. This property is a
 generalization of referential transparency.
@@ -383,15 +388,15 @@ function $\lambda n. n!$. It caches results using the global variable
 -1', where `-1' represents the un-initialized state. At line 6, global
 variable `g' is set to 3! iff `g' had the value `-1' before line
 5. Next, line 9 is reached iff global variable `g' is not `-1',
-implying that procedure `factorial' has been called with `n = 3'
-previously. At line 9, the procedure correctly returns the value
-`3!'. Other than this caching behaviour for `n = 3' this procedure is
-similar to the standard implementation for `factorial'.
+implying that procedure `factorial' has been called with parameter
+value `n = 3' previously. At line 9, the procedure correctly returns
+the value `3!'. Other than this caching behaviour for `n = 3' this
+procedure is similar to the standard implementation for `factorial'.
 
 OPness is a property of a procedure and the set of reachable global
 states. Where \textit{reachable global states} represents the set of
-global states that are encountered at the boundaries of the procedure
-in a sequence of executions of the given procedure. Also a
+all the global states that are encountered at the boundaries of the
+procedure in a sequence of executions of the given procedure. A
 \textit{global state} is the assignment to the set of global
 variables. Procedure `factorial' in Listing~\ref{lst:factorialSimple}
 is OP if the global state is restricted to the set $\{\{g = -1\}, \{g
