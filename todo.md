@@ -37,3 +37,37 @@ ensure every thing has mathit
 fossacs
 cav
 atva
+============================================
+todos : october 13, 2018
+related work : 1 - 1.5 page
+
+1. Naumans'work
+	how is it different
+	compare the techniqure
+2. first compare on what do they solve
+3. all comparisons should be contained
+   What : the problem they solve
+   How  : the technique
+
+General
+1. 'program components'
+2. \textit{formulae}
+3. talk about level of automation
+4. fix approaches : the quantifiers : path condition
+
+what remains :
+1. illustration
+2. benchmarks
+3. proof overview
+
+Sequence :
+	 intro
+		35000 feet
+		motivating example
+		what we do
+		how we do
+		closely related work, comparison : 1 paragraph
+		list of contributions
+		outline of the paper
+
+==============================================
