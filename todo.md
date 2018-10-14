@@ -21,4 +21,19 @@ theme: Copenhagen
    * the above mentioned paper uses the terms opure and opurity, can
    we use the same terms?
 7. read cok paper		(done)
-8. talk about why F(2) *3 instead of F(3). 
+8. talk about why F(2) *3 instead of F(3).
+
+# Oct 13
+
+Examples:
+1. levenshteinDistance
+   figure out how to use strings in boogie
+2. lcs
+3. viterbi algorithm
+
+include more examples in paper, illustrate both approaches
+ensure every thing has mathit
+
+fossacs
+cav
+atva
