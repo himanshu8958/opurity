@@ -308,32 +308,36 @@ Microsoft Research India \\
   %% write to global variables, but their input-output behaviour is
   %% independent of the global state.
 
-Specification languages for imperative languages such as Spec\#, JML,
-Eiffel allow procedure calls in contracts of a procedure.  As always,
-the presence of the specification must not influence the behaviour of
-the procedure.
+JML, a specification language for Java programs and programming
+languages such as Spec\# and Eiffel allow procedure calls in contracts
+of a procedure.  As always, the presence of the specification must not
+influence the behaviour of the procedure.
 %% The
 %% behaviour of the implementation must not vary depending on the
 %% presence of the specification
 Thus, in order to safely use procedure calls in specifications, the
-procedures must be restricted. Strong purity allows no side effects
-whereas weak purity allows no side effects on pre-existing
-objects. Another direction is \textit{observational purity} :
-generalization of referential transparency such that it allows only
-benign side effects, which do not affect the input output behaviour of
-the procedure.
+procedure behaviour must be restricted.
+%% Strong purity allows no side effects
+%% whereas weak purity allows no side effects on pre-existing
+%% objects. Another direction is \textit{observational purity} :
+%% generalization of referential transparency such that it allows only
+%% benign side effects, which do not affect the input output behaviour of
+%% the procedure.
+We formally define Observational Purity which is a generalization of
+referential transparency which allows only benign side effects. And
+\textit{benign side effects} cannot be observed (do not affect the
+input-output behaviour of the procedure).
 %% Specifications in JML allow only strongly pure
 %% procedures which is overly restrictive. A procedure may have benign
 %% side effects which do not affect the input-output behaviour of the
 %% procedure; thus, there is a need for observational purity.
-
-We formalize a notion of observational purity and a conditional
-invariant which is well defined only if the procedure is
-observationally pure.  We present two static analysis approaches that
-can check observational purity of a procedure. These techniques do not
-require any user annotations for array-free programs and are
-applicable to recursive procedures, which is beyond the scope of
-current literature.
+ 
+%% We also formalize conditional invariant which is well defined only if
+%% the procedure is observationally pure.
+We present two static analysis approaches that can check if a
+procedure is observationally pure. These techniques do not require any
+user annotations for array-free programs and are applicable to
+recursive procedures, which is beyond the scope of current literature.
 
 \keywords{specification languages, observational purity, pure
     procedure, programming by contract, static analysis}
@@ -358,7 +362,7 @@ both $\foo$ and $\F$ share the same signature.  Thus, the input-output
 behaviour of  observationally pure procedures is independent of the global
 variables. This property is a generalization of referential transparency.
 %% For instance,
-%% non-optimal implementations of dynamic programming algorithms that do
+`%% non-optimal implementations of dynamic programming algorithms that do
 %% not use memoization can be refactored to use memoization
 %% automatically.
 Checking whether a given procedure is OP is undecidable. In this
@@ -373,6 +377,8 @@ by procedure we mean a procedure in an imperative programming
 language). Without access to global variables, all procedures are a
 function of their formal arguments. This paper focuses on checking if
 a procedure that reads and writes global variables is OP.
+
+\subsection{Motivating Example}
 
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
       returns factorial of `n' and memoizes result for argument value
