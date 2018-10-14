@@ -15,7 +15,7 @@
 \usepackage{listings}
 \usepackage{syntax}
 \usepackage{amssymb}
-\newcommand{\foo}{\textit{foo}}
+\newcommand{\foo}{\textit{`foo'}}
 \newcommand{\trace}{\pi}
 \newcommand{\inv}{\mathit{inv}}
 \newcommand{\history}{\Pi}
@@ -348,19 +348,21 @@ Verifying functional properties of procedures is a hard task.
 Formalizing such properties of a procedure requires deep understanding
 of the procedure's (expected) functionality. Many procedures
 (especially in mathematical libraries) implement some mathematical
-function. This paper describes a pair of techniques to check if a given procedure
-implements a mathematical function. If the return value from a
-procedure is dependent only on the formal arguments, irrespective of
-whether the procedure reads/writes global variables, 
+function. This paper describes a couple of techniques to check if a
+given procedure implements a mathematical function of the argument
+values. If the return value from a procedure is dependent only on the
+formal arguments, irrespective of whether the procedure reads/writes
+global variables,
 % even if the
 % procedure reads/writes to global variables,
 the given procedure is \textit{Observationally pure(OP)}.  If a
 procedure $\foo$ is observationally pure, then there exists a
 mathematical function $\F$ such that $\F$ mimics the input-output
-behaviour of $\foo$ in all sequence of procedure calls to $\foo$ , where 
-both $\foo$ and $\F$ share the same signature.  Thus, the input-output
-behaviour of  observationally pure procedures is independent of the global
-variables. This property is a generalization of referential transparency.
+behaviour of $\foo$ in all sequence of procedure calls to $\foo$ ,
+where both $\foo$ and $\F$ share the same signature. Thus, the
+input-output behaviour of observationally pure procedures is
+independent of the global variables. This property is a generalization
+of referential transparency.
 %% For instance,
 `%% non-optimal implementations of dynamic programming algorithms that do
 %% not use memoization can be refactored to use memoization
@@ -368,12 +370,12 @@ variables. This property is a generalization of referential transparency.
 Checking whether a given procedure is OP is undecidable. In this
 paper, we propose a pair of static analysis techniques to check OPness
 that are proved to be sound i.e they give a valid answer if the
-approach terminates.
+technique terminates.
 
 All arithmetic and logical operators are mathematical-functions, and
 functional composition is closed under the set of functions
 (hereonwards, we will refer to mathematical-functions as functions and
-by procedure we mean a procedure in an imperative programming
+by procedure we mean a procedure written in an imperative programming
 language). Without access to global variables, all procedures are a
 function of their formal arguments. This paper focuses on checking if
 a procedure that reads and writes global variables is OP.
