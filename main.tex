@@ -734,8 +734,8 @@ Listing~\ref{lst:factorialTransformed} is expressed in logic as shown
 in Figure~\ref{fig:pathCondition}. Each disjunct in
 Figure~\ref{fig:pathCondition} represents a straight-line execution of
 procedure factorial (from beginning, until end) . For instance, $(n <=
-1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $n
-\leq 1$.
+1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $`n
+\leq 1'$.
 
 Representation of a program in logic is straight forward once it is
 converted to our intermediate representation in
@@ -829,6 +829,7 @@ g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
       \OPCheckE
        & \mi{(\inv :
         invariant, \pathCondition : path \; condition)} \equiv \\
+      &\forall \{X - \{\F\}\}.\\
       &\inv \wedge \inv[\gaft_1/\g] \wedge \inv[\gaft_2/\g] \wedge
       \cdots \inv[\gaft_m/\g] \\
       &\wedge \pathCondition \implies ( \retVar = \F(\n)\\
