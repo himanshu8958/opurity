@@ -534,23 +534,23 @@ simplify the analysis without loss of generality. ( too much detail in
 this and the next section, suggest level of abstraction)
 
 \begin{itemize}
-\item The given procedure (`\foo') has a single argument i.e `\n'. And
-  `\n' is never modified in `\foo'.
-\item Procedure `\foo' has a single global variable, named `\g'.
+\item The given procedure (\foo) has a single argument i.e `\n'. And
+  `\n' is never modified in \foo.
+\item Procedure \foo has a single global variable, named `\g'.
 \item Return statement is absent from our programming language. Instead,
   we have a special variable `\retVar', which is assigned the return
   value.
 \item We analyze a single procedure in isolation and we assume that no
   other procedure writes to the global variables accessed by procedure
-  `\foo'. In-case of multiple procedures, the invariant has multiple
+  \foo. In-case of multiple procedures, the invariant has multiple
   function symbols, one for each procedure. 
 \item All variables are defined before use, except global variables.
-\item All loops in procedure `\foo' are substituted with 
+\item All loops in procedure \foo are substituted with 
   separate recursive procedures.
 \item The variable assigned the return value in a procedure call
   statement is always a local variable.
 \item There is at max one procedure call statement in every straight line
-  execution of `\foo' from the beginning until it's end.
+  execution of \foo from the beginning until it's end.
   \end{itemize}
 %% Note : all of the above mentioned restrictions can be omitted. They
 %% are for convenience.
@@ -605,7 +605,7 @@ statement `havoc x' assigns any value from the domain of the variable
     <ident> ::= <local-ident>
     \alt <global-ident>
     
-    <procedure> ::= procedure \foo ($\n$) {<statement>;}
+    <procedure> ::= procedure foo ($\n$) {<statement>;}
   \end{grammar}
   \caption{Grammar for our programming language}
   \label{fig:grammar}
@@ -622,7 +622,7 @@ Our analysis expects the following :
 \item Expressions do not have procedure call statements as
   sub-expressions.(omit? too much detail)
 \item Procedure calls are approximated using function symbols. The
-  statement `x = \foo(y)' is replaced with `x = $\F$(y)'. Since
+  statement `x = foo(y)' is replaced with `x = $\F$(y)'. Since
   procedure calls may modify global variables, we add the statement
   `havoc g' for each global variable `g' accessible from the
   procedure.
