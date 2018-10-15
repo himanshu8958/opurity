@@ -503,8 +503,6 @@ need not mention a (the) mathematical function that the procedure is
 supposed to mimic. Also, using a function symbol allows generating the
 invariant automatically.
 
-
-%% related work
 Many researchers have looked at the problem of observational purity
 and have proposed characterizations of benign side effects
 \cite{naumann2007observational}, \cite{barnett2006allowing},
@@ -520,14 +518,13 @@ different approach to allowing procedure calls in the specification
 iff it mimics a procedure that has side effects only to pre-existing
 objects.
 
-%% outline
 In section~\ref{sec:background} we give the pre-requisites for this
 work. The semantics of the invariant we use are described in
 Section~\ref{sec:invariant}. Next Section~\ref{sec:op} defines
 observational purity. In Section~\ref{sec:approaches} we present a
 couple of techniques to check opness. Section~\ref{sec:experiments}
 discusses the experimental results and section~\ref{sec:related}
-compares this work to the current literature. 
+compares this work to the current literature.
 
 \section{Background} \label{sec:background}
 
@@ -703,15 +700,15 @@ lines 8 and 19, the procedure call statements are substituted for
 function symbols.
 
 \subsection{Path Condition} For our analysis we represent the given
-procedure in logic, such that the representation captures the
-argument value at the beginning of the procedure, the return value at
-the end of the procedure and the values of the global variables at all
-the boundaries of the procedure.
-% value of
-% the argument value, the return value and the values of the global variables
-% at the boundaries
-We track the values of the global variables using
-extra variables as explained in Section~\ref{sec:intermediate}.
+procedure in logic, such that the representation captures the argument
+value at the beginning of the procedure, the return value at the end
+of the procedure and the values of the global variables at all the
+boundaries of the procedure. We track the values of the global
+variables using extra variables as explained in
+Section~\ref{sec:intermediate}. Thus, the set of free variables in a
+path condition of a procedure are $\mi{\{n, gin, gout, g, \gbef_1
+  \cdots \gbef_m, \gaft_1 \cdots \gaft_m, \retVar  \}}$, all the
+remaining variables are universally quantified.
 
 \begin{figure}
   \begin{align*}
