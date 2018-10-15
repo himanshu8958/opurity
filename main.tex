@@ -699,16 +699,16 @@ over-approximate any side effects to the global variables. And in
 lines 8 and 19, the procedure call statements are substituted for
 function symbols.
 
-\subsection{Path Condition} For our analysis we represent the given
-procedure in logic, such that the representation captures the argument
-value at the beginning of the procedure, the return value at the end
-of the procedure and the values of the global variables at all the
-boundaries of the procedure. We track the values of the global
-variables using extra variables as explained in
-Section~\ref{sec:intermediate}. Thus, the set of free variables in a
-path condition of a procedure are $\mi{\{n, gin, gout, g, \gbef_1
-  \cdots \gbef_m, \gaft_1 \cdots \gaft_m, \retVar  \}}$, all the
-remaining variables are universally quantified.
+\subsection{Path Condition}
+For our analysis we represent the given procedure in logic, such that
+the representation captures the argument value at the beginning of the
+procedure, the return value at the end of the procedure and the values
+of the global variables at all the boundaries of the procedure. We
+track the values of the global variables using extra variables as
+explained in Section~\ref{sec:intermediate}. Thus, the set of free
+variables in a path condition of a procedure are $X : \mi{\{n, gin,
+  gout, g, \gbef_1 \cdots \gbef_m, \gaft_1 \cdots \gaft_m,}$ \\ ${\retVar, \F
+  \}}$ all the remaining variables are universally quantified.
 
 \begin{figure}
   \begin{align*}
