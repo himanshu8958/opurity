@@ -483,13 +483,12 @@ approach.
 Since observational purity is a property on the return values from a
 procedure, this problem is closely related to the halting problem
 %%cite this
-. In
-Section~\ref{sec:background}, we define OPness in a way such that
+. In Section~\ref{sec:background}, we define OPness in a way such that
 non-termination does not cause non-OPness. OP is violated if for a
 given invariant on the reachable global states, for a given argument
 value there is a non-unique return value. And in-case of
 non-termination there isn't a return value. Hence, a procedure that
-never terminates is vacuously OP.
+never terminates is vacuously OP and it mimics all functions.
 
 One direct application of this work is automatic memoization. Dynamic
 programming algorithms (such as factorial in
@@ -503,6 +502,13 @@ problem. One interesting thing about our approach is that the user
 need not mention a (the) mathematical function that the procedure is
 supposed to mimic. Also, using a function symbol allows generating the
 invariant automatically.
+
+%% related work
+
+
+
+%% outline
+
 
 \section{Background} \label{sec:background}
 
