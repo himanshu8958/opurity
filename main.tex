@@ -503,12 +503,31 @@ need not mention a (the) mathematical function that the procedure is
 supposed to mimic. Also, using a function symbol allows generating the
 invariant automatically.
 
+
 %% related work
-
-
+Many researchers have looked at the problem of observational purity
+and have proposed characterizations of benign side effects
+\cite{naumann2007observational}, \cite{barnett2006allowing},
+\cite{cok2008extensions},
+\cite{finifter2008verifiable}. Barnett~\cite{barnett2006allowing}
+gives an information flow based technique to check observational
+purity that marks some fields as secret and ensures all side effects
+are limited to secret fields. Whereas
+naumann~\cite{naumann2007obserational} calls a procedure OP if it
+mimics a procedure that is weakly pure, i.e has side effects only to
+pre-exiting objects. Cok~\cite{cok2008extensions} takes a very
+different approach to allowing procedure calls in the specification
+iff it mimics a procedure that has side effects only to pre-existing
+objects.
 
 %% outline
-
+In section~\ref{sec:background} we give the pre-requisites for this
+work. The semantics of the invariant we use are described in
+Section~\ref{sec:invariant}. Next Section~\ref{sec:op} defines
+observational purity. In Section~\ref{sec:approaches} we present a
+couple of techniques to check opness. Section~\ref{sec:experiments}
+discusses the experimental results and section~\ref{sec:related}
+compares this work to the current literature. 
 
 \section{Background} \label{sec:background}
 
@@ -727,7 +746,7 @@ Section~\ref{sec:intermediate}. All the standard imperative statements
 become conjuncts in the formula. `havoc' statements are omitted.
 `assume x' are replaced with a conjunct `x' in the formula.
 
-\section{Invariant}
+\section{Invariant}\label{sec:invariant}
 
 To introduce the definition of an invariant we first define
 \textit{trace} and \textit{history}.
@@ -771,7 +790,7 @@ $\inv$, which is denoted as $(\gstate, \F') \satisfies \inv$. For
 instance let $\inv := g = -1 \vee g = \F(18) * 3$ then $(3!, \lambda
 n. n!) \satisfies \inv$.
 
-\section{Observational purity}
+\section{Observational purity}\label{sec:op}
 \begin{definition}[observational purity(invariant $\inv$)]
  A given set of procedures are observationally pure if in each history
  starting from a state in invariant $\inv$, all traces of each
@@ -804,7 +823,8 @@ function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
 init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
 g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
 
-\section{Existential approach}\label{sec:existential}
+\section{Approaches} \label{sec:approaches}
+\subsection{Existential approach}\label{sec:existential}
 
 \begin{figure}[htp]
   \begin{algorithm}[H]
@@ -846,7 +866,7 @@ contrast, our analysis just requires that the post condition is
 reachable. We check if $\retVar = \F(n)$ is satisfiable, but this
 suffices for our analysis.
 
-\section{Impurity witness approach}\label{sec:impurityWitness}
+\subsection{Impurity witness approach}\label{sec:impurityWitness}
 
 \begin{figure}[htp]
   \begin{algorithm}[H]
@@ -895,7 +915,7 @@ our knowledge). As the approach compares the given procedure with
 itself, standard requires and ensures do not suffice. But works such as
 \cite{lahiri2013differential} can be used to express this property. 
 
-\section{Comparing the two approaches}
+\subsection{Comparing the two approaches}
 
 \begin{lstlisting}[caption={Procedure `bar': illustrates that
       existential approach is more precise that the impurity witness
@@ -929,17 +949,17 @@ existential approach the solver has to find a satisfying assignment
 for the free variable $\F$. Whereas, in case of the impurity witness
 approach, the inequivalence is contradicted (if procedure is OP).
 
-\section{Experimental Results}
+\section{Experimental Results}\label{sec:experiments}
 
 (to be included)
 %% \section{Conclusion}
-\section{Related work}
-JML does not allow any side-effects for Library procedures, thus
-specifiers use pure replacements instead. Barnett defines
-Observational purity~\cite{barnett200499} but their work cannot prove
-self recursive procedures to be OP and also need user
-annotations. They use a information flow based technique to prove
-OPness of procedures.
+\section{Related work}\label{sec:related}
+Jml~\cite{leavens2008jml} does not allow any
+side-effects for Library procedures, thus specifiers use pure
+replacements instead. Barnett defines Observational
+purity~\cite{barnett200499} but their work cannot prove self recursive
+procedures to be OP and also need user annotations. They use a
+information flow based technique to prove OPness of procedures.
 
 The idea of comparing a program to
 itself~\cite{lahiri2013differential} \cite{partush2013abstract} is
