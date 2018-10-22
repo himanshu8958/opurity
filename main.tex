@@ -53,6 +53,10 @@
 \newcommand{\state}{\sigma}
 \newcommand{\afterCall}[1]{\mathit{after \mhyphen call(#1)}} 
 
+\newcommand{\ivars}{\overrightarrow{i}}
+\newcommand{\ovars}{\overrightarrow{o}}
+\newcommand{\avars}{\overrightarrow{a}}
+
 \lstdefinestyle{mystyle}{
   basicstyle=\footnotesize, 
   %% breakatwhitespace=false,         
@@ -143,6 +147,42 @@ simultaneously.
 
 We present two techniques for performing this dual verification.
 \end{abstract}
+
+\section*{TO DO}
+
+\begin{enumerate}
+
+\item Extend the syntax section to describe the syntax of invariants (assertions)
+and the syntax of an annotated program.
+
+\item Extend the section on path-conditions to explain how we generate a
+path-condition from an annotated program, highlighting differences with
+respect to standard path-condition generation. In the sequel I am
+misusing the term path-condition: note that if we have an if-then-else
+statement with path-conditions $\varphi_1$ and $\varphi_2$ for the two
+branches, we can combine them as $\varphi_1 \vee \varphi_2$ to represent
+the whole statement. So, I am using path-condition to mean a formula
+representing the whole program/procedure, not a single path.
+
+\item The path-condition is a logical formula of the form $\varphi(\ivars, \ovars, \avars, \F)$,
+where $\ivars$, $\ovars$, $\avars$, $\F$ are all free variables denoting the initial value of
+the input parameters, the final value of the output parameter(s), values of variables
+at various program-points during the execution, and the mathematical function that
+the pure procedure computes.
+
+\item The formal result for the existential approach is:
+the given procedure is pure (and the given assertions hold) if
+ $\exists \F \forall \ivars \forall \ovars \forall \avars. \; \varphi(\ivars, \ovars, \avars, \F) \wedge \ovars = \F(\ivars)$
+is a tautology.
+This is equivalent to checking if $\forall \ivars \forall \ovars \forall \avars. \; \varphi(\ivars, \ovars, \avars, \F) \wedge \ovars = \F(\ivars)$
+is satisfiable.
+
+\item The formal result for the impurity witness approach is:
+if the formula
+$\varphi(\ivars,\ovars_1,\avars_1,\F) \wedge \varphi(\ivars,\ovars_2,\avars_2,\F) \wedge \ovars_1 \neq \ovars_2$
+is not satisfiable, then the procedure is pure.
+
+\end{enumerate}
 
 \section{Introduction}
 Verifying functional properties of procedures is a hard task.
