@@ -1,0 +1,40 @@
+\section*{TO DO}
+
+\begin{enumerate}
+
+\item Ideally, the flow should be
+\begin{enumerate}
+\item Language syntax (sections 2.1 and 2.2); (the syntax of invariants could be
+introduced at the same time, as it is almost a subset of the language syntax, or later)
+
+\item Semantics (section 3: trace, history part, extended to define a set of histories
+as the semantics of a procedure); no need for invariants here.
+
+\item Purity definition (based on the semantics defined above)
+
+\item Converting the program (or library or procedure) into a logical formulae:
+\begin{enumerate}
+\item The common verification-condition (path-condition) generation (section 2.3
+and parts of section 2.2)
+\item the existential approach
+\item the impurity witness approach
+\end{enumerate}
+
+\end{enumerate}
+
+
+\item There is room for improving the presentation of Algorithm 1 and 2:
+\begin{enumerate}
+\item Notation improvement
+\item The formulae produced by algorithms 1 and 2 include two parts:
+one to check that the conjectured-invariant is an invariant, and the
+other to check for purity. Separating these out may make it easier for
+a reader to understand the complex formula.
+\item In particular, the bulk of the conditions encode the standard
+precondition/postcondition treatment (at procedure-entry, call-site,
+and procedure-exit). It may be better to push these conditions into
+the common $T_{foo}$ part. This can be done if generation of $T_{foo}$
+itself is parametrized by the invariant, which seems the right thing to do.
+\end{enumerate}
+
+\end{enumerate}
