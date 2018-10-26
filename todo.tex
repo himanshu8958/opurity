@@ -25,16 +25,43 @@ and parts of section 2.2)
 
 \item There is room for improving the presentation of Algorithm 1 and 2:
 \begin{enumerate}
-\item Notation improvement
+
+\item Notation improvement:
+\begin{enumerate}
+\item rename $T_{foo}$
+\item We can translate the entire program (rather than a single path)
+into the formula $T_{foo}$, which seems the right thing to do. So,
+verification-condition may be a better name than path-condition.
+Or, some name other than these two?
+\end{enumerate}
+
 \item The formulae produced by algorithms 1 and 2 include two parts:
 one to check that the conjectured-invariant is an invariant, and the
 other to check for purity. Separating these out may make it easier for
 a reader to understand the complex formula.
+
 \item In particular, the bulk of the conditions encode the standard
 precondition/postcondition treatment (at procedure-entry, call-site,
 and procedure-exit). It may be better to push these conditions into
 the common $T_{foo}$ part. This can be done if generation of $T_{foo}$
 itself is parametrized by the invariant, which seems the right thing to do.
+
+\item We should have unambiguous statements (theorems) clarifying the
+correctness aspect of each of the three steps. I don't fully follow what is
+in the current explanation.
+
+\item What's the theorem we have for the generated verification
+condition $\varphi$? Let $i$ and $o$ be the free-variables in $\varphi$
+representing the (initial value of the) input parameter and the
+(final value of the) returned output. I think it is something like:
+\emph{
+If there is any execution that
+satisfies the assumed invariant for input value $i_1$ that produces
+an output value of $o_1$, then $\varphi[i_1/i,o_1/o]$ should be
+satisfiable.
+}
+
+
 \end{enumerate}
 
 \end{enumerate}
