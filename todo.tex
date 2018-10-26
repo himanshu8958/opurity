@@ -28,11 +28,12 @@ and parts of section 2.2)
 
 \item Notation improvement:
 \begin{enumerate}
-\item rename $T_{foo}$
 \item We can translate the entire program (rather than a single path)
 into the formula $T_{foo}$, which seems the right thing to do. So,
 verification-condition may be a better name than path-condition.
 Or, some name other than these two?
+\item rename $T_{foo}$ to something better ... I will use $\varphi_{vc}$
+below.
 \end{enumerate}
 
 \item The formulae produced by algorithms 1 and 2 include two parts:
@@ -43,15 +44,23 @@ a reader to understand the complex formula.
 \item In particular, the bulk of the conditions encode the standard
 precondition/postcondition treatment (at procedure-entry, call-site,
 and procedure-exit). It may be better to push these conditions into
-the common $T_{foo}$ part. This can be done if generation of $T_{foo}$
-itself is parametrized by the invariant, which seems the right thing to do.
+the common $\varphi_{vc} = T_{foo}$ part. This can be done if generation of
+$T_{foo}$ itself is parametrized by the invariant, which seems the right thing to do.
 
-\item We should have unambiguous statements (theorems) clarifying the
-correctness aspect of each of the three steps. I don't fully follow what is
-in the current explanation.
+\item Specifically, let us make $\varphi_{vc}$ include the "assert precondition"
+and "assume postcondition" for every call-site within the procedure, as well
+as the "assume precondition" at procedure-entry, but not the "assert
+postcondition" at procedure-exit. This looks a bit odd, but the "assert
+postcondition" is the only part that we handle differently in the two algorithms.
 
-\item What's the theorem we have for the generated verification
-condition $\varphi$? Let $i$ and $o$ be the free-variables in $\varphi$
+\item What's the correctness property we have for the generated verification
+condition $\varphi_{vc}$, that is sufficient to establish correctness of both approaches?
+Essentially, every execution $\pi$ identifies bindings for the free variables in $\varphi_{vc}$ (except for $F$);
+let $\varphi_\pi$ denote the formula obtained from $\varphi_{vc}$ with these bindings.
+Then, we want the following to hold true: $\varphi_\pi$ is true provided all the
+nested (recursive) executions preconditions/postconditions are satisfied.
+
+Let $i$ and $o$ be the free-variables in $\varphi$
 representing the (initial value of the) input parameter and the
 (final value of the) returned output. I think it is something like:
 \emph{
