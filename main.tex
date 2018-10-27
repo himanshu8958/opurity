@@ -529,7 +529,7 @@ function symbols.
   global state satisfies the invariant.
 \end{definition}
 
-The invariant is procuded by syntatically analyzing the
+The invariant is produced by syntactically analyzing the
 program. Invariant is expressed in a logic with un-interpreted
 functions. The uninterpreted function is used to abstract out the
 recursive procedure calls. It is assumed that the uninterpreted
@@ -638,23 +638,23 @@ n. n!) \satisfies \inv$.
 
 \section{Observational purity}\label{sec:op}
 
-\begin{definition}[observational purity(set of state)]
-  A procedure `\foo' is observational pure wrt a given set of global
-states $\Gstates$ if for each history $\history$ of procedure `\foo',
-all pairs of traces in the history that begin in a global states
-$\gstate$ and $\gstate'$ respect each other where
-$\gstate \in 
- \Gstates$, $\gstate' \in \Gstates$.  In other words $\forall \gstate
-\in \Gstates.\forall \, \history \in \historyOf{\gstate}. \forall
-\trace_1 \in \tracesOf{\history}. \forall \trace_2 \in
-\tracesOf{\history}. \param{\trace_1} = \param{\trace_2} \implies
-\return{\trace_1} = \return{\trace_2}$.
+\begin{definition}[argument(trace $\rightarrow$ value)]
+  $\param{\trace}$ denotes the mapping of the argument `$\n$' to its
+  value in the beginning of $\trace$.
 \end{definition}
 
-\begin{definition}[observational purity(invariant $\inv$)]
- A given set of procedures are observationally pure if in each history
- starting from a state in invariant $\inv$, all traces of each
- procedure with the same argument value return the same result.
+
+\begin{definition}[observational purity(set of states)]
+  A procedure `\foo' is observational pure wrt a given set of global
+  states $\Gstates$ if for each history $\history$ of procedure
+  `\foo', all pairs of traces in the history that begin in a global
+  states $\gstate$ and $\gstate'$ respect each other where $\gstate
+  \in \Gstates$, $\gstate' \in \Gstates$.  In other words
+  $\forall \gstate \in \Gstates.\forall \, \history \in
+  \historyOf{\gstate}. \forall \trace_1 \in
+  \tracesOf{\history}. \forall \trace_2 \in
+  \tracesOf{\history}.\\ \param{\trace_1} = \param{\trace_2} \implies
+  \return{\trace_1} = \return{\trace_2}$.
 \end{definition}
 
 \begin{lstlisting}[caption={Procedure `remember' : always returns the
