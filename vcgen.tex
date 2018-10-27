@@ -1,0 +1,71 @@
+\section{Proposed Changes Outline}
+
+\subsection{Verification Condition Generation}
+
+We describe an adaptation of standard verification-condition generation techniques that we use as our first step.
+Given a procedure $\procP$, a candidate invariant $\inv$, the function $\mainvc{\procP}{\inv}$ returns a
+pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that exists after an execution of
+$\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
+for the execution to satisfy its invariants and assertions.
+
+We use an auxiliary function $\auxvcfn$ which is similar to $\mainvcfn$, but accepts a statement $\stmtS$ as
+parameter instead of a procedure, and it has an extra parameter $\pre$ that is a precondition describing
+the state before the execution of the statement.
+Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\auxvc{\stmtS}{\inv}{\pre}$.
+
+\begin{figure}
+\begin{mathpar}
+
+\inferrule{
+\stmt = \text{body}(\proc), \auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
+}{
+\mainvc{\proc}{\inv} = (\post, \vc \wedge (\post \Rightarrow \inv))
+}
+
+\inferrule{
+\auxvc{\stmtSA}{\inv}{\pre} = (\postA, \vcA) \\
+\auxvc{\stmtSB}{\inv}{\postA} = (\postB, \vcB) 
+}{
+\auxvc{ \stmtSA ; \stmtSB }{\inv}{\pre} = (\postB, \vcA \wedge \vcB)
+}
+
+\inferrule{
+\auxvc{\stmtSA}{\inv}{\pre \wedge \expr} = (\postA, \vcA) \\
+\auxvc{\stmtSB}{\inv}{\pre \wedge \neg \expr} = (\postB, \vcB) 
+}{
+\auxvc{ \code{if } \; \expr \; \code{ then } \;  \stmtSA \;  \code{ else } \; \stmtSB }{\inv}{\pre} = (\postA \vee \postB, \vcA \wedge \vcB)
+}
+
+\inferrule{
+\var \not\in vars(\expr)
+}{
+\auxvc{\var = \expr}{\inv}{\pre} = ((\exists \var. \pre) \wedge (\var = \expr), \code{true})
+}
+
+\inferrule{
+\varY \neq \var \\ \varY \neq g
+}{
+\auxvc{\var = \proc(\varY)}{\inv}{\pre} = ((\exists g. \exists \var.\pre) \wedge \inv \wedge (\var = F(\varY)), \pre \Rightarrow \inv)
+}
+
+\end{mathpar}
+\caption{Generation of verification-condition and postcondition.}
+\label{fig:vcgen}
+\end{figure}
+
+\subsection{Existential Approach}
+
+Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
+Let $\mu_e$ denote the formula $\vc \wedge (\post \Rightarrow (\retVar = \F(\n)))$.
+Let $\overline{X}$ denote the sequence of all free variables in $\mu_e$ except for $\F$.
+The procedure $\proc$ is observationally pure and satisfies invariant $\inv$ if
+$\exists \F. \forall \overline{X}. \mu_e$ is a tautology (which holds iff
+$\forall \overline{X}. \mu_e$ is satisfiable).
+
+\subsection{Impurity Witness Approach}
+
+Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
+Let $\post_\alpha$ denote the formula obtained by replacing every free variable $x$ in $\post$
+by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.
+Let $\mu_{iw}$ denote the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (\n_\alpha = \n_\beta) \wedge (\retVar_\alpha \neq \retVar_\beta))$.
+If $\mu_{iw}$ is UNSAT, then the given procedure is observationally pure and satisfies invariant $\inv$.

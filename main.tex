@@ -12,12 +12,39 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{amsmath}
+
 \usepackage{listings}
 \usepackage{syntax}
 \usepackage{amssymb}
+\usepackage{mathpartir}
+
+\newcommand{\code}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\var}{\textsc{x}}
+\newcommand{\varY}{\textsc{y}}
+\newcommand{\expr}{\textsc{e}}
+\newcommand{\proc}{\textsc{p}}
+\newcommand{\procP}{\textsc{p}}
+\newcommand{\stmt}{\textsc{s}}
+\newcommand{\stmtS}{\textsc{s}}
+\newcommand{\stmtSA}{\textsc{s}_1}
+\newcommand{\stmtSB}{\textsc{s}_2}
+\newcommand{\logicalformula}[1]{\varphi^{#1}}
+\newcommand{\inv}{\logicalformula{inv}}
+\newcommand{\post}{\logicalformula{post}}
+\newcommand{\postA}{\post_1}
+\newcommand{\postB}{\post_2}
+\newcommand{\pre}{\logicalformula{pre}}
+\newcommand{\vc}{\logicalformula{vc}}
+\newcommand{\vcA}{\vc_1}
+\newcommand{\vcB}{\vc_2}
+\newcommand{\mainvcfn}{\textsc{postvc}}
+\newcommand{\mainvc}[2]{\mainvcfn({#1},{#2})}
+\newcommand{\auxvcfn}{\textsc{vc}}
+\newcommand{\auxvc}[3]{\auxvcfn({#1},{#2},{#3})}
+
 \newcommand{\foo}{\textit{`foo'}}
 \newcommand{\trace}{\pi}
-\newcommand{\inv}{\mathit{inv}}
+% \newcommand{\inv}{\mathit{inv}}
 \newcommand{\history}{\Pi}
 \newcommand{\pathCondition}{\mathit{T_{\foo}}}
 \newcommand{\OPCheckE}{\mathit{OPCheck \mhyphen existential}}
@@ -622,6 +649,8 @@ procedure `remember' in Listing~\ref{lst:remember} mimics a constant
 function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
 init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
 g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
+
+\input{vcgen}
 
 \section{Approaches} \label{sec:approaches}
 \subsection{Existential approach}\label{sec:existential}
