@@ -539,50 +539,6 @@ listing~\ref{lst:factorialSimple} we use the invariant $\mathit{g = -1
   \vee g = \F(2) * 3}$, where $\F(2)$ is assumed to be equal to $x$,
 $x = \mi{factorial(2)}$.
 
-\subsection{Path Condition}
-For our analysis we represent the given procedure in logic, such that
-the representation captures the argument value at the beginning of the
-procedure, the return value at the end of the procedure and the values
-of the global variables at all the boundaries of the procedure. We
-track the values of the global variables using extra variables as
-explained in Section~\ref{sec:intermediate}. Thus, the set of free
-variables in a path condition of a procedure are $X : \mi{\{n, gin,
-  gout, g, \gbef_1 \cdots \gbef_m, \gaft_1 \cdots \gaft_m,}$ \\ ${\retVar, \F
-  \}}$ all the remaining variables are universally quantified.
-
-\begin{figure}
-  \begin{align*}
-    \pathCondition :=
-    &(n \leq 1 \wedge retVar = 1 \wedge gout = g) \vee \\
-    &(n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
-    \;&\wedge gaft1 = g1 \wedge g2 = 19 * temp1
-    \wedge retVar = g2) \vee\\
-    &(n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
-    \wedge n = 19 \wedge retVar = g = gout) \vee\\
-    &(n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
-    - 1) \wedge gaft2 = g1\\
-    &\wedge retVar = n * temp2 \wedge gout = g1)\\
-  \end{align*}
-  \caption{Formula representing procedure `transformed factorial' in
-    Listing~\ref{lst:factorialTransformed} (assuming that function
-    $\F$ is equivalent to procedure factorial).}
-  \label{fig:pathCondition}
-\end{figure}
-
-For example, the procedure `transformed factorial' in
-Listing~\ref{lst:factorialTransformed} is expressed in logic as shown
-in Figure~\ref{fig:pathCondition}. Each disjunct in
-Figure~\ref{fig:pathCondition} represents a straight-line execution of
-procedure factorial (from beginning, until end) . For instance, $(n <=
-1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $`n
-\leq 1'$.
-
-Representation of a program in logic is straight forward once it is
-converted to our intermediate representation in
-Section~\ref{sec:intermediate}. All the standard imperative statements
-become conjuncts in the formula. `havoc' statements are omitted.
-`assume x' are replaced with a conjunct `x' in the formula.
-
 \section{Semantics}
 
 To introduce the definition of an invariant we first define
@@ -683,7 +639,53 @@ function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
 init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
 g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
 
-\section{Approaches} \label{sec:approaches}
+\section{Converting the program into logical formulae} \label{sec:approaches}
+
+\subsection{Path condition generation}\label{sec:vcgen}
+For our analysis we represent the given procedure in logic, such that
+the representation captures the argument value at the beginning of the
+procedure, the return value at the end of the procedure and the values
+of the global variables at all the boundaries of the procedure. We
+track the values of the global variables using extra variables as
+explained in Section~\ref{sec:intermediate}. Thus, the set of free
+variables in a path condition of a procedure are $X : \mi{\{n, gin,
+  gout, g, \gbef_1 \cdots \gbef_m, \gaft_1 \cdots \gaft_m,}$ \\ ${\retVar, \F
+  \}}$ all the remaining variables are universally quantified.
+
+\begin{figure}
+  \begin{align*}
+    \pathCondition :=
+    &(n \leq 1 \wedge retVar = 1 \wedge gout = g) \vee \\
+    &(n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
+    \;&\wedge gaft1 = g1 \wedge g2 = 19 * temp1
+    \wedge retVar = g2) \vee\\
+    &(n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
+    \wedge n = 19 \wedge retVar = g = gout) \vee\\
+    &(n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
+    - 1) \wedge gaft2 = g1\\
+    &\wedge retVar = n * temp2 \wedge gout = g1)\\
+  \end{align*}
+  \caption{Formula representing procedure `transformed factorial' in
+    Listing~\ref{lst:factorialTransformed} (assuming that function
+    $\F$ is equivalent to procedure factorial).}
+  \label{fig:pathCondition}
+\end{figure}
+
+For example, the procedure `transformed factorial' in
+Listing~\ref{lst:factorialTransformed} is expressed in logic as shown
+in Figure~\ref{fig:pathCondition}. Each disjunct in
+Figure~\ref{fig:pathCondition} represents a straight-line execution of
+procedure factorial (from beginning, until end) . For instance, $(n <=
+1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $`n
+\leq 1'$.
+
+Representation of a program in logic is straight forward once it is
+converted to our intermediate representation in
+Section~\ref{sec:intermediate}. All the standard imperative statements
+become conjuncts in the formula. `havoc' statements are omitted.
+`assume x' are replaced with a conjunct `x' in the formula.
+
+
 \subsection{Existential approach}\label{sec:existential}
 
 \begin{figure}[htp]
