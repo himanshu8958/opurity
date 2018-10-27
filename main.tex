@@ -583,11 +583,17 @@ Section~\ref{sec:intermediate}. All the standard imperative statements
 become conjuncts in the formula. `havoc' statements are omitted.
 `assume x' are replaced with a conjunct `x' in the formula.
 
-
 \section{Semantics}
 
 To introduce the definition of an invariant we first define
 \textit{trace} and \textit{history}.
+
+\begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
+    value] 
+  $\\\atEntry{x}$ denotes the value of global variable $\g$ at the
+  starting point of $x$ where $x$ is a history, trace or trace
+  segment.
+\end{definition}
 
 \begin{definition}[trace]
   A trace $\trace$ is a complete execution of the procedure starting
