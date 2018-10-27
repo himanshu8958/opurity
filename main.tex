@@ -57,6 +57,12 @@
 \newcommand{\ovars}{\overrightarrow{o}}
 \newcommand{\avars}{\overrightarrow{a}}
 
+\newcommand{\histories}[1]{\mathit{histories(#1)}}
+\newcommand{\Gstates}{\Gamma}
+
+\newcommand{\historyOf}[1]{\mathit{histories \mhyphen of(#1)}}
+\newcommand{\tracesOf}[1]{\mathit{traces \mhyphen of(#1)}} 
+
 \lstdefinestyle{mystyle}{
   basicstyle=\footnotesize, 
   %% breakatwhitespace=false,         
@@ -333,7 +339,7 @@ couple of techniques to check opness. Section~\ref{sec:experiments}
 discusses the experimental results and section~\ref{sec:related}
 compares this work to the current literature.
 
-\section{Background} \label{sec:background}
+\section{Language Syntax} \label{sec:background}
 
 \subsection{Programming Language}
 We make the following restrictions on the structure of the program to
@@ -357,7 +363,8 @@ this and the next section, suggest level of abstraction)
 \item The variable assigned the return value in a procedure call
   statement is always a local variable.
 \item There is at max one procedure call statement in every straight line
-  execution of \foo from the beginning until it's end.
+  execution of \foo from the beginning until it's
+  end.
   \end{itemize}
 %% Note : all of the above mentioned restrictions can be omitted. They
 %% are for convenience.
@@ -368,6 +375,14 @@ approaches.  Most of the statements are standard statements borrowed
 from imperative languages. The rest of them are explained next. The
 statement `havoc x' assigns any value from the domain of the variable
 `x' to variable `x'.
+
+%% The static analysis approaches presented in this paper are
+%% parameterized on an invariant. The invariant represents the set of
+%% reachable global states in the given procedure. Invariant is a formula
+%% in logic with uninterpreted functions, where the uninterpreted
+%% function is assumed to be represent the behaviour of the given
+%% procedure.
+
 %% to variable `x' from the declared domain of `x'
 %% And the statement `assume x' allows the execution of the program to
 %% proceed if the predicate `x' holds at the program point, otherwise it
@@ -502,6 +517,28 @@ over-approximate any side effects to the global variables. And in
 lines 8 and 19, the procedure call statements are substituted for
 function symbols.
 
+\subsection{Invariant}\label{sec:invariant}
+
+\begin{definition}[invariant]
+  Invariant $\inv$ represents the set of
+  global states at the boundaries of a procedure. $\inv$ is a formula,
+  with global variables accessed by the given procedure and a
+  uninterpreted function symbol $\F$ as the set of free variables. The
+  uninterpreted function symbol $\F$ is a placeholder for the
+  mathematical function equivalent to the given procedure. The initial
+  global state satisfies the invariant.
+\end{definition}
+
+The invariant is procuded by syntatically analyzing the
+program. Invariant is expressed in a logic with un-interpreted
+functions. The uninterpreted function is used to abstract out the
+recursive procedure calls. It is assumed that the uninterpreted
+function symbol represents the same mathematical function as the given
+procedure. For example for procedure factorial in
+listing~\ref{lst:factorialSimple} we use the invariant $\mathit{g = -1
+  \vee g = \F(2) * 3}$, where $\F(2)$ is assumed to be equal to $x$,
+$x = \mi{factorial(2)}$.
+
 \subsection{Path Condition}
 For our analysis we represent the given procedure in logic, such that
 the representation captures the argument value at the beginning of the
@@ -546,7 +583,8 @@ Section~\ref{sec:intermediate}. All the standard imperative statements
 become conjuncts in the formula. `havoc' statements are omitted.
 `assume x' are replaced with a conjunct `x' in the formula.
 
-\section{Invariant}\label{sec:invariant}
+
+\section{Semantics}
 
 To introduce the definition of an invariant we first define
 \textit{trace} and \textit{history}.
@@ -564,21 +602,23 @@ To introduce the definition of an invariant we first define
   trace begins in the state in which the previous trace ends.
 \end{definition}
 
-\begin{definition}[invariant]
-  Invariant $\inv$ represents the set of global states at the
-  boundaries of a procedure. $\inv$ is a formula, with global
-  variables accessed by the given procedure and a uninterpreted
-  function symbol $\F$ as the set of free variables. The uninterpreted
-  function symbol $\F$ is a placeholder for the mathematical function
-  equivalent to the given procedure. The initial global state
-  satisfies the invariant.
+\begin{definition}[histories$\mhyphen$of (global state)$\rightarrow$
+    set of histories] 
+  $\historyOf{\gstate}$ returns the set of all possible histories such
+  that for each history $\history$ in the set, $\history$ is a history
+  of procedure `\foo' with $\atEntry{\history} = \gstate$.
+\end{definition}
+
+\begin{definition}[traces$\mhyphen$Of(history) $\rightarrow$ set of
+    traces] $\tracesOf{\history}$ returns the set of traces and
+  sub-traces in history $\history$.
 \end{definition}
 
 Invariant $\inv$ is assumed at the beginning of the procedure and
 asserted at the end. Also, $\inv$ is asserted before the procedure
 call and assumed after the procedure call. Above mentioned treatment
 is similar to handling of pre-conditions and post-conditions for
-recursive procedures. For the invariant, it is  assumed that the given
+recursive procedures. For the invariant, it is assumed that the given
 procedure is observationally pure. The invariant has the free variable
 $\F$ which is also used to abstract over procedure calls and it is
 defined only if the given procedure is observationally pure.
@@ -591,6 +631,20 @@ instance let $\inv := g = -1 \vee g = \F(18) * 3$ then $(3!, \lambda
 n. n!) \satisfies \inv$.
 
 \section{Observational purity}\label{sec:op}
+
+\begin{definition}[observational purity(set of state)]
+  A procedure `\foo' is observational pure wrt a given set of global
+states $\Gstates$ if for each history $\history$ of procedure `\foo',
+all pairs of traces in the history that begin in a global states
+$\gstate$ and $\gstate'$ respect each other where
+$\gstate \in 
+ \Gstates$, $\gstate' \in \Gstates$.  In other words $\forall \gstate
+\in \Gstates.\forall \, \history \in \historyOf{\gstate}. \forall
+\trace_1 \in \tracesOf{\history}. \forall \trace_2 \in
+\tracesOf{\history}. \param{\trace_1} = \param{\trace_2} \implies
+\return{\trace_1} = \return{\trace_2}$.
+\end{definition}
+
 \begin{definition}[observational purity(invariant $\inv$)]
  A given set of procedures are observationally pure if in each history
  starting from a state in invariant $\inv$, all traces of each
