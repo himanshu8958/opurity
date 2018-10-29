@@ -47,19 +47,19 @@ one to check that the conjectured-invariant is an invariant, and the
 other to check for purity. Separating these out may make it easier for
 a reader to understand the complex formula.
 
-$>$ But incase of the existential approach the power reduces. The
+$>$ But in case of the existential approach the power reduces. The
 inductivity check may fail on some invariants when not combined with
 the existential approach. For instance in the factorial example, inv
 check fails for invariant g = -1 OR g = 19! If we separate the two
 parts, for the existential approach we just say that if the invariant
 is correct then the procedure is OP. Whereas in the combined approach
-we have stronger gurantee. 
+we have stronger guarantee. 
 
 \item In particular, the bulk of the conditions encode the standard
 precondition/postcondition treatment (at procedure-entry, call-site,
 and procedure-exit). It may be better to push these conditions into
 the common $\varphi_{vc} = T_{foo}$ part. This can be done if generation of
-$T_{foo}$ itself is parametrized by the invariant, which seems the right thing to do.
+$T_{foo}$ itself is parameterized by the invariant, which seems the right thing to do.
 
 \item Specifically, let us make $\varphi_{vc}$ include the "assert precondition"
 and "assume postcondition" for every call-site within the procedure, as well
