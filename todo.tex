@@ -6,18 +6,24 @@
 \begin{enumerate}
 \item Language syntax (sections 2.1 and 2.2); (the syntax of invariants could be
 introduced at the same time, as it is almost a subset of the language syntax, or later)
+DONE
 
 \item Semantics (section 3: trace, history part, extended to define a set of histories
 as the semantics of a procedure); no need for invariants here.
+DONE
 
 \item Purity definition (based on the semantics defined above)
+DONE
 
 \item Converting the program (or library or procedure) into a logical formulae:
 \begin{enumerate}
 \item The common verification-condition (path-condition) generation (section 2.3
 and parts of section 2.2)
+DONE
 \item the existential approach
+DONE
 \item the impurity witness approach
+DONE
 \end{enumerate}
 
 \end{enumerate}
@@ -41,6 +47,14 @@ one to check that the conjectured-invariant is an invariant, and the
 other to check for purity. Separating these out may make it easier for
 a reader to understand the complex formula.
 
+$>$ But incase of the existential approach the power reduces. The
+inductivity check may fail on some invariants when not combined with
+the existential approach. For instance in the factorial example, inv
+check fails for invariant g = -1 OR g = 19! If we separate the two
+parts, for the existential approach we just say that if the invariant
+is correct then the procedure is OP. Whereas in the combined approach
+we have stronger gurantee. 
+
 \item In particular, the bulk of the conditions encode the standard
 precondition/postcondition treatment (at procedure-entry, call-site,
 and procedure-exit). It may be better to push these conditions into
@@ -60,6 +74,46 @@ let $\varphi_\pi$ denote the formula obtained from $\varphi_{vc}$ with these bin
 Then, we want the following to hold true: $\varphi_\pi$ is true provided all the
 nested (recursive) executions preconditions/postconditions are satisfied.
 
+The correctness of the existential approach is based on the following property
+
+
+
+\begin{definition}[valid and consistent invariant( Function,
+    Formula)]
+  \label{def:validConsistentInvariant}
+  $\\\vci{\F}{\inv}$ is a boolean property that is true if for all
+  traces and prefix-trace-segments $x$ of procedure `\foo' such that
+  $(\atEntry{x}, \F) \satisfies \inv$ the following holds
+
+  \begin{enumerate}
+  \item if $x$ is a trace.
+    \begin{enumerate}
+    \item If $x$ has a recursive call
+      \begin{itemize}
+      \item then $(\beforeCall{x}, \F) \satisfies \inv$ and
+      \item let $x$ have the procedure call statement, say $y =
+        \foo(z)$. Then we change the value of $y$ to $y'$ and the
+        value of the global variable $\g$ to $g'$ after the procedure
+        call statement such that $y' = \F(z)$ and $(g', \F)
+        \satisfies \inv$.
+      \end{itemize}
+      Then $\return{x} = \F(\n)$, where $\n$ is the argument to
+      trace $x$ and $(\atEnd{x}, \F) \satisfies \inv$.
+    \item if $x$ does not have a recursive call
+      then $(\atEnd{x}, \F) \satisfies \inv$ and $\return{x} =
+      \F(\n)$, where $\n$ is the argument to trace $x$.
+    \end{enumerate}
+  \item if $x$ is a prefix trace segment.\\
+    Then $(\atEnd{x}, \F) \satisfies \inv$.
+  \end{enumerate}
+\end{definition}
+
+
+But the proof of correctness of the impurity witness approach is based
+on proving the implication that if the formula from impurity witness
+is UNSAT then the formula produced by the existential approach is
+SAT. I'll elaborate on this.
+
 Let $i$ and $o$ be the free-variables in $\varphi$
 representing the (initial value of the) input parameter and the
 (final value of the) returned output. I think it is something like:
@@ -69,6 +123,8 @@ satisfies the assumed invariant for input value $i_1$ that produces
 an output value of $o_1$, then $\varphi[i_1/i,o_1/o]$ should be
 satisfiable.
 }
+
+$>$ Yes.
 
 
 \end{enumerate}
