@@ -1,0 +1,185 @@
+\section{Introduction}
+Verifying functional properties of procedures is a hard task.
+Formalizing such properties of a procedure requires deep understanding
+of the procedure's (expected) functionality. Many procedures
+(especially in mathematical libraries) implement some mathematical
+function. This paper describes a couple of techniques to check if a
+given procedure implements a mathematical function of the argument
+values. If the return value from a procedure is dependent only on the
+formal arguments, irrespective of whether the procedure reads/writes
+global variables,
+% even if the
+% procedure reads/writes to global variables,
+the given procedure is \textit{Observationally pure(OP)}.  If a
+procedure $\foo$ is observationally pure, then there exists a
+mathematical function $\F$ such that $\F$ mimics the input-output
+behaviour of $\foo$ in all sequence of procedure calls to $\foo$ ,
+where both $\foo$ and $\F$ share the same signature. Thus, the
+input-output behaviour of observationally pure procedures is
+independent of the global variables. This property is a generalization
+of referential transparency.
+%% For instance,
+`%% non-optimal implementations of dynamic programming algorithms that do
+%% not use memoization can be refactored to use memoization
+%% automatically.
+Checking whether a given procedure is OP is undecidable. In this
+paper, we propose a pair of static analysis techniques to check OPness
+that are proved to be sound i.e they give a valid answer if the
+technique terminates.
+
+All arithmetic and logical operators are mathematical-functions, and
+functional composition is closed under the set of functions
+(hereonwards, we will refer to mathematical-functions as functions and
+by procedure we mean a procedure written in an imperative programming
+language). Without access to global variables, all procedures are a
+function of their formal arguments. This paper focuses on checking if
+a procedure that reads and writes global variables is OP.
+
+\subsection{Motivating Example}
+
+\begin{lstlisting}[language=c, caption= {Procedure `factorial' :
+      returns factorial of `n' and memoizes result for argument value
+      `3'.}, label=lst:factorialSimple]
+int g = -1;
+int factorial( int n) {
+  if(n <= 1) {
+    return 1;
+  } else if(g == -1 && n == 3) {
+    g = 3 * factorial( 2 );
+    return g;
+  } else if(g != -1 && n == 3) {
+    return g;
+  } else {
+    return n * factorial( n - 1 );
+  }
+}
+\end{lstlisting}
+
+Procedure factorial in Listing~\ref{lst:factorialSimple} mimics the
+function $\lambda n. n!$. It caches results using the global variable
+`g', for parameter value `n = 3'. The initial global state is `g =
+-1', where `-1' represents the un-initialized state. At line 6, global
+variable `g' is set to `3!' iff `g' has value `-1' at line 5. Next,
+line 9 is reached iff global variable `g' is not `-1', implying that
+procedure factorial has been called with parameter value `n = 3'
+previously. At line 9, the procedure correctly returns the value
+`3!'. Other than this caching behaviour for `n = 3' this procedure is
+similar to the standard implementation for factorial.
+
+OPness is a property of a procedure and the set of reachable global
+states. Where \textit{reachable global states} represents the set of
+all the global states that are encountered at the boundaries of the
+procedure in a sequence of executions of the given procedure. A
+\textit{global state} is the assignment to the set of global
+variables. Procedure factorial in Listing~\ref{lst:factorialSimple}
+is OP if the global state is restricted to the set $\{\{g = -1\}, \{g
+= 3!\}\}$, the procedure mimics the function $\lambda n.n!$. But for
+the global states $\{\{g = 1\}, \{g = 3!\}\}$, procedure factorial
+is not a mathematical function. For argument value `$n = 3$' it may
+return `1' or `3!'.  We assume that the set of reachable global states
+can be represented in the underlying logic and we refer to it as
+\textit{invariant}.  The global states reachable at any boundary, of
+any procedure call, in a sequence of procedure calls must satisfy the
+invariant.
+
+To check if a given procedure is OP, we ensure that for all reachable
+global states, for each argument value, there is a unique result. Now,
+this can be modelled using standard pre and post conditions. The pre
+condition holds at the beginning of the procedure and the post
+condition holds at its end. Both the pre condition and the post
+condition can be substituted by the invariant $\inv$ ( in-order to
+verify the invariant). This however does not constrain the return
+value of the given procedure. But, the return value from a recursive
+call may flow into a global variable. Thus, the return from the
+procedure must be modelled in the post condition, to
+re-establish $\inv$.  For procedure factorial in
+Listing~\ref{lst:factorialSimple} we can use the invariant `$\inv : g
+= -1 \vee g = 6$' and the function factorial can be modelled as `$ f
+:= k \leq 1 \implies \fact[k] = 1 \wedge k >1 \implies \fact[k] =
+\fact[k-1]*k$'. Thus, the pre-condition is `$\inv$' and the
+post-condition is `$\inv \wedge f \wedge \retVar = fact[n]$' where
+$\retVar$ is the return variable. This post-condition will not only
+check the validity of the invariant but also that the given procedure
+is OP, as the return value is constrained to be equivalent to
+`$fact[n]$'.
+
+
+The above mentioned idea is sound, modulo ease of use. The issues are:
+(a) theorem provers often fail to prove such assertions (as is the
+case for the above mentioned example) (b) describing the procedure in
+logic takes considerable effort.  Instead of formalizing the function
+for the given procedure, why not equate the result from the procedure
+to that of an uninterpreted function symbol? This function symbol can
+also be used to represent the return value from the inner procedure
+calls. Next, we ask the question whether an assignment for the
+function symbol exists? If yes, then the procedure is OP, otherwise it
+is not OP.  This is our existential approach.
+
+Abstracting using function symbols goes a long way. It helps in
+representing the post-condition in a simpler manner and also it aids
+in describing the invariant. For procedure factorial, we can use
+the invariant `$\inv_{\F}:=g = -1 \vee g = \F(2) * 3$'. The symbol
+`$\F(2)$' in the invariant represents the return value from the
+procedure factorial for argument `$n = 2$', assuming procedure
+factorial is a mathematical function. Note that the invariant used
+here is valid if the given procedure is OP, otherwise it is not well
+defined.
+
+%% should I talk about why F(2) *3 instead of F(3) ?
+
+OPness can also be checked by comparing a procedure to itself. We
+represent two instances of a procedure in some underlying logic, and
+then ask the question that do the two instances of the given procedure
+mimic each other, for all argument values, and all states satisfying
+the invariant? If yes, then we show that the given procedure is OP. We
+call this the impurity witness approach.  This approach also makes
+use of invariant with uninterpreted function symbols like the previous
+approach.
+
+Since observational purity is a property on the return values from a
+procedure, this problem is closely related to the halting problem
+%%cite this
+. In Section~\ref{sec:background}, we define OPness in a way such that
+non-termination does not cause non-OPness. OP is violated if for a
+given invariant on the reachable global states, for a given argument
+value there is a non-unique return value. And in-case of
+non-termination there isn't a return value. Hence, a procedure that
+never terminates is vacuously OP and it mimics all functions.
+
+One direct application of this work is automatic memoization. Dynamic
+programming algorithms (such as factorial in
+Listing~\ref{lst:factorialSimple}) use memoization to store
+pre-computed solutions to the sub-problem so that the results can be
+looked-up when needed, thus trading memory for compute time. Our
+technique can check if it is safe to memoize the results produced by a
+procedure. By safety, we refer to preserving the input-output
+behaviour. We propose two static analysis approaches to check this
+problem. One interesting thing about our approach is that the user
+need not mention a (the) mathematical function that the procedure is
+supposed to mimic. Also, using a function symbol allows generating the
+invariant automatically.
+
+
+Many researchers have looked at the problem of observational purity
+and have proposed characterizations of benign side effects
+\cite{naumann2007observational}, \cite{barnett2006allowing},
+\cite{cok2008extensions},
+\cite{finifter2008verifiable}. Barnett~\cite{barnett2006allowing}
+gives an information flow based technique to check observational
+purity that marks some fields as secret and ensures all side effects
+are limited to secret fields. Whereas
+Naumann~\cite{naumann2007observational} calls a procedure OP if it
+mimics a procedure that is weakly pure, i.e has side effects only to
+pre-exiting objects. Cok~\cite{cok2008extensions} takes a very
+different approach to allowing procedure calls in the specification
+iff it mimics a procedure that has side effects only to pre-existing
+objects.
+
+In section~\ref{sec:background} we give the pre-requisites for this
+work. The semantics of the invariant we use are described in
+Section~\ref{sec:invariant}. Next Section~\ref{sec:op} defines
+observational purity. In Section~\ref{sec:approaches} we present a
+couple of techniques to check opness. Section~\ref{sec:experiments}
+discusses the experimental results and section~\ref{sec:related}
+compares this work to the current literature.
+

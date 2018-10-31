@@ -1,0 +1,22 @@
+\begin{abstract}
+Purity is an important concept in the context of an imperative
+programming language, with multiple applications.  We present a
+semantics-based definition of \emph{observational purity} for an
+imperative procedure, formalizing the intuition that the procedure's
+execution has only benign side effects, \emph{i.e.}, side-effects that
+cannot be observed and
+do not affect the input-output behaviour of the procedure.
+
+We then address two mutually-dependent problems: verifying that a
+procedure is observationally pure and verifying assertions/contracts
+that contain calls to a presumed-to-be observationally pure procedure.
+As we illustrate, verification that a procedure is observationally
+pure can benefit from assertions that contain calls to the same
+procedure.  However, such assertions themselves are meaningful only if
+the procedure is observationally pure.
+Thus, the two problems cannot be decoupled and must be addressed
+simultaneously.
+
+
+We present two techniques for performing this dual verification.
+\end{abstract}

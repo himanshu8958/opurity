@@ -1,0 +1,97 @@
+\newcommand{\code}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\var}{\textsc{x}}
+\newcommand{\varY}{\textsc{y}}
+\newcommand{\expr}{\textsc{e}}
+\newcommand{\proc}{\textsc{p}}
+\newcommand{\procP}{\textsc{p}}
+\newcommand{\stmt}{\textsc{s}}
+\newcommand{\stmtS}{\textsc{s}}
+\newcommand{\stmtSA}{\textsc{s}_1}
+\newcommand{\stmtSB}{\textsc{s}_2}
+\newcommand{\logicalformula}[1]{\varphi^{#1}}
+\newcommand{\inv}{\logicalformula{inv}}
+\newcommand{\post}{\logicalformula{post}}
+\newcommand{\postA}{\post_1}
+\newcommand{\postB}{\post_2}
+\newcommand{\pre}{\logicalformula{pre}}
+\newcommand{\vc}{\logicalformula{vc}}
+\newcommand{\vcA}{\vc_1}
+\newcommand{\vcB}{\vc_2}
+\newcommand{\mainvcfn}{\textsc{postvc}}
+\newcommand{\mainvc}[2]{\mainvcfn({#1},{#2})}
+\newcommand{\auxvcfn}{\textsc{vc}}
+\newcommand{\auxvc}[3]{\auxvcfn({#1},{#2},{#3})}
+
+\newcommand{\foo}{\textit{`foo'}}
+\newcommand{\trace}{\pi}
+% \newcommand{\inv}{\mathit{inv}}
+\newcommand{\history}{\Pi}
+\newcommand{\pathCondition}{\mathit{T_{\foo}}}
+\newcommand{\OPCheckE}{\mathit{OPCheck \mhyphen existential}}
+\newcommand{\OPCheckA}{\mathit{OPCheck \mhyphen pairwise}}
+\mathchardef \mhyphen="2D
+\newcommand{\mi}[1]{\mathit{#1}}
+\newcommand{\retVar}{\textit{retVar}}
+\newcommand{\F}{\mathit{F}}
+\newcommand{\n}{\textit{n}}
+\newcommand{\gstate}{\gamma}
+\newcommand{\g}{\textit{g}}
+\newcommand{\gout}{\textit{gout}}
+\newcommand{\gbef}{\textit{gbef}}
+\newcommand{\gaft}{\textit{gaft}}
+\newcommand{\satisfies}{\vdash}
+\newcommand{\fact}{\mathit{fact}}
+\newcommand{\formula}{\mu}
+\newcommand{\integer}{\mathbb{N}}
+\newcommand{\vci}[2]{\mathit{valid \mhyphen consistent \mhyphen
+    invariant(#1, #2)}}
+\newcommand{\atEntry}[1]{\mathit{at \mhyphen entry(#1)}}
+\newcommand{\beforeCall}[1]{\mathit{before \mhyphen call(#1)}}
+\newcommand{\return}[1]{\mathit{return(#1)}}
+\newcommand{\atEnd}[1]{\mathit{at \mhyphen end(#1)}}
+\newcommand{\tSegment}{\tau}
+\newcommand{\param}[1]{\mathit{argument(#1)}}
+\newcommand{\segDepth}[2]{\mathit{segment \mhyphen depth(#1, #2)}} %trace, segment
+\newcommand{\subTrace}{\pi_{sub}}
+\newcommand{\segment}[2]{\mathit{segment(#1, #2)}} %trace, N
+\newcommand{\pairFormula}{\mathit{f_{pairwise}}}
+\newcommand{\depth}[1]{\mathit{depth(#1)}}
+\newcommand{\level}[1]{\mathit{level(#1)}}
+\newcommand{\state}{\sigma}
+\newcommand{\afterCall}[1]{\mathit{after \mhyphen call(#1)}} 
+
+\newcommand{\ivars}{\overrightarrow{i}}
+\newcommand{\ovars}{\overrightarrow{o}}
+\newcommand{\avars}{\overrightarrow{a}}
+
+\newcommand{\histories}[1]{\mathit{histories(#1)}}
+\newcommand{\Gstates}{\Gamma}
+
+\newcommand{\historyOf}[1]{\mathit{histories \mhyphen of(#1)}}
+\newcommand{\tracesOf}[1]{\mathit{traces \mhyphen of(#1)}} 
+
+\lstdefinestyle{mystyle}{
+  basicstyle=\footnotesize, 
+  %% breakatwhitespace=false,         
+  %% breaklines=true,                 
+  captionpos=b,
+  %% keepspaces=true,         
+  numbers=left,
+  numbersep=6pt,                  
+  %% showspaces=false,                
+  %% showstringspaces=false,
+  %% showtabs=false,
+  morekeywords={if, for, else,
+  procedure,modifies, var, returns, int, call, assume},
+  %% tabsize=2
+}
+\lstset{
+  %% basicstyle=\itshape,
+  style = mystyle,
+  xleftmargin=3em,
+  %% literate={\alt}{;}{1}
+  %% basicstyle=\footnotesize,
+  numberstyle=\tiny,
+  breaklines=true,
+  escapeinside={\%*}{*)}
+}

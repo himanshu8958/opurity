@@ -1,0 +1,63 @@
+\section{Related work}\label{sec:related}
+JML~\cite{leavens2008jml} does not allow any side-effects for Library
+procedures, thus specifiers use pure replacements instead. Barnett
+defines Observational purity~\cite{barnett200499}. A notion of
+equivalance is introduced by them between a pair of heaps, where one
+of the heaps has the cache un-initilized and other where cache holds
+the result. They mark all the fields which serve as cache as secret
+fields and equivalent heaps have the same values for the non-secret
+fields. Next, to reason about equivalance of the return value from
+such equivalent heaps, they annotate the program with an invariant
+that relates the secret and open fields. Our technique in comparison,
+requires the program to be annotated only with the invariant which
+could also be generated automatically in may cases. 
+
+The idea of comparing a program to
+itself~\cite{lahiri2013differential}~\cite{partush2013abstract} is
+closely related to the impurity witness
+approach. DAC~\cite{lahiri2013differential} uses this idea for finding
+the assertions that failed in a version of a program with respect to
+another version. Whereas, Partush and Yahav~\cite{partush2013abstract}
+focus on finding the parameter values for which the two versions of
+the procedure differ.
+
+Naumann~\cite{naumann2007observational} calls a procedure OP if it is
+output-equivalent to a procedure which is a side-effect free. And
+side-effect-freeness does not entail OPness as the procedure's return
+value may be dependent on some global variable. This work
+presents/uses a theory for simulations, closely related to ownership
+types. Thus this work is closely related but they solve a different
+problem.
+
+Cok~\cite{cok2008extensions} builds upon Barnett's
+work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
+partitioning the set of methods into ``pure'', ``secret'' and
+``query'' methods, each scoped to a particular data group. The query
+methods are OP. They give a set of rules to be followed by methods in
+each group. Thus, structuring for modular reasoning about OPness.
+
+Finifter~\cite{cok2008extensions} takes a different approach of
+restricting the programming language in order to make OP checking
+simpler. In the restricted language called Joe-E, OP methods have all
+objects reachable from the parameters marked as immutable.
+
+Salcianu~\cite{sualcianu2005purity} gives a static analysis that
+checks if a method modifies the pre-existing state. All the operators
+used in specifications do not have side effects. If a procedure does
+not modify the pre-existing state it is called pure and
+~\cite{barnett200499} suggests that such procedures can be used in
+specifications. Our work in comparison generalizes further by allowing
+procedures that modify pre-existing state but behave as mathematical
+functions in specifications. We would like to point out that in their
+work they manually marked library methods that did caching but were
+semantically preserving as pure.
+
+\nocite{barnett2004spec}
+\nocite{lahiri2013differential}
+\nocite{de2008z3}
+\nocite{alpern1988detecting}
+\nocite{sondergaard1990referential}
+\nocite{flanagan2001avoiding}
+\nocite{sualcianu2005purity}
+\nocite{cytron1991efficiently}
+\nocite{leino2008boogie}
