@@ -1,0 +1,6 @@
+# ignore auxiliary files created by pdflatex
+*.aux
+*.bbl
+*.blg
+*.log
+*.pdf
