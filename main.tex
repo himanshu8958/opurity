@@ -838,21 +838,21 @@ approach, the inequivalence is contradicted (if procedure is OP).
 (to be included)
 %% \section{Conclusion}
 \section{Related work}\label{sec:related}
-JML~\cite{leavens2008jml} does not allow any
-side-effects for Library procedures, thus specifiers use pure
-replacements instead. Barnett defines Observational
-purity~\cite{barnett200499} but their work cannot prove self recursive
-procedures to be OP and also need user annotations. A notion of
+JML~\cite{leavens2008jml} does not allow any side-effects for Library
+procedures, thus specifiers use pure replacements instead. Barnett
+defines Observational purity~\cite{barnett200499}. A notion of
 equivalance is introduced by them between a pair of heaps, where one
-of the heaps has the cache un-initilized and other where cache holds the
-result. They mark all the fields which serve as cache as secret fields
-and equivalent heaps have the same values for the non-secret
+of the heaps has the cache un-initilized and other where cache holds
+the result. They mark all the fields which serve as cache as secret
+fields and equivalent heaps have the same values for the non-secret
 fields. Next, to reason about equivalance of the return value from
 such equivalent heaps, they annotate the program with an invariant
-that relates the secret and open fields.
+that relates the secret and open fields. Our technique in comparison,
+requires the program to be annotated only with the invariant which
+could also be generated automatically in may cases. 
 
 The idea of comparing a program to
-itself~\cite{lahiri2013differential} \cite{partush2013abstract} is
+itself~\cite{lahiri2013differential}~\cite{partush2013abstract} is
 closely related to the impurity witness
 approach. DAC~\cite{lahiri2013differential} uses this idea for finding
 the assertions that failed in a version of a program with respect to
@@ -863,9 +863,10 @@ the procedure differ.
 Naumann~\cite{naumann2007observational} calls a procedure OP if it is
 output-equivalent to a procedure which is a side-effect free. And
 side-effect-freeness does not entail OPness as the procedure's return
-value may be dependent on some global variable. This works present/use
-a theory for simulations, closely related to ownership types. Thus
-this work is closely related but they solve a different problem.
+value may be dependent on some global variable. This work
+presents/uses a theory for simulations, closely related to ownership
+types. Thus this work is closely related but they solve a different
+problem.
 
 Cok~\cite{cok2008extensions} builds upon Barnett's
 work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
