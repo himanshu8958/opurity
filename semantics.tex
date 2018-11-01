@@ -1,7 +1,30 @@
+\newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
+\newcommand{\sssem}[1]{\rightarrow_{#1}}
+
 \section{Semantics}
 
-To introduce the definition of an invariant we first define
-\textit{trace} and \textit{history}.
+The input-output semantics of a procedure $\proc$ is formalized as a relation $\iosem{\proc}$, where $n \iosem{\proc} r$ indicates
+that an invocation of $\proc$ with input $n$ may return a result of $r$. The procedure is defined to be observationally
+pure if the relation $\iosem{\proc}$ is a (partial) function: that is, if 
+$n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
+
+We introduce several conceptsas part of the semantic formalism.
+
+\TODO{Formalize notion of a state}
+A procedure $\proc$ determines a single-step execution relation $\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates
+that execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single step.
+We define an \emph{execution} to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
+$\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
+
+A \emph{trace} is a representation of a complete execution of the procedure produced by a single
+invocation of the procedure. Note that a trace may contain nested sub-traces,
+which are themselves traces, due to recursive calls.
+A \emph{history} is a representation of the complete  execution of the procedure produced by a
+sequence of invocations of the procedure.
+(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
+of the procedure by a concurrent client of the library is allowed.)
+
+\TODO{Older definitions appear below.}
 
 \begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
     value] 
