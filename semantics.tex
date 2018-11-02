@@ -1,7 +1,44 @@
+\newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
+\newcommand{\sssem}[1]{\rightarrow_{#1}}
+
 \section{Semantics}
 
-To introduce the definition of an invariant we first define
-\textit{trace} and \textit{history}.
+The input-output semantics of a procedure $\proc$ is formalized as a relation $\iosem{\proc}$, where $n \iosem{\proc} r$ indicates
+that an invocation of $\proc$ with input $n$ may return a result of $r$. The procedure is defined to be observationally
+pure if the relation $\iosem{\proc}$ is a (partial) function: that is, if 
+$n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
+
+We introduce several concepts as part of the semantic formalism.
+
+\TODO{Formalize notion of a state}
+We say that a state $\sigma$ is an \emph{entry-state} if its location is at the procedure entry point,
+and we say that it is an \emph{exit-state} if its location is at the procedure exit point.
+A procedure $\proc$ determines a single-step execution relation $\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates
+that execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single step.
+We encode invocations of the procedure using the same relation $\sssem{\proc}$: 
+$\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is an entry-state,
+and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
+parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
+parameter value).
+
+We define an \emph{execution} to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
+$\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
+(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
+of the procedure by a concurrent client of the library is allowed.)
+
+We define a \emph{history} to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
+(a) $\sigma_0$ is the initial state of the library,
+(b) $\sigma_n$ is an exit-state, and
+(c) $\pi$ has an equal number of entry-states and exit-states.
+Note that a history represents a complete  execution produced by a
+sequence of invocations of the procedure.
+
+A \emph{trace} is a representation of a complete execution of the procedure produced by a single
+invocation of the procedure. Note that a trace may contain nested sub-traces,
+which are themselves traces, due to recursive calls.
+
+
+\TODO{Older definitions appear below.}
 
 \begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
     value] 
