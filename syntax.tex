@@ -1,6 +1,5 @@
-\section{Language Syntax} \label{sec:background}
-
-\subsection{Programming Language}
+\section{Language Syntax}
+\label{sec:background}
 
 In this paper, we assume that the input to the purity checker is a library consisting
 of one or more procedures, with shared state consisting of one or more variables
@@ -78,40 +77,3 @@ statement `\code{havoc x}' assigns any value from the domain of the variable
 For simplicity in notation, we will assume, without loss of generality,
 that the library consists of a single procedure, with a single formal
 parameter, and a single global variable.
-
-\begin{itemize}
-%\item We analyze a single procedure in isolation and we assume that no
-%  other procedure writes to the global variables accessed by procedure
-%  \foo. In-case of multiple procedures, the invariant has multiple
-%  function symbols, one for each procedure. 
-\item All variables are defined before use, except global variables.
-\item The variable assigned the return value in a procedure call
-  statement is always a local variable.
-\item There is at max one procedure call statement in every straight line
-  execution of \foo from the beginning until it's
-  end.
-  \end{itemize}
-%% Note : all of the above mentioned restrictions can be omitted. They
-%% are for convenience.
-
-\subsection{Invariant}\label{sec:invariant}
-
-\begin{definition}[invariant]
-  Invariant $\inv$ represents the set of
-  global states at the boundaries of a procedure. $\inv$ is a formula,
-  with global variables accessed by the given procedure and a
-  uninterpreted function symbol $\F$ as the set of free variables. The
-  uninterpreted function symbol $\F$ is a placeholder for the
-  mathematical function equivalent to the given procedure. The initial
-  global state satisfies the invariant.
-\end{definition}
-
-The invariant is produced by syntactically analyzing the
-program. Invariant is expressed in a logic with un-interpreted
-functions. The uninterpreted function is used to abstract out the
-recursive procedure calls. It is assumed that the uninterpreted
-function symbol represents the same mathematical function as the given
-procedure. For example for procedure factorial in
-listing~\ref{lst:factorialSimple} we use the invariant $\mathit{g = -1
-  \vee g = \F(2) * 3}$, where $\F(2)$ is assumed to be equal to $x$,
-$x = \mi{factorial(2)}$.
