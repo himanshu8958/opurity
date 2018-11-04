@@ -2,18 +2,11 @@
 
 \begin{enumerate}
 
-\item There is room for improving the presentation of Algorithm 1 and 2:
-\begin{enumerate}
-
-\item Notation improvement:
-\begin{enumerate}
-\item We can translate the entire program (rather than a single path)
-into the formula $T_{foo}$, which seems the right thing to do. So,
-verification-condition may be a better name than path-condition.
-Or, some name other than these two?
-\item rename $T_{foo}$ to something better ... I will use $\varphi_{vc}$
-below.
-\end{enumerate}
+\item (Rama) I am leaving the following discussion in place until we sort this out.
+My current thinking on my questions below is better reflected in the formalism
+section added into the paper. In particular, I think that we adopt standard
+approaches to compute both a verification-condition and a post-condition,
+each of which has a different purpose and correctness requirement.
 
 \item The formulae produced by algorithms 1 and 2 include two parts:
 one to check that the conjectured-invariant is an invariant, and the
@@ -28,18 +21,6 @@ parts, for the existential approach we just say that if the invariant
 is correct then the procedure is OP. Whereas in the combined approach
 we have stronger guarantee. 
 
-\item In particular, the bulk of the conditions encode the standard
-precondition/postcondition treatment (at procedure-entry, call-site,
-and procedure-exit). It may be better to push these conditions into
-the common $\varphi_{vc} = T_{foo}$ part. This can be done if generation of
-$T_{foo}$ itself is parameterized by the invariant, which seems the right thing to do.
-
-\item Specifically, let us make $\varphi_{vc}$ include the "assert precondition"
-and "assume postcondition" for every call-site within the procedure, as well
-as the "assume precondition" at procedure-entry, but not the "assert
-postcondition" at procedure-exit. This looks a bit odd, but the "assert
-postcondition" is the only part that we handle differently in the two algorithms.
-
 \item What's the correctness property we have for the generated verification
 condition $\varphi_{vc}$, that is sufficient to establish correctness of both approaches?
 Essentially, every execution $\pi$ identifies bindings for the free variables in $\varphi_{vc}$ (except for $F$);
@@ -48,8 +29,6 @@ Then, we want the following to hold true: $\varphi_\pi$ is true provided all the
 nested (recursive) executions preconditions/postconditions are satisfied.
 
 The correctness of the existential approach is based on the following property
-
-
 
 \begin{definition}[valid and consistent invariant( Function,
     Formula)]
@@ -98,8 +77,5 @@ satisfiable.
 }
 
 $>$ Yes.
-
-
-\end{enumerate}
 
 \end{enumerate}

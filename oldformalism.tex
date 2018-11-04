@@ -1,0 +1,136 @@
+\section{Older Formalism}
+
+We make the following simplifying assumptions:
+\begin{itemize}
+%\item We analyze a single procedure in isolation and we assume that no
+%  other procedure writes to the global variables accessed by procedure
+%  \foo. In-case of multiple procedures, the invariant has multiple
+%  function symbols, one for each procedure. 
+\item All variables are defined before use, except global variables.
+\item The variable assigned the return value in a procedure call
+  statement is always a local variable.
+\item There is at max one procedure call statement in every straight line
+  execution of \foo from the beginning until it's
+  end.
+  \end{itemize}
+%% Note : all of the above mentioned restrictions can be omitted. They
+%% are for convenience.
+
+\subsection{Invariant}\label{sec:invariant}
+
+\begin{definition}[invariant]
+  Invariant $\inv$ represents the set of
+  global states at the boundaries of a procedure. $\inv$ is a formula,
+  with global variables accessed by the given procedure and a
+  uninterpreted function symbol $\F$ as the set of free variables. The
+  uninterpreted function symbol $\F$ is a placeholder for the
+  mathematical function equivalent to the given procedure. The initial
+  global state satisfies the invariant.
+\end{definition}
+
+The invariant is produced by syntactically analyzing the
+program. Invariant is expressed in a logic with un-interpreted
+functions. The uninterpreted function is used to abstract out the
+recursive procedure calls. It is assumed that the uninterpreted
+function symbol represents the same mathematical function as the given
+procedure. For example for procedure factorial in
+listing~\ref{lst:factorialSimple} we use the invariant $\mathit{g = -1
+  \vee g = \F(2) * 3}$, where $\F(2)$ is assumed to be equal to $x$,
+$x = \mi{factorial(2)}$.
+
+\subsection{Semantics}
+
+\begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
+    value] 
+  $\\\atEntry{x}$ denotes the value of global variable $\g$ at the
+  starting point of $x$ where $x$ is a history, trace or trace
+  segment.
+\end{definition}
+
+\begin{definition}[trace]
+  A trace $\trace$ is a complete execution of the procedure starting
+  from a given global state and a tuple of formal arguments. A trace
+  upon completion gives an end state and a return value.\\ Traces may
+  have sub-traces, which by definition are traces (recursive calls).
+\end{definition}
+
+\begin{definition}[history]
+  A history $\history$ is a sequence of consecutive traces, with the
+  first trace starting from a given global state, and each subsequent
+  trace begins in the state in which the previous trace ends.
+\end{definition}
+
+\begin{definition}[histories$\mhyphen$of (global state)$\rightarrow$
+    set of histories] 
+  $\historyOf{\gmap}$ returns the set of all possible histories such
+  that for each history $\history$ in the set, $\history$ is a history
+  of procedure `\foo' with $\atEntry{\history} = \gmap$.
+\end{definition}
+
+\begin{definition}[traces$\mhyphen$Of(history) $\rightarrow$ set of
+    traces] $\tracesOf{\history}$ returns the set of traces and
+  sub-traces in history $\history$.
+\end{definition}
+
+Invariant $\inv$ is assumed at the beginning of the procedure and
+asserted at the end. Also, $\inv$ is asserted before the procedure
+call and assumed after the procedure call. Above mentioned treatment
+is similar to handling of pre-conditions and post-conditions for
+recursive procedures. For the invariant, it is assumed that the given
+procedure is observationally pure. The invariant has the free variable
+$\F$ which is also used to abstract over procedure calls and it is
+defined only if the given procedure is observationally pure.
+
+Let $\gmap$ be a global state, and $\F'$ be a function, and $\inv$
+be a invariant. If we substitute $\gmap$ for $g$ and $\F'$ for $\F$
+in $\inv$ and it is true, then we say that $(\gmap, \F')$ satisfies
+$\inv$, which is denoted as $(\gmap, \F') \satisfies \inv$. For
+instance let $\inv := g = -1 \vee g = \F(18) * 3$ then $(3!, \lambda
+n. n!) \satisfies \inv$.
+
+\subsection{Observational purity}\label{sec:op}
+
+\begin{definition}[argument(trace $\rightarrow$ value)]
+  $\param{\trace}$ denotes the mapping of the argument `$\n$' to its
+  value in the beginning of $\trace$.
+\end{definition}
+
+
+\begin{definition}[observational purity(set of states)]
+  A procedure `\foo' is observational pure wrt a given set of global
+  states $\gmaps$ if for each history $\history$ of procedure
+  `\foo', all pairs of traces in the history that begin in a global
+  states $\gmap$ and $\gmap'$ respect each other where $\gmap
+  \in \gmaps$, $\gmap' \in \gmaps$.  In other words
+  $\forall \gmap \in \gmaps.\forall \, \history \in
+  \historyOf{\gmap}. \forall \trace_1 \in
+  \tracesOf{\history}. \forall \trace_2 \in
+  \tracesOf{\history}.\\ \param{\trace_1} = \param{\trace_2} \implies
+  \return{\trace_1} = \return{\trace_2}$.
+\end{definition}
+
+\begin{lstlisting}[caption={Procedure `remember' : always returns the
+      argument from its first call}, label=lst:remember]
+int g = 0;
+int init = 0;
+int remember( int n) {
+  if(init == 0){
+    init = 1;
+    g = n;
+  }
+  return g;
+}
+\end{lstlisting}
+
+In a history, if all traces return the same result for an argument
+value, there exists a function $\F$ that respects the given
+procedure. In a history, the given procedure mimics a unique function,
+but the mimicked function varies across histories. If the invariant is
+a set of concrete states then there exists a unique function that is
+equivalent to the given procedure across histories. But, our invariant
+allows function symbols. Use of the function symbol allows an OP
+procedure to mimic different functions across histories. For instance,
+procedure `remember' in Listing~\ref{lst:remember} mimics a constant
+function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
+init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
+g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.

@@ -8,12 +8,16 @@
 \newcommand{\lstates}{\Sigma_L}
 \newcommand{\cstates}{S}
 \newcommand{\cont}{s}
+\newcommand{\lstack}{\gamma}
+\newcommand{\initstate}{\sigma_{\text{init}}}
 
 
 \newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
+\newcommand{\iosemP}{\iosem{\proc}}
 \newcommand{\sssem}[1]{\rightarrow_{#1}}
+\newcommand{\sssemP}{\sssem{\proc}}
 
-\section{Semantics}
+\section{A Semantic Definition of Purity}
 
 In this section, we formalize the input-output semantics of a procedure $\proc$ as a relation $\iosem{\proc}$,
 where $n \iosem{\proc} r$ indicates that an invocation of $\proc$ with input $n$ may return a result of $r$.
@@ -33,7 +37,6 @@ of the so-called ``most general sequential client'' of procedure $\proc$, which 
 The executions (of $\proc$) produced by this program include all executions (of $\proc$)  produced by all
 sequential clients.
 
-\TODO{Formalize notion of a state}
 Let $\gvars$ denote the set of global variables. Let $\lvars$ denote the set of local variables.
 Let $\vals$ denote the set of numeric values (that the variables can take).
 An element $\gmap \in \gmaps = \gvars \hookrightarrow \vals$ maps global variables to their values.
@@ -56,10 +59,15 @@ and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the 
 parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
 parameter value).
 
+Note that all the following definitions are parametric over a given procedure $\proc$.
+(Thus, what we refer to as an execution below is shorthand for ``execution of $\proc$''.
+
 We define an \emph{execution} to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
 $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 %(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
 %of the procedure by a concurrent client of the library is allowed.)
+Let $\initstate$ denote the \emph{initial state} of the library.
+We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
 
 We define a \emph{history} to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
 (a) $\sigma_0$ is the initial state of the library,
@@ -68,104 +76,25 @@ We define a \emph{history} to be an execution $\pi = \sigma_0 \sigma_1 \cdots \s
 Note that a history represents a complete  execution produced by a
 sequence of invocations of the procedure.
 
-A \emph{trace} is a representation of a complete execution of the procedure produced by a single
-invocation of the procedure. Note that a trace may contain nested sub-traces,
+We say that an execution is a \emph{trace} if it represents the complete execution
+of the procedure produced by a single invocation of the procedure.
+Note, however, that a trace may contain nested sub-traces,
 which are themselves traces, due to recursive calls.
 
+We define the relation $\iosemP$ as follows:
+we say $n \iosemP r$ if there exists a reachable exit state where the value of formal
+parameter is $n$ and return value is $r$.
 
-\subsection{Older Semantics}
-
-\begin{definition}[at-entry(history/trace/trace-segment)  $\rightarrow$
-    value] 
-  $\\\atEntry{x}$ denotes the value of global variable $\g$ at the
-  starting point of $x$ where $x$ is a history, trace or trace
-  segment.
+\begin{definition}[Observational Purity]
+A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\iosem{\proc}$ is a (partial) function:
+that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 \end{definition}
 
-\begin{definition}[trace]
-  A trace $\trace$ is a complete execution of the procedure starting
-  from a given global state and a tuple of formal arguments. A trace
-  upon completion gives an end state and a return value.\\ Traces may
-  have sub-traces, which by definition are traces (recursive calls).
+We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
+there is a reachable entry-state of the form $(\lstack,\gmap)$.
+
+\begin{definition}[Invariant]
+We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
+function $f$ such that for every reachable global entry-state $\gmap$ of $\proc$,
+$\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
 \end{definition}
-
-\begin{definition}[history]
-  A history $\history$ is a sequence of consecutive traces, with the
-  first trace starting from a given global state, and each subsequent
-  trace begins in the state in which the previous trace ends.
-\end{definition}
-
-\begin{definition}[histories$\mhyphen$of (global state)$\rightarrow$
-    set of histories] 
-  $\historyOf{\gmap}$ returns the set of all possible histories such
-  that for each history $\history$ in the set, $\history$ is a history
-  of procedure `\foo' with $\atEntry{\history} = \gmap$.
-\end{definition}
-
-\begin{definition}[traces$\mhyphen$Of(history) $\rightarrow$ set of
-    traces] $\tracesOf{\history}$ returns the set of traces and
-  sub-traces in history $\history$.
-\end{definition}
-
-Invariant $\inv$ is assumed at the beginning of the procedure and
-asserted at the end. Also, $\inv$ is asserted before the procedure
-call and assumed after the procedure call. Above mentioned treatment
-is similar to handling of pre-conditions and post-conditions for
-recursive procedures. For the invariant, it is assumed that the given
-procedure is observationally pure. The invariant has the free variable
-$\F$ which is also used to abstract over procedure calls and it is
-defined only if the given procedure is observationally pure.
-
-Let $\gmap$ be a global state, and $\F'$ be a function, and $\inv$
-be a invariant. If we substitute $\gmap$ for $g$ and $\F'$ for $\F$
-in $\inv$ and it is true, then we say that $(\gmap, \F')$ satisfies
-$\inv$, which is denoted as $(\gmap, \F') \satisfies \inv$. For
-instance let $\inv := g = -1 \vee g = \F(18) * 3$ then $(3!, \lambda
-n. n!) \satisfies \inv$.
-
-\section{Observational purity}\label{sec:op}
-
-\begin{definition}[argument(trace $\rightarrow$ value)]
-  $\param{\trace}$ denotes the mapping of the argument `$\n$' to its
-  value in the beginning of $\trace$.
-\end{definition}
-
-
-\begin{definition}[observational purity(set of states)]
-  A procedure `\foo' is observational pure wrt a given set of global
-  states $\gmaps$ if for each history $\history$ of procedure
-  `\foo', all pairs of traces in the history that begin in a global
-  states $\gmap$ and $\gmap'$ respect each other where $\gmap
-  \in \gmaps$, $\gmap' \in \gmaps$.  In other words
-  $\forall \gmap \in \gmaps.\forall \, \history \in
-  \historyOf{\gmap}. \forall \trace_1 \in
-  \tracesOf{\history}. \forall \trace_2 \in
-  \tracesOf{\history}.\\ \param{\trace_1} = \param{\trace_2} \implies
-  \return{\trace_1} = \return{\trace_2}$.
-\end{definition}
-
-\begin{lstlisting}[caption={Procedure `remember' : always returns the
-      argument from its first call}, label=lst:remember]
-int g = 0;
-int init = 0;
-int remember( int n) {
-  if(init == 0){
-    init = 1;
-    g = n;
-  }
-  return g;
-}
-\end{lstlisting}
-
-In a history, if all traces return the same result for an argument
-value, there exists a function $\F$ that respects the given
-procedure. In a history, the given procedure mimics a unique function,
-but the mimicked function varies across histories. If the invariant is
-a set of concrete states then there exists a unique function that is
-equivalent to the given procedure across histories. But, our invariant
-allows function symbols. Use of the function symbol allows an OP
-procedure to mimic different functions across histories. For instance,
-procedure `remember' in Listing~\ref{lst:remember} mimics a constant
-function for $\inv := g=0 \wedge init=0 \vee g= \F() \wedge
-init=1$. Whereas, for the invariant $\inv := g=0 \wedge init=0 \vee
-g=2 \wedge init=1$; the procedure mimics the function $\lambda n.2$.
