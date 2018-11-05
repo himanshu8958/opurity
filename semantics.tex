@@ -11,6 +11,8 @@
 \newcommand{\lstack}{\gamma}
 \newcommand{\initstate}{\sigma_{\text{init}}}
 
+\newcommand{\extmap}{\sigma_e}
+
 
 \newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
 \newcommand{\iosemP}{\iosem{\proc}}
@@ -90,11 +92,37 @@ A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\
 that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 \end{definition}
 
+\subsection*{Invariants}
+
+We now formalize the concept of an \emph{invariant}. Let $\varphi$ denote a boolean-valued expression over
+the set of global variables. We write $\gmap \models \varphi$ to denote that $\varphi$ evaluates to true in a state
+where the globals have values as in $\gmap$.
+
+However, as we saw with our running example, it is useful to allow the use of the name of a procedure in
+an invariant: \eg, an invariant such as ``$(g == -1) \vee (g == \text{factorial}(3))$''.
+We interpret such extended invariants as below.
+Let $\extmap$ denote an extended map that assigns global variables a (numeric) value and assigns the
+procedure names a mathematical function as a value. We can then extend the expression evaluation semantics
+in a straightforward fashion to evaluate extended boolean expressions of the above form. 
+We will write $\extmap \models \varphi_e$ to denote that the extended boolean expression $\varphi_e$
+evaluates to true under $\extmap$.
+
+Given a global state $\gmap$, a procedure name $\proc$, and a mathematical function $f$, we will write
+$\gmap[\proc \mapsto f]$ to indicate the extended map that assigns $\proc$ the value $f$ and every
+global $x$ the value $\gmap[x]$.
+
+%An invariant is essentially a logical formula that holds true
+%at entry to and exit from the procedure. 
+
+
+
 We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
 there is a reachable entry-state of the form $(\lstack,\gmap)$.
 
 \begin{definition}[Invariant]
-We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
-function $f$ such that for every reachable global entry-state $\gmap$ of $\proc$,
+Given a procedure $\proc$ and a mathematical function $f$, we say that $(\proc,f)$ satisfy
+an invariant $\inv$ if for every reachable global entry-state $\gmap$ of $\proc$,
 $\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
+We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
+function $f$ such that $(\proc,f)$ satisfies $\inv$.
 \end{definition}

@@ -21,6 +21,10 @@ parts, for the existential approach we just say that if the invariant
 is correct then the procedure is OP. Whereas in the combined approach
 we have stronger guarantee. 
 
+$>$ (Rama) I don't understand your concern. My above suggestion
+is about changing the presentation to make it understandable, not changing
+the algorithm/technique itself.
+
 \item What's the correctness property we have for the generated verification
 condition $\varphi_{vc}$, that is sufficient to establish correctness of both approaches?
 Essentially, every execution $\pi$ identifies bindings for the free variables in $\varphi_{vc}$ (except for $F$);
@@ -60,22 +64,24 @@ The correctness of the existential approach is based on the following property
   \end{enumerate}
 \end{definition}
 
+$>$ (Rama) I have difficulty following the above for several reasons. It is
+a monolithic statement that combines everything into one, and that makes it
+hard to understand. It is mixing up what we intend to prove in our application;
+it is better if we can express this in terms of common, well-known, ideas
+(independent of the intended usage/application here). For example,
+the notion of ``post-condition'' is well-understood: for example,
+\emph{post(stmt, pre)} as a representation of the post-condition after
+the execution of \emph{stmt} starting from a state satisfying \emph{pre}
+is clear (modulo details like whether we are talking about the strongest
+post-condition or any correct post-condition). The other relevant notion
+is that of "verification-condition'', by which I mean combining the
+assumptions (e.g., assume precondition is true at entry) and
+assertions (e.g., assert that precondition holds true at recursive
+callsite) into a logical formula. 
 
 But the proof of correctness of the impurity witness approach is based
 on proving the implication that if the formula from impurity witness
 is UNSAT then the formula produced by the existential approach is
 SAT. I'll elaborate on this.
-
-Let $i$ and $o$ be the free-variables in $\varphi$
-representing the (initial value of the) input parameter and the
-(final value of the) returned output. I think it is something like:
-\emph{
-If there is any execution that
-satisfies the assumed invariant for input value $i_1$ that produces
-an output value of $o_1$, then $\varphi[i_1/i,o_1/o]$ should be
-satisfiable.
-}
-
-$>$ Yes.
 
 \end{enumerate}
