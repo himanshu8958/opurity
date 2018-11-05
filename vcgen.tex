@@ -1,3 +1,7 @@
+\newcommand{\existformula}{\psi^e}
+\newcommand{\EA}{\textsc{ea}}
+\newcommand{\IW}{\textsc{iw}}
+
 \section{Checking Purity Using a Theorem Prover}
 
 \subsection{Verification Condition Generation}
@@ -55,17 +59,35 @@ Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\au
 
 \subsection{Existential Approach}
 
+Let $\proc$ be a procedure ``\code{p (n) returns r S}''.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
-Let $\mu_e$ denote the formula $\vc \wedge (\post \Rightarrow (\retVar = \F(\n)))$.
-Let $\overline{X}$ denote the sequence of all free variables in $\mu_e$ except for $\F$.
-The procedure $\proc$ is observationally pure and satisfies invariant $\inv$ if
-$\exists \F. \forall \overline{X}. \mu_e$ is a tautology (which holds iff
-$\forall \overline{X}. \mu_e$ is satisfiable).
+Let $\existformula$ denote the formula $\vc \wedge (\post \Rightarrow (r = p(n)))$.
+Let $\overline{x}$ denote the sequence of all free variables in $\existformula$ except for $p$.
+We define $\EA(\proc,\inv)$ to be the formula $ \forall \overline{x}. \existformula$.
+
+\begin{theorem}
+A procedure $\proc$ is observationally pure and satisfies invariant $\inv$ if
+$\exists p. \EA(\proc,\inv)$ is a tautology
+(which holds iff $\EA(\proc,\inv)$ is satisfiable).
+\end{theorem}
+
+\begin{proof}
+Note that $p$ is the only free variable in $\EA(\proc,\inv)$. Assume that $[p \mapsto f]$ is a
+satisfying assignment for $\EA(\proc,\inv)$. We prove by induction (on the length of traces)
+that
+(a) If $n \iosemP r$, then $r = p(n)$ and
+(b) If a trace's starting state satisfying $\inv$, its ending state also satisfies $\inv$.
+\end{proof}
 
 \subsection{Impurity Witness Approach}
 
+Let $\proc$ be a procedure ``\code{p (n) returns r S}''.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
 Let $\post_\alpha$ denote the formula obtained by replacing every free variable $x$ in $\post$
 by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.
-Let $\mu_{iw}$ denote the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (\n_\alpha = \n_\beta) \wedge (\retVar_\alpha \neq \retVar_\beta))$.
-If $\mu_{iw}$ is UNSAT, then the given procedure is observationally pure and satisfies invariant $\inv$.
+Define $\IW(\proc, \inv)$ to be the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+
+\begin{theorem}
+A procedure $\proc$ is observationally pure and satisfies invariant $\inv$
+if $\IW(\proc, \inv)$ is unsatisfiable.
+\end{theorem}
