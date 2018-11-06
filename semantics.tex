@@ -21,6 +21,8 @@
 
 \newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
 
+\newcommand{\labrule}[3]{\inferrule*[Lab={[#1]}]{#2}{#3}}
+
 \section{A Semantic Definition of Purity}
 
 In this section, we formalize the input-output semantics of a procedure $\proc$ as a relation $\iosem{\proc}$,
@@ -65,7 +67,7 @@ parameter value).
 
 \begin{figure}
 \begin{mathpar}
-\inferrule{
+\labrule{assgn}{
 \code{x} \in \lvars \\
 \evalsto{\lmap}{\gmap}{\code{e}}{v}
 }{
@@ -74,7 +76,7 @@ parameter value).
 ((\code{S}, \lmap[\code{x} \mapsto v]) \lstack, \gmap)
 }
 
-\inferrule{
+\labrule{assgn}{
 \code{x} \in \gvars \\
 \evalsto{\lmap}{\gmap}{\code{e}}{v}
 }{
@@ -83,13 +85,13 @@ parameter value).
 ((\code{S}, \lmap) \lstack, \gmap[\code{x} \mapsto v])
 }
 
-\inferrule{}{
+\labrule{seq}{}{
 (((\stmtSA ; \stmtSB) ; \stmtSC , \lmap) \lstack, \gmap) 
 \sssemP
 ((\stmtSA ; (\stmtSB ; \stmtSC) , \lmap) \lstack, \gmap) 
 }
 
-\inferrule{
+\labrule{if-true}{
 \evalsto{\lmap}{\gmap}{\expr}{\code{true}}
 }{
 ( (\code{(if (\expr) then \stmtSA else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
@@ -97,7 +99,7 @@ parameter value).
 ( (\code{\stmtSA; \stmtSC}, \lmap) \lstack, \gmap)
 }
 
-\inferrule{
+\labrule{if-false}{
 \evalsto{\lmap}{\gmap}{\expr}{\code{false}}
 }{
 ( (\code{(if (\expr) then \stmtSA else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
@@ -105,7 +107,7 @@ parameter value).
 ( (\code{\stmtSB; \stmtSC}, \lmap) \lstack, \gmap)
 }
 
-\inferrule{
+\labrule{call}{
 \evalsto{\lmap}{\gmap}{\code{e}}{v} \\
 \proc = \code{p(n) \stmtSA}
 }{
@@ -114,12 +116,21 @@ parameter value).
 ((\stmtSA, [n \mapsto v]) (\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
 }
 
-\inferrule{
+\labrule{return}{
 \evalsto{\lmap}{\gmap}{r}{v}
 }{
 ((\code{return r}, \lmap) (\code{y = p(e); \stmt}, \lmap') \lstack, \gmap)
 \sssemP
 (\stmt, \lmap'[ \code{y} \mapsto v]) \lstack, \gmap)
+}
+
+\labrule{top-level-call}{
+\proc = \code{p(n) \stmtSA} \\
+v \in \vals
+}{
+([], \gmap)
+\sssemP
+([(\stmtSA, [n \mapsto v])], \gmap)
 }
 
 \end{mathpar}
