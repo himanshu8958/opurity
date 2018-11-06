@@ -4,15 +4,19 @@
 % \newcommand{\code}[1]{\ensuremath{\mathtt{#1}}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-\newcommand{\var}{\textsc{x}}
-\newcommand{\varY}{\textsc{y}}
-\newcommand{\expr}{\textsc{e}}
+\newcommand{\var}{\code{x}}
+\newcommand{\varY}{\code{y}}
+\newcommand{\expr}{\code{e}}
+
 \newcommand{\proc}{\textsc{p}}
 \newcommand{\procP}{\textsc{p}}
-\newcommand{\stmt}{\textsc{s}}
-\newcommand{\stmtS}{\textsc{s}}
-\newcommand{\stmtSA}{\textsc{s}_1}
-\newcommand{\stmtSB}{\textsc{s}_2}
+
+\newcommand{\stmt}{\code{S}}
+\newcommand{\stmtS}{\code{S}}
+\newcommand{\stmtSA}{{\ensuremath{\code{S}_1}}}
+\newcommand{\stmtSB}{{\ensuremath{\code{S}_2}}}
+\newcommand{\stmtSC}{{\ensuremath{\code{S}_3}}}
+
 \newcommand{\logicalformula}[1]{\varphi^{#1}}
 \newcommand{\inv}{\logicalformula{inv}}
 \newcommand{\post}{\logicalformula{post}}

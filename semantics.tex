@@ -2,10 +2,10 @@
 \newcommand{\vals}{\mathcal{V}}
 \newcommand{\gvars}{G}
 \newcommand{\lvars}{L}
-\newcommand{\gmap}{\sigma_g}
+\newcommand{\gmap}{\rho_g}
 \newcommand{\gmaps}{\Sigma_G}
-\newcommand{\lstate}{\sigma_\ell}
-\newcommand{\lstates}{\Sigma_L}
+\newcommand{\lmap}{\rho_\ell}
+\newcommand{\lmaps}{\Sigma_L}
 \newcommand{\cstates}{S}
 \newcommand{\cont}{s}
 \newcommand{\lstack}{\gamma}
@@ -18,6 +18,8 @@
 \newcommand{\iosemP}{\iosem{\proc}}
 \newcommand{\sssem}[1]{\rightarrow_{#1}}
 \newcommand{\sssemP}{\sssem{\proc}}
+
+\newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
 
 \section{A Semantic Definition of Purity}
 
@@ -42,11 +44,11 @@ sequential clients.
 Let $\gvars$ denote the set of global variables. Let $\lvars$ denote the set of local variables.
 Let $\vals$ denote the set of numeric values (that the variables can take).
 An element $\gmap \in \gmaps = \gvars \hookrightarrow \vals$ maps global variables to their values.
-An element $\lstate \in \lstates = \lvars \hookrightarrow \vals$ maps local variables to their values.
+An element $\lmap \in \lmaps = \lvars \hookrightarrow \vals$ maps local variables to their values.
 Let $\cstates$ represent the set of statements. We use an element $\cont \in \cstates$ to represent
 what remains to be executed in the procedure (and can, hence, be thought of as a program-point
 representing what is to be executed next).
-The set of runtime states is defined to be $(\cstates \times \lstates)^* \times \gmaps$, where
+The set of runtime states is defined to be $(\cstates \times \lmaps)^* \times \gmaps$, where
 the first component represents a runtime stack, and the second component the values of global
 variables. The runtime stack is a sequence, each element of which is a pair consisting of the
 remaining procedure fragment to be executed and the values of local variables.
@@ -60,6 +62,70 @@ $\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is
 and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
 parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
 parameter value).
+
+\begin{figure}
+\begin{mathpar}
+\inferrule{
+\code{x} \in \lvars \\
+\evalsto{\lmap}{\gmap}{\code{e}}{v}
+}{
+((\code{x := e; S}, \lmap) \lstack, \gmap)
+\sssemP 
+((\code{S}, \lmap[\code{x} \mapsto v]) \lstack, \gmap)
+}
+
+\inferrule{
+\code{x} \in \gvars \\
+\evalsto{\lmap}{\gmap}{\code{e}}{v}
+}{
+((\code{x := e; S}, \lmap) \lstack, \gmap)
+\sssemP 
+((\code{S}, \lmap) \lstack, \gmap[\code{x} \mapsto v])
+}
+
+\inferrule{}{
+(((\stmtSA ; \stmtSB) ; \stmtSC , \lmap) \lstack, \gmap) 
+\sssemP
+((\stmtSA ; (\stmtSB ; \stmtSC) , \lmap) \lstack, \gmap) 
+}
+
+\inferrule{
+\evalsto{\lmap}{\gmap}{\expr}{\code{true}}
+}{
+( (\code{(if (\expr) then \stmtSA else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
+\sssemP
+( (\code{\stmtSA; \stmtSC}, \lmap) \lstack, \gmap)
+}
+
+\inferrule{
+\evalsto{\lmap}{\gmap}{\expr}{\code{false}}
+}{
+( (\code{(if (\expr) then \stmtSA else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
+\sssemP
+( (\code{\stmtSB; \stmtSC}, \lmap) \lstack, \gmap)
+}
+
+\inferrule{
+\evalsto{\lmap}{\gmap}{\code{e}}{v} \\
+\proc = \code{p(n) \stmtSA}
+}{
+((\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+\sssemP
+((\stmtSA, [n \mapsto v]) (\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+}
+
+\inferrule{
+\evalsto{\lmap}{\gmap}{r}{v}
+}{
+((\code{return r}, \lmap) (\code{y = p(e); \stmt}, \lmap') \lstack, \gmap)
+\sssemP
+(\stmt, \lmap'[ \code{y} \mapsto v]) \lstack, \gmap)
+}
+
+\end{mathpar}
+\caption{A small-step operational semantics for our language.}
+\label{fig:semantics}
+\end{figure}
 
 Note that all the following definitions are parametric over a given procedure $\proc$.
 (Thus, what we refer to as an execution below is shorthand for ``execution of $\proc$''.
@@ -113,8 +179,6 @@ global $x$ the value $\gmap[x]$.
 
 %An invariant is essentially a logical formula that holds true
 %at entry to and exit from the procedure. 
-
-
 
 We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
 there is a reachable entry-state of the form $(\lstack,\gmap)$.
