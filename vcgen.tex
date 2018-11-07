@@ -59,7 +59,7 @@ Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\au
 
 \subsection{Existential Approach}
 
-Let $\proc$ be a procedure ``\code{p (n) returns r S}''.
+Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
 Let $\existformula$ denote the formula $\vc \wedge (\post \Rightarrow (r = p(n)))$.
 Let $\overline{x}$ denote the sequence of all free variables in $\existformula$ except for $p$.
@@ -81,7 +81,7 @@ that
 
 \subsection{Impurity Witness Approach}
 
-Let $\proc$ be a procedure ``\code{p (n) returns r S}''.
+Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
 Let $\post_\alpha$ denote the formula obtained by replacing every free variable $x$ in $\post$
 by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.

@@ -43,7 +43,7 @@ the library (that is, the clients of the library).
  
     <global> ::= global <ident>   
 
-    <procedure> ::= procedure <ident> (<ident>) returns <ident> {<statement>;}
+    <procedure> ::= <ident> (<ident>) "{" <statement> ; return <ident> "}"
 
     <globals> ::= <global> <globals> | $\epsilon$
 
@@ -57,11 +57,13 @@ the library (that is, the clients of the library).
 
 In Fig.~\ref{fig:grammar}, we present the syntax of a simple
 programming language that we address in this paper.
- Most of the statements are standard statements borrowed
+Most of the statements are standard statements borrowed
 from imperative languages. The rest of them are explained next.
-The language does not contain a \code{return} statement.
-At the end of execution of the procedure body, the procedure returns
-the final value of a special variable (indicated in the procedure declaration).
+A \code{return} statement is permitted only as the last statement of
+the procedure.
+%The language does not contain a \code{return} statement.
+%At the end of execution of the procedure body, the procedure returns
+%the final value of a special variable (indicated in the procedure declaration).
 The language does not contain any looping construct.
 Loops can be modelled as recursive procedures.
 The formal parameters of a procedure are readonly and cannot be
