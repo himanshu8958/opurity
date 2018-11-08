@@ -39,7 +39,7 @@ the library (that is, the clients of the library).
 
      <relational-op> ::= "<" | ">"| "==" | "!=" | $\leq$ | $\geq$
 
-    <ident> ::= <local-ident> | <global-ident>
+    <ident> ::= <local-ident> | <global-ident> | <proc-ident>
  
     <global> ::= global <ident>   
 
@@ -57,8 +57,8 @@ the library (that is, the clients of the library).
 
 In Fig.~\ref{fig:grammar}, we present the syntax of a simple
 programming language that we address in this paper.
-Most of the statements are standard statements borrowed
-from imperative languages. The rest of them are explained next.
+%Most of the statements are standard statements borrowed
+%from imperative languages. The rest of them are explained next.
 A \code{return} statement is permitted only as the last statement of
 the procedure.
 %The language does not contain a \code{return} statement.
@@ -78,4 +78,5 @@ statement `\code{havoc x}' assigns any value from the domain of the variable
 
 For simplicity in notation, we will assume, without loss of generality,
 that the library consists of a single procedure, with a single formal
-parameter, and a single global variable.
+parameter.
+%, and a single global variable.

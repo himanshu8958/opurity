@@ -174,7 +174,7 @@ v \in \vals
 Note that all the following definitions are parametric over a given procedure $\proc$.
 (Thus, what we refer to as an execution below is shorthand for ``execution of $\proc$''.
 
-We define an \emph{execution} to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
+We define an \emph{execution} (of $\proc$) to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
 $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 %(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
 %of the procedure by a concurrent client of the library is allowed.)
@@ -192,6 +192,7 @@ We say that an execution is a \emph{trace} (of $\proc$) if it represents the com
 of the procedure produced by a single invocation of the procedure.
 Note, however, that a trace may contain nested sub-traces,
 which are themselves traces, due to recursive calls.
+
 Given a trace $\pi = \sigma_0 \cdots \sigma_n$, we define
 $\initial{\pi}$ to be $\sigma_0$,
 $\final{\pi}$ to be $\sigma_n$,
