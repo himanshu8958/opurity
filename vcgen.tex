@@ -73,10 +73,10 @@ $\exists p. \EA(\proc,\inv)$ is a tautology
 
 \begin{proof}
 Note that $p$ is the only free variable in $\EA(\proc,\inv)$. Assume that $[p \mapsto f]$ is a
-satisfying assignment for $\EA(\proc,\inv)$. We prove by induction (on the length of traces)
-that
-(a) If $n \iosemP r$, then $r = p(n)$ and
-(b) If a trace's starting state satisfying $\inv$, its ending state also satisfies $\inv$.
+satisfying assignment for $\EA(\proc,\inv)$.
+We prove by induction (on the length of traces) that for every trace $\pi$ the following hold:
+(a) $\outputval{\pi} = f(\inputval{\pi})$ and
+(b) If $(\initial{\pi},f)$ satisfies $\inv$, then $(\final{\pi},f)$ also satisfies $\inv$.
 \end{proof}
 
 \subsection{Impurity Witness Approach}

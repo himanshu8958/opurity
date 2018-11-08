@@ -11,6 +11,11 @@
 \newcommand{\lstack}{\gamma}
 \newcommand{\initstate}{\sigma_{\text{init}}}
 
+\newcommand{\initial}[1]{\textit{initial}(#1)}
+\newcommand{\final}[1]{\textit{final}(#1)}
+\newcommand{\inputval}[1]{\textit{input}(#1)}
+\newcommand{\outputval}[1]{\textit{output}(#1)}
+
 \newcommand{\extmap}{\sigma_e}
 
 
@@ -148,21 +153,26 @@ $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 Let $\initstate$ denote the \emph{initial state} of the library.
 We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
 
-We define a \emph{history} to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
+We define a \emph{history} (of $\proc$) to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
 (a) $\sigma_0$ is the initial state of the library,
 (b) $\sigma_n$ is an exit-state, and
 (c) $\pi$ has an equal number of entry-states and exit-states.
 Note that a history represents a complete  execution produced by a
 sequence of invocations of the procedure.
 
-We say that an execution is a \emph{trace} if it represents the complete execution
+We say that an execution is a \emph{trace} (of $\proc$) if it represents the complete execution
 of the procedure produced by a single invocation of the procedure.
 Note, however, that a trace may contain nested sub-traces,
 which are themselves traces, due to recursive calls.
+Given a trace $\pi = \sigma_0 \cdots \sigma_n$, we define
+$\initial{\pi}$ to be $\sigma_0$,
+$\final{\pi}$ to be $\sigma_n$,
+$\inputval{\pi}$ to be value of the input parameter in $\initial{\pi}$,
+and $\outputval{\pi}$ to be the value of the return variable in $\final{\pi}$.
 
-We define the relation $\iosemP$ as follows:
-we say $n \iosemP r$ if there exists a reachable exit state where the value of formal
-parameter is $n$ and return value is $r$.
+We define the relation $\iosemP$ to be $\{ (\inputval{\pi},\outputval{\pi}) \; | \; \pi \text{ is a trace of } \proc \}$.
+% we say $n \iosemP r$ if there exists a reachable exit state where the value of formal
+% parameter is $n$ and return value is $r$.
 
 \begin{definition}[Observational Purity]
 A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\iosem{\proc}$ is a (partial) function:
