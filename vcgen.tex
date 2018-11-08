@@ -21,7 +21,8 @@ Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\au
 \begin{mathpar}
 
 \inferrule{
-\stmt = \text{body}(\proc), \auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
+\proc = \code{p (n) \{ \stmt ; return x \} } \\
+\auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
 }{
 \mainvc{\proc}{\inv} = (\post, \vc \wedge (\post \Rightarrow \inv))
 }
@@ -74,9 +75,34 @@ $\exists p. \EA(\proc,\inv)$ is a tautology
 \begin{proof}
 Note that $p$ is the only free variable in $\EA(\proc,\inv)$. Assume that $[p \mapsto f]$ is a
 satisfying assignment for $\EA(\proc,\inv)$.
-We prove by induction (on the length of traces) that for every trace $\pi$ the following hold:
+We prove that for every trace $\pi$ the following hold:
 (a) $\outputval{\pi} = f(\inputval{\pi})$ and
 (b) If $(\initial{\pi},f)$ satisfies $\inv$, then $(\final{\pi},f)$ also satisfies $\inv$.
+
+The proof is by contradiction. Let $\pi$ be the shortest trace that does not satisfy at least
+one of the two conditions (a) and (b).
+
+Let us first consider a trace $\pi$ without any sub-traces (\ie, without a procedure call).
+Consider any transition $\sigma_i \sssemP \sigma_{i+1}$ in $\pi$
+caused by an assignment statement $\stmt$. Our verification-condition generation produces
+a precondition $\pre_{\stmt}$ and a postcondition $\post_{\stmt}$ for $\stmt$. Further, this generation
+guarantees that if $(\sigma_i,f)$ satisfies $\pre_{\stmt}$, then $(\sigma_{i+1},f)$ satisfies $\post_{\stmt}$.
+This lets us prove (via induction over $i$), that if $(\initial{\pi},f)$ satisfies $\inv$,
+then $(\sigma_{i+1},f)$ satisfies $\post_{\stmt}$.
+
+We now consider a trace $\pi$ that contains a sub-trace $\pi' = \sigma_i \cdots \sigma_j$ corresponding to a procedure call
+statement $\stmt$. Our verification-condition generation produces a precondition $\pre_{\stmt}$,
+a postcondition $\post_{\stmt}$  and a conjunct $\pre_{\stmt} \Rightarrow \inv$ in $\vc$ for $\stmt$.
+We extend the induction over $i$ to handle recursive calls as below.
+Our inductive hypothesis guarantees that $(\sigma_i,f)$ satisfies $\pre_{\stmt}$.
+Further, we know that $[p \mapsto f]$ is a satisfying assignment for $\EA(\proc,\inv)$,
+which includes the conjunct $\pre_{\stmt} \Rightarrow \inv$. Hence, it follows that  $(\sigma_i,f)$ satisfies $\inv$.
+Since $\pi'$ is a shorter trace than $\pi$, we can assume that it satisfies conditions (a)
+and (b). This is sufficient to guarantee that $(\sigma_j,f)$ satisfies $\post_{\stmt}$.
+
+Thus, we can establish $(\final{\pi},f)$ satisfies $\post$ and $\inv$. Further, since 
+$\EA(\proc,\inv)$ includes the conjunct $\post \Rightarrow (r = p(n))$, it follows that
+$\outputval{\pi} = f(\inputval{\pi})$.
 \end{proof}
 
 \subsection{Impurity Witness Approach}
