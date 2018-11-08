@@ -6,8 +6,8 @@
 \newcommand{\gmaps}{\Sigma_G}
 \newcommand{\lmap}{\rho_\ell}
 \newcommand{\lmaps}{\Sigma_L}
-\newcommand{\cstates}{S}
-\newcommand{\cont}{s}
+\newcommand{\cstates}{\Sigma_C}
+\newcommand{\cont}{c}
 \newcommand{\lstack}{\gamma}
 \newcommand{\initstate}{\sigma_{\text{init}}}
 
@@ -24,6 +24,7 @@
 \newcommand{\sssem}[1]{\rightarrow_{#1}}
 \newcommand{\sssemP}{\sssem{\proc}}
 
+\newcommand{\basicevalsto}[3]{ ({#1},{#2}) \Downarrow {#3}}
 \newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
 
 \newcommand{\labrule}[3]{\inferrule*[Lab={[#1]}]{#2}{#3}}
@@ -52,23 +53,43 @@ Let $\gvars$ denote the set of global variables. Let $\lvars$ denote the set of 
 Let $\vals$ denote the set of numeric values (that the variables can take).
 An element $\gmap \in \gmaps = \gvars \hookrightarrow \vals$ maps global variables to their values.
 An element $\lmap \in \lmaps = \lvars \hookrightarrow \vals$ maps local variables to their values.
-Let $\cstates$ represent the set of statements. We use an element $\cont \in \cstates$ to represent
-what remains to be executed in the procedure (and can, hence, be thought of as a program-point
-representing what is to be executed next).
+We define a \emph{local continuation} to be a statement sequence ending with a \code{return} statement.
+We use a local continuation to represent the part of the procedure body that still remains to be
+executed. Let $\cstates$ represent the set of local continuations.
+% We use an element $\cont \in \cstates$ to represent
+% what remains to be executed in the procedure (and can, hence, be thought of as a program-point
+% representing what is to be executed next).
 The set of runtime states is defined to be $(\cstates \times \lmaps)^* \times \gmaps$, where
 the first component represents a runtime stack, and the second component the values of global
-variables. The runtime stack is a sequence, each element of which is a pair consisting of the
-remaining procedure fragment to be executed and the values of local variables.
+variables. The runtime stack is a sequence, each element of which is a pair $(\stmt,\lmap)$ consisting of the
+remaining procedure fragment $\stmt$ to be executed and the values of local variables $\lmap$.
+We write $(\stmt,\lmap)\gamma$ to indicate a stack where the topmost entry is $(\stmt,\lmap)$
+and $\gamma$ represents the remaining part of the stack.
 
-We say that a state $\sigma$ is an \emph{entry-state} if its location is at the procedure entry point,
-and we say that it is an \emph{exit-state} if its location is at the procedure exit point.
-A procedure $\proc$ determines a single-step execution relation $\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates
+We say that a state $((\stmt,\lmap)\gamma,\gmap)$ is an \emph{entry-state} if its location is at
+the procedure entry point (\ie, if $\stmt$ is the entire body of the procedure),
+and we say that it is an \emph{exit-state} if its location is at the procedure exit point
+(\ie, if $\stmt$ consists of just a \code{return} statement).
+
+A procedure $\proc$ determines a single-step execution relation $\sssem{\proc}$,
+where $\sigma_1 \sssem{\proc} \sigma_2$ indicates
 that execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single step.
-We encode invocations of the procedure using the same relation $\sssem{\proc}$: 
-$\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is an entry-state,
-and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
-parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
-parameter value).
+Fig.~\ref{fig:semantics} defines this semantics.
+The semantics of evaluation of a side-effect-free expression is captured
+by a relation $\basicevalsto{\rho}{\expr}{v}$, indicating that the expression
+$\expr$ evaluates to value $v$ in an environment $\rho$ (which contains bindings
+of values to all identifiers occurring in $\expr$, both global and local).
+
+Note that most rules captures the usual semantics of the language constructs.
+The last two rules, however, capture the semantics of the most-general sequential
+client explained previously: when the call stack is empty, a new invocation of
+the procedure may be initiated (with an arbitrary parameter value).
+
+%We encode invocations of the procedure using the same relation $\sssem{\proc}$: 
+%$\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is an entry-state,
+%and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
+%parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
+%parameter value).
 
 \begin{figure}
 \begin{mathpar}
@@ -138,6 +159,13 @@ v \in \vals
 ([(\stmtSA, [n \mapsto v])], \gmap)
 }
 
+\labrule{top-level-return}{
+}{
+[(\code{return r}, \lmap)], \gmap)
+\sssemP
+([], \gmap)
+}
+
 \end{mathpar}
 \caption{A small-step operational semantics for our language.}
 \label{fig:semantics}
@@ -146,7 +174,7 @@ v \in \vals
 Note that all the following definitions are parametric over a given procedure $\proc$.
 (Thus, what we refer to as an execution below is shorthand for ``execution of $\proc$''.
 
-We define an \emph{execution} to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
+We define an \emph{execution} (of $\proc$) to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
 $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 %(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
 %of the procedure by a concurrent client of the library is allowed.)
@@ -164,6 +192,7 @@ We say that an execution is a \emph{trace} (of $\proc$) if it represents the com
 of the procedure produced by a single invocation of the procedure.
 Note, however, that a trace may contain nested sub-traces,
 which are themselves traces, due to recursive calls.
+
 Given a trace $\pi = \sigma_0 \cdots \sigma_n$, we define
 $\initial{\pi}$ to be $\sigma_0$,
 $\final{\pi}$ to be $\sigma_n$,
@@ -179,15 +208,20 @@ A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\
 that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 \end{definition}
 
-\subsection*{Invariants}
+\subsection*{Logical Formula And Invariants}
 
-We now formalize the concept of an \emph{invariant}. Let $\varphi$ denote a boolean-valued expression over
-the set of global variables. We write $\gmap \models \varphi$ to denote that $\varphi$ evaluates to true in a state
-where the globals have values as in $\gmap$.
+Our methodology makes use of \emph{invariants}, which are represented using \emph{logical formulae}.
+A  logical formula $\varphi$ is just a boolean-valued expression (in our language) over the set of global variables.
+We write $\gmap \models \varphi$ as shorthand for $\basicevalsto{\gmap}{\varphi}{\code{true}}$ :
+\ie, to denote that $\varphi$ evaluates to true in a state where the globals have values as in $\gmap$.
 
 However, as we saw with our running example, it is useful to allow the use of the name of a procedure in
 an invariant: \eg, an invariant such as ``$(g == -1) \vee (g == \text{factorial}(3))$''.
-We interpret such extended invariants as below.
+We extend our expression language by permitting the use of procedure identifiers as
+function symbols (as above). Note that this extension is permitted only for use in logical
+formula.
+
+We extend our semantics $\models$ to handle such extended invariants as below.
 Let $\extmap$ denote an extended map that assigns global variables a (numeric) value and assigns the
 procedure names a mathematical function as a value. We can then extend the expression evaluation semantics
 in a straightforward fashion to evaluate extended boolean expressions of the above form. 
@@ -197,9 +231,9 @@ evaluates to true under $\extmap$.
 Given a global state $\gmap$, a procedure name $\proc$, and a mathematical function $f$, we will write
 $\gmap[\proc \mapsto f]$ to indicate the extended map that assigns $\proc$ the value $f$ and every
 global $x$ the value $\gmap[x]$.
-
-%An invariant is essentially a logical formula that holds true
-%at entry to and exit from the procedure. 
+We will write $(\gmap,f) \models \varphi$ to denote that $\gmap[\proc \mapsto f] \models \varphi$.
+Recall that a state $\sigma =(\lstack,\gmap)$ consists of a stack $\lstack$ and global-state $\gmap$.
+We write $(\sigma,f) \models \varphi$ to denote that $(\gmap,f) \models \varphi$.
 
 We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
 there is a reachable entry-state of the form $(\lstack,\gmap)$.
