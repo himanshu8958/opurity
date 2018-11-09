@@ -2,6 +2,8 @@
 \newcommand{\EA}{\textsc{ea}}
 \newcommand{\IW}{\textsc{iw}}
 
+\newcommand{\initformula}{\logicalformula{init}}
+
 \section{Checking Purity Using a Theorem Prover}
 
 \subsection{Verification Condition Generation}
@@ -22,9 +24,10 @@ Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\au
 
 \inferrule{
 \proc = \code{p (n) \{ \stmt ; return x \} } \\
+\initformula = \wedge_g (g = 0) \\
 \auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
 }{
-\mainvc{\proc}{\inv} = (\post, \vc \wedge (\post \Rightarrow \inv))
+\mainvc{\proc}{\inv} = (\post, (\initformula \Rightarrow \inv) \wedge \vc \wedge (\post \Rightarrow \inv))
 }
 
 \inferrule{
@@ -67,6 +70,7 @@ Let $\overline{x}$ denote the sequence of all free variables in $\existformula$ 
 We define $\EA(\proc,\inv)$ to be the formula $ \forall \overline{x}. \existformula$.
 
 \begin{theorem}
+\label{theorem:EA}
 A procedure $\proc$ is observationally pure and satisfies invariant $\inv$ if
 $\exists p. \EA(\proc,\inv)$ is a tautology
 (which holds iff $\EA(\proc,\inv)$ is satisfiable).
@@ -109,7 +113,7 @@ $\outputval{\pi} = f(\inputval{\pi})$.
 
 Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
-Let $\post_\alpha$ denote the formula obtained by replacing every free variable $x$ in $\post$
+Let $\post_\alpha$ denote the formula obtained by replacing every free variable $x$ other than $p$ in $\post$
 by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.
 Define $\IW(\proc, \inv)$ to be the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
@@ -117,3 +121,29 @@ Define $\IW(\proc, \inv)$ to be the formula $(\neg \vc) \vee (\post_\alpha \wedg
 A procedure $\proc$ is observationally pure and satisfies invariant $\inv$
 if $\IW(\proc, \inv)$ is unsatisfiable.
 \end{theorem}
+
+\begin{proof}
+%Let  $\vartheta$ denote the formula  $\exists p \forall \overline{x} (\vc \wedge (\post \Rightarrow (r = p(n))$
+%used in the existential approach.
+%Consider the formula $\vartheta'$ = $(\forall p \forall \overline{x} \vc) \wedge (\exists p \forall \overline{x} (\post \Rightarrow (r = p(n))))$.
+%It can be verified that $\vartheta'$ is a stronger condition than $\vartheta$.
+%Thus, if $\vartheta'$ can be verified to be a tautology, then it follows that $\vartheta$ is also a tautology,
+%and it follows from Theorem~\ref{theorem:EA} that $\proc$ is observationally pure and satisfies invariant $\inv$.
+%
+%The impurity witness approach essentially checks the stronger formula $\vartheta'$. Since it is a conjunction,
+%we can check each conjunct separately.
+%
+%We can check if $(\forall p \forall \overline{x} \vc)$ holds by checking
+%if $\neg \vc$ is not satisfiable.
+%
+%Now consider the second condition $\exists p \forall \overline{x} \post \Rightarrow (r = p(n))$.
+%We now show that if $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
+%is unsatisfiable, then the second condition must hold true. 
+%Assume that $\exists p \forall \overline{x} \post \Rightarrow (r = p(n))$ does not hold. Consider any function $p$.
+%Since $\forall \overline{x} \post \Rightarrow (r = p(n))$ does not hold (for this $p$), consider the set $C$ of all
+%valuations to $\overline{x}$ such that $\post$ holds. Note that every every element of $C$ assigns a value to every
+%free variable, including $r$ and $n$. Suppose we have two elements $\alpha'$ and $\beta'$ in $C$ that agree on the
+%value of $n$ but have different values for $r$, then these give us a satisfying assignment to
+%$(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+%If not two such elements exist, ...
+\end{proof}
