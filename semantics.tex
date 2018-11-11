@@ -179,6 +179,7 @@ $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 %(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
 %of the procedure by a concurrent client of the library is allowed.)
 Let $\initstate$ denote the \emph{initial state} of the library.
+We say that an execution $\sigma_0 \sigma_1 \cdots \sigma_n$ is a \emph{feasible} execution if $\sigma_0 = \initstate$.
 We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
 
 We define a \emph{history} (of $\proc$) to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
@@ -234,14 +235,17 @@ global $x$ the value $\gmap[x]$.
 We will write $(\gmap,f) \models \varphi$ to denote that $\gmap[\proc \mapsto f] \models \varphi$.
 Recall that a state $\sigma =(\lstack,\gmap)$ consists of a stack $\lstack$ and global-state $\gmap$.
 We write $(\sigma,f) \models \varphi$ to denote that $(\gmap,f) \models \varphi$.
+For any execution $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
+$\sigma$ in $\pi$ $(\sigma,f) \models \varphi$.
 
-We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
-there is a reachable entry-state of the form $(\lstack,\gmap)$.
+%We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
+%there is a reachable entry-state of the form $(\lstack,\gmap)$.
 
 \begin{definition}[Invariant]
 Given a procedure $\proc$ and a mathematical function $f$, we say that $(\proc,f)$ satisfy
-an invariant $\inv$ if for every reachable global entry-state $\gmap$ of $\proc$,
-$\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
+an invariant $\inv$ if for every feasible execution $\pi$ of $\proc$, $(\pi,f) \models \varphi$.
+%for every reachable global entry-state $\gmap$ of $\proc$,
+%$\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
 We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
 function $f$ such that $(\proc,f)$ satisfies $\inv$.
 \end{definition}

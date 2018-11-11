@@ -123,6 +123,56 @@ if $\IW(\proc, \inv)$ is unsatisfiable.
 \end{theorem}
 
 \begin{proof}
+We prove the contrapositive.
+
+We say that a pair of feasible executions $(\pi_1, \pi_2)$ is an impurity witness if there is a trace
+$\pi_a$ in $\pi_1$ and a trace $\pi_b$ in $\pi_2$ such that $\pi_a$ and $\pi_b$ have the same input
+value but different return values. Otherwise, we say that $(\pi_1, \pi_2)$ is pure. We extend
+this notion and say that a single execution $\pi$ is pure if $(\pi,\pi)$ is pure.
+
+We say that a feasible execution $\pi$ satisfies the invariant if there exists a function $f$ such that
+$(\pi,f) \models \inv$. Otherwise, we say that $\pi$ is an invariant violation witness.
+
+We will consider \emph{minimal} witnesses of the following form.
+We say that an impurity witness $(\pi_1, \pi_2)$ is minimal if for every proper prefix $\pi_1'$ of
+$\pi_1$ and every proper prefix $\pi_2'$ of $\pi_2$, the following hold:
+(a) $(\pi_1',\pi_2)$ is pure,
+(b) $(\pi_1,\pi_2')$ is pure,
+(c) $\pi_1'$ satisfies the invariant, and
+(d) $\pi_2'$ satisfies the invariant.
+
+We say that an invariant violation witness $\pi$ is minimal if every proper prefix $\pi'$ of
+$\pi$ is both pure and satisfies the invariant.
+
+If $\proc$ is not pure or fails to satisfy invariant $\inv$, then there exists a minimal impurity witness
+or a minimal invariant violation witness. In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
+must be satisfiable (as we show below). In the second case, $\neg \vc$ must be satisfiable (as we show below).
+Thus,  $\IW(\proc, \inv)$  is satisfiable in either case. The theorem follows.
+
+We establish the above result using the following lemmas.
+If we have a trace that satisfies the invariant and the set of its sub-traces are pure,
+then the valuations assigned to variables by the trace satisfies $\post$.
+Thus, if $(\pi_1,\pi_2)$ are a minimal impurity witness, let $\pi_a$ and $\pi_b$
+be the two traces in $\pi_1$ and $\pi_2$ that are incompatible.
+We can assign values to variables in $\post_\alpha$ from $\pi_a$, and
+assign values to variables in $\post_\beta$ from $\pi_b$ to get a satisfying
+assignment for $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+
+If $\pi$ is a minimal invariant violation witness, let $\pi'$ be the trace that contains the invariant violation.
+Assigning values to variables as in $\pi'$ produces a satisfying assignment for$\neg (\post \Rightarrow \inv)$
+and, hence, for $\neg \vc$.
+
+%We say that two traces are incompatible if they have the same input values but different return values.
+%We say that two executions are incompatible if they contain two incompatible traces.
+%Let $\pi_1$ and $\pi_2$ be two incompatible histories.
+%
+%Further, assume that every proper prefix of
+%$\pi_1$ is compatible with $\pi_2$ and, similarly, every proper prefix of $\pi_2$ is compatible with $\pi_1$.
+%
+%We can find a function $f$ that is consistent with every other trace in $\pi_1$ and $\pi_2$.
+%Further, we assume that 
+
+
 %Let  $\vartheta$ denote the formula  $\exists p \forall \overline{x} (\vc \wedge (\post \Rightarrow (r = p(n))$
 %used in the existential approach.
 %Consider the formula $\vartheta'$ = $(\forall p \forall \overline{x} \vc) \wedge (\exists p \forall \overline{x} (\post \Rightarrow (r = p(n))))$.
