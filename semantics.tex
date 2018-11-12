@@ -249,3 +249,9 @@ an invariant $\inv$ if for every feasible execution $\pi$ of $\proc$, $(\pi,f) \
 We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
 function $f$ such that $(\proc,f)$ satisfies $\inv$.
 \end{definition}
+
+\begin{definition}[Purity+Invariant]
+A procedure $\proc$ is said to be observationally pure with a consistent invariant $\inv$ if
+there exists a function $f$ such that for every trace $\pi$ of $\proc$,
+$\outputval{\pi} = f(\inputval{\pi})$ and $(\proc,f)$ satisfies $\inv$.
+\end{definition}

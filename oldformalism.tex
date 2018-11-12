@@ -2,19 +2,13 @@
 
 We make the following simplifying assumptions:
 \begin{itemize}
-%\item We analyze a single procedure in isolation and we assume that no
-%  other procedure writes to the global variables accessed by procedure
-%  \foo. In-case of multiple procedures, the invariant has multiple
-%  function symbols, one for each procedure. 
 \item All variables are defined before use, except global variables.
 \item The variable assigned the return value in a procedure call
   statement is always a local variable.
 \item There is at max one procedure call statement in every straight line
-  execution of \foo from the beginning until it's
-  end.
-  \end{itemize}
-%% Note : all of the above mentioned restrictions can be omitted. They
-%% are for convenience.
+  execution of \foo from the beginning until it's end.
+\end{itemize}
+
 
 \subsection{Our intermediate representation}
 \label{sec:intermediate}
