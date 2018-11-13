@@ -1,26 +1,9 @@
-\subsection{Our intermediate representation}
-\label{sec:intermediate}
+\paragraph{Example}
+
 We transform the given procedure into the following representation
 in-order to encode it in logic. For example procedure factorial
 in Listing~\ref{lst:factorialTransformed}, is the transformed version
 of procedure factorial in Listing~\ref{lst:factorialSimple}.
-
-Our analysis expects the following :
-\begin{enumerate}
-\item Procedure calls are approximated using function symbols. The
-  statement `x = foo(y)' is replaced with `x = $\F$(y)'. Since
-  procedure calls may modify global variables, we add the statement
-  `havoc g' for each global variable `g' accessible from the
-  procedure.
-\item Next, the procedure must have extra variables to store the value
-  of global variables at procedure boundaries. Before the
-  $\mathit{i^{th}}$ procedure call, we add the statement `gbef$_i$ =
-  g' and after it we add `gaft$_i$ = g'. Similarly, we add the
-  statement `gout = g' after the assignment to the variable `\retVar'.
-\item The procedure should be in static single assignment (SSA)
-  form. The procedure should be converted to SSA after the above
-  mentioned points have been satisfied.
-\end{enumerate}
 
 \begin{lstlisting}[language=c, caption= {Procedure factorial from
       Listing~\ref{lst:factorialSimple} converted to the form our
@@ -53,22 +36,6 @@ int transformedFactorial( int n) { // redo
 }
 \end{lstlisting}
 
-%% In procedure `transformedFactorial'
-%% Listing~\ref{lst:factorialTransformed}, in comparison to procedure
-%% factorial in Listing~\ref{lst:factorialSimple}, the return statement
-%% (line 4) is replaced by an assignment to variable `\retVar' (line
-%% 4). After line 5 of `transformed factorial', an extra variable `gout'
-%% is assigned the value of global variable `g' (value of `g' at end of
-%% program).  Similarly, variable `gbef1' (line 7, `transformed
-%% factorial') is added to capture the value of the global variable
-%% before the procedure call (a program boundary), and variable `gaft1'
-%% is inserted at line 11 to capture the value of `g' after the procedure
-%% call. Also, havoc statements at line 8, 20 and 9, 21 over-approximate
-%% the return from the procedure call statement and updates to the global
-%% variable respectively. The procedure call statement is substituted
-%% with function symbols in line 10 and 22, accounting the given
-%% procedure as a function.
-
 Now we compare `transformed factorial' and procedure factorial from
 Listings~\ref{lst:factorialTransformed} and \ref{lst:factorialSimple}
 respectively. The return statement (line 4) in procedure factorial
@@ -83,19 +50,6 @@ after the procedure call. Also, havoc statements at lines 9 and 20
 over-approximate any side effects to the global variables. And in
 lines 8 and 19, the procedure call statements are substituted for
 function symbols.
-
-\subsection{Converting the program into logical formulae} \label{sec:approaches}
-
-\subsection{Path condition generation}\label{sec:vcgen}
-For our analysis we represent the given procedure in logic, such that
-the representation captures the argument value at the beginning of the
-procedure, the return value at the end of the procedure and the values
-of the global variables at all the boundaries of the procedure. We
-track the values of the global variables using extra variables as
-explained in Section~\ref{sec:intermediate}. Thus, the set of free
-variables in a path condition of a procedure are $X : \mi{\{n, gin,
-  gout, g, \gbef_1 \cdots \gbef_m, \gaft_1 \cdots \gaft_m,}$ \\ ${\retVar, \F
-  \}}$ all the remaining variables are universally quantified.
 
 \begin{figure}
   \begin{align*}
@@ -123,9 +77,3 @@ Figure~\ref{fig:pathCondition} represents a straight-line execution of
 procedure factorial (from beginning, until end) . For instance, $(n <=
 1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $`n
 \leq 1'$.
-
-Representation of a program in logic is straight forward once it is
-converted to our intermediate representation in
-Section~\ref{sec:intermediate}. All the standard imperative statements
-become conjuncts in the formula. `havoc' statements are omitted.
-`assume x' are replaced with a conjunct `x' in the formula.
