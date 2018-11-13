@@ -1,0 +1,41 @@
+\begin{figure}
+\begin{mathpar}
+
+\inferrule{
+\proc = \code{p (n) \{ \stmt ; return x \} } \\
+\initformula = \wedge_g (g = 0) \\
+\auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
+}{
+\mainvc{\proc}{\inv} = (\post, (\initformula \Rightarrow \inv) \wedge \vc \wedge (\post \Rightarrow \inv))
+}
+
+\inferrule{
+\auxvc{\stmtSA}{\inv}{\pre} = (\postA, \vcA) \\
+\auxvc{\stmtSB}{\inv}{\postA} = (\postB, \vcB) 
+}{
+\auxvc{ \stmtSA ; \stmtSB }{\inv}{\pre} = (\postB, \vcA \wedge \vcB)
+}
+
+\inferrule{
+\auxvc{\stmtSA}{\inv}{\pre \wedge \expr} = (\postA, \vcA) \\
+\auxvc{\stmtSB}{\inv}{\pre \wedge \neg \expr} = (\postB, \vcB) 
+}{
+\auxvc{ \code{if } \; \expr \; \code{ then } \;  \stmtSA \;  \code{ else } \; \stmtSB }{\inv}{\pre} = (\postA \vee \postB, \vcA \wedge \vcB)
+}
+
+\inferrule{
+\var \not\in vars(\expr)
+}{
+\auxvc{\var = \expr}{\inv}{\pre} = ((\exists \var. \pre) \wedge (\var = \expr), \code{true})
+}
+
+\inferrule{
+\varY \neq \var \\ \varY \neq g
+}{
+\auxvc{\var = \proc(\varY)}{\inv}{\pre} = ((\exists g. \exists \var.\pre) \wedge \inv \wedge (\var = F(\varY)), \pre \Rightarrow \inv)
+}
+
+\end{mathpar}
+\caption{Generation of verification-condition and postcondition.}
+\label{fig:vcgen}
+\end{figure}

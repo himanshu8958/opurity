@@ -19,74 +19,70 @@ pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that ex
 $\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
 for the execution to satisfy its invariants and assertions.
 
-We use an auxiliary function $\auxvcfn$ which is similar to $\mainvcfn$, but accepts a statement $\stmtS$ as
-parameter instead of a procedure, and it has an extra parameter $\pre$ that is a precondition describing
-the state before the execution of the statement.
-Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\auxvc{\stmtS}{\inv}{\pre}$.
+We first transform the procedure body as below:
+\begin{enumerate}
+\item For any assignment statement ``\code{x = e}'' where \code{e} contains \code{x}, we introduce a new temporary
+variable \code{t} and replace the assignment statement with ``\code{t = e; x = t}''.
+\item For every procedure invocation ``\code{x = p(y)}'', we first ensure that \code{y} is a local variable (by introducing
+a temporary if needed). We then replace the statement by the code fragment
+``\code{assert $\inv$; havoc(g1); ... havoc(gN); assume $\inv \wedge$ x = p(y)}'',
+where \code{g1} to \code{gN} are the global variables.
+\item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
+\end{enumerate}
+
+%We use an auxiliary function $\auxvcfn$ which is similar to $\mainvcfn$, but accepts a statement $\stmtS$ as
+%parameter instead of a procedure, and it has an extra parameter $\pre$ that is a precondition describing
+%the state before the execution of the statement.
+% Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\auxvc{\stmtS}{\inv}{\pre}$.
+% contains a definition of the functions to compute the postcondition and verification condition.
 
 \begin{figure}
-\begin{mathpar}
-
-\inferrule{
-\proc = \code{p (n) \{ \stmt ; return x \} } \\
-\initformula = \wedge_g (g = 0) \\
-\auxvc{\stmt}{\inv}{\inv} = (\post, \vc)
-}{
-\mainvc{\proc}{\inv} = (\post, (\initformula \Rightarrow \inv) \wedge \vc \wedge (\post \Rightarrow \inv))
-}
-
-\inferrule{
-\auxvc{\stmtSA}{\inv}{\pre} = (\postA, \vcA) \\
-\auxvc{\stmtSB}{\inv}{\postA} = (\postB, \vcB) 
-}{
-\auxvc{ \stmtSA ; \stmtSB }{\inv}{\pre} = (\postB, \vcA \wedge \vcB)
-}
-
-\inferrule{
-\auxvc{\stmtSA}{\inv}{\pre \wedge \expr} = (\postA, \vcA) \\
-\auxvc{\stmtSB}{\inv}{\pre \wedge \neg \expr} = (\postB, \vcB) 
-}{
-\auxvc{ \code{if } \; \expr \; \code{ then } \;  \stmtSA \;  \code{ else } \; \stmtSB }{\inv}{\pre} = (\postA \vee \postB, \vcA \wedge \vcB)
-}
-
-\inferrule{
-\var \not\in vars(\expr)
-}{
-\auxvc{\var = \expr}{\inv}{\pre} = ((\exists \var. \pre) \wedge (\var = \expr), \code{true})
-}
-
-\inferrule{
-\varY \neq \var \\ \varY \neq g
-}{
-\auxvc{\var = \proc(\varY)}{\inv}{\pre} = ((\exists g. \exists \var.\pre) \wedge \inv \wedge (\var = F(\varY)), \pre \Rightarrow \inv)
-}
-
-\end{mathpar}
+\[
+\begin{array}{lll}
+\postfn(\pre, \code{x = e}) &= (\exists x. \pre) \wedge (x = e) & \text{if } \code{x} \not\in \text{vars}(\code{e}) \\
+\postfn(\pre, \code{havoc(x)}) &= \exists x. \pre \\
+\postfn(\pre, \code{assume e}) &= \pre \wedge \code{e} \\
+\postfn(\pre, \code{assert e}) &= \pre \\
+\postfn(\pre, \stmtSA ; \stmtSB) &= \postfn( \postfn(\pre, \stmtSA), \stmtSB) \\
+\multicolumn{3}{l}{\postfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \postfn(\pre \wedge \expr, \stmtSA) \vee \postfn(\pre \wedge \neg \expr, \stmtSB)} \\
+\\
+\vcfn(\pre, \code{assert e}) &= (\pre \Rightarrow e) \\
+\vcfn(\pre, \stmtSA ; \stmtSB) &= \vcfn(\pre, \stmtSA) \wedge \vcfn( \postfn(\pre, \stmtSA), \stmtSB) \\
+\multicolumn{3}{l}{
+\vcfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \vcfn(\pre \wedge \expr, \stmtSA) \wedge \vcfn(\pre \wedge \neg \expr, \stmtSB)
+} \\
+\vcfn(\pre, \stmt) &= \text{true} & \text{for all other statements \stmt}
+\end{array}
+\]
 \caption{Generation of verification-condition and postcondition.}
 \label{fig:vcgen}
 \end{figure}
 
-Fig.~\ref{fig:vcgen} describes two computations. The first part computes, for each program point $\ell$ in the procedure,
+We then compute postconditions as formally described in Fig.~\ref{fig:vcgen}.
+This lets us compute for each program point $\ell$ in the procedure,
 a condition $\varphi_{\ell}$ that describes what we expect to hold true when execution reaches $\ell$ if we start
 executing the procedure in a state satisfying $\inv$ and if every recursive invocation of the procedure also
 terminates in a state satisfying $\inv$. We compute this using the standard rules for the postcondition of a statement.
-A recursive call \code{x = p(y)}  is modelled by the \emph{assumed} specification for the procedure, namely that
-the global variables may be modified in any way, but the state at the return site will satisfy $\inv$
-and the returned value will equal $p(y)$. (Note that in a logical formula the symbol $p$ is used to represent the
-mathematical function realized by procedure $p$, assuming $p$ to be pure.)
-
+%A recursive call \code{x = p(y)}  is modelled by the \emph{assumed} specification for the procedure, namely that
+%the global variables may be modified in any way, but the state at the return site will satisfy $\inv$
+%and the returned value will equal $p(y)$. (Note that in a logical formula the symbol $p$ is used to represent the
+%mathematical function realized by procedure $p$, assuming $p$ to be pure.)
+%
 For an assignment statement ``\code{x = e}'', we use existential quantification over \code{x} to represent the value
 of \code{x} prior to the execution of the statement. If we rename these existentially quantified variables with unique new
 names, we can lift all the existential quantifiers to the outermost level. When transformed thus, the condition $\varphi_{\ell}$
 takes the form $\exists x_1 \cdots x_n. \varphi$, where $\varphi$ is quantifier-free and $x_1, \cdots, x_n$ denote
 intermediate values of variables along the execution path from procedure-entry to program point $\ell$.
 
-The second part computes a verification condition $\vc$ that represents the conditions we must check to ensure that
+Finally, we compute a verification condition $\vc$ that represents the conditions we must check to ensure that
 an execution through the procedure satisfies its obligations: namely, that the invariant holds true at every call-site
 and at procedure-exit. Let $\ell$ denote a call-site or the procedure-exit. We need to check that $\varphi_{\ell} \Rightarrow \inv$
 holds. Thus, the generation verification condition essentially consists of the conjunction of this check over all call-sites
-and procedure-exit. In addition, we add the check that the initial state too must satisfy $\inv$ as the basis condition for
-induction. 
+and procedure-exit.
+
+Finally, we add the check that the initial state too must satisfy $\inv$ as the basis condition for
+induction.
+% (\initformula \Rightarrow \inv 
 
 \input{vcgen-eg}
 
