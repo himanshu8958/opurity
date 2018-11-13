@@ -79,6 +79,7 @@ The semantics of evaluation of a side-effect-free expression is captured
 by a relation $\basicevalsto{\rho}{\expr}{v}$, indicating that the expression
 $\expr$ evaluates to value $v$ in an environment $\rho$ (which contains bindings
 of values to all identifiers occurring in $\expr$, both global and local).
+We omit the definition of this relation, which is straightforward.
 
 Note that most rules captures the usual semantics of the language constructs.
 The last two rules, however, capture the semantics of the most-general sequential
@@ -172,7 +173,7 @@ v \in \vals
 \end{figure}
 
 Note that all the following definitions are parametric over a given procedure $\proc$.
-(Thus, what we refer to as an execution below is shorthand for ``execution of $\proc$''.
+E.g., we will use the word ``execution'' as shorthand for ``execution of $\proc$''.
 
 We define an \emph{execution} (of $\proc$) to be a sequence of states $\sigma_0 \sigma_1 \cdots \sigma_n$ such that
 $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
@@ -212,29 +213,35 @@ that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\
 \subsection*{Logical Formula And Invariants}
 
 Our methodology makes use of \emph{invariants}, which are represented using \emph{logical formulae}.
-A  logical formula $\varphi$ is just a boolean-valued expression (in our language) over the set of global variables.
-We write $\gmap \models \varphi$ as shorthand for $\basicevalsto{\gmap}{\varphi}{\code{true}}$ :
-\ie, to denote that $\varphi$ evaluates to true in a state where the globals have values as in $\gmap$.
+The set of logical formulae is defined as usual. We permit the same operators as allowed in our language.
+We allow universal and existential quantification, and typically assume that the free variables are either
+global or local variables.
+% A  logical formula $\varphi$ is just a boolean-valued expression (in our language) over the set of global variables.
+We write $\rho \models \varphi$
+% as shorthand for $\basicevalsto{\gmap}{\varphi}{\code{true}}$ : \ie,
+to denote that $\varphi$ evaluates to true when its free variables are assigned a value as in $\rho$.
 
 However, as we saw with our running example, it is useful to allow the use of the name of a procedure in
 an invariant: \eg, an invariant such as ``$(g == -1) \vee (g == \text{factorial}(3))$''.
 We extend our expression language by permitting the use of procedure identifiers as
-function symbols (as above). Note that this extension is permitted only for use in logical
-formula.
+function symbols (as above). Note that this extension is permitted only for use in logical formula.
 
-We extend our semantics $\models$ to handle such extended invariants as below.
-Let $\extmap$ denote an extended map that assigns global variables a (numeric) value and assigns the
-procedure names a mathematical function as a value. We can then extend the expression evaluation semantics
-in a straightforward fashion to evaluate extended boolean expressions of the above form. 
-We will write $\extmap \models \varphi_e$ to denote that the extended boolean expression $\varphi_e$
-evaluates to true under $\extmap$.
+We extend our semantics $\rho \models \varphi$ to handle such extended invariants in the obvious way,
+with $\rho$ mapping each procedure name to a mathematical function (and other names to their numeric values).
+%Let $\extmap$ denote an extended map that assigns global variables a (numeric) value and assigns the
+%procedure names a mathematical function as a value. We can then extend the expression evaluation semantics
+%in a straightforward fashion to evaluate extended boolean expressions of the above form. 
+%We will write $\extmap \models \varphi_e$ to denote that the extended boolean expression $\varphi_e$
+%evaluates to true under $\extmap$.
 
-Given a global state $\gmap$, a procedure name $\proc$, and a mathematical function $f$, we will write
-$\gmap[\proc \mapsto f]$ to indicate the extended map that assigns $\proc$ the value $f$ and every
-global $x$ the value $\gmap[x]$.
-We will write $(\gmap,f) \models \varphi$ to denote that $\gmap[\proc \mapsto f] \models \varphi$.
+Given a map $\rho$, a procedure name $\procname$, and a mathematical function $f$, we will write
+$\rho[\procname \mapsto f]$ to indicate the extended map that assigns $\procname$ the value $f$ and every
+other $x$ the value $\rho[x]$.
+We will write $(\rho,f) \models \varphi$ to denote that $\rho[\procname \mapsto f] \models \varphi$.
 Recall that a state $\sigma =(\lstack,\gmap)$ consists of a stack $\lstack$ and global-state $\gmap$.
-We write $(\sigma,f) \models \varphi$ to denote that $(\gmap,f) \models \varphi$.
+We define the visible state $\rho$ of $\sigma$ to be the union of $\gmap$ and the current local state $\lmap$
+if $\lstack$ is non-empty, and we define $\rho$ to be just $\gmap$ otherwise.
+We write $(\sigma,f) \models \varphi$ to denote that $(\rho,f) \models \varphi$.
 For any execution $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
 $\sigma$ in $\pi$ $(\sigma,f) \models \varphi$.
 

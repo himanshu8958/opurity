@@ -7,14 +7,11 @@ of procedure factorial in Listing~\ref{lst:factorialSimple}.
 
 Our analysis expects the following :
 \begin{enumerate}
-\item Expressions do not have procedure call statements as
-  sub-expressions.(omit? too much detail)
 \item Procedure calls are approximated using function symbols. The
   statement `x = foo(y)' is replaced with `x = $\F$(y)'. Since
   procedure calls may modify global variables, we add the statement
   `havoc g' for each global variable `g' accessible from the
   procedure.
-\item The input procedure has `m' procedure calls.
 \item Next, the procedure must have extra variables to store the value
   of global variables at procedure boundaries. Before the
   $\mathit{i^{th}}$ procedure call, we add the statement `gbef$_i$ =

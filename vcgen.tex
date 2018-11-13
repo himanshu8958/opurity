@@ -6,9 +6,10 @@
 
 \section{Checking Purity Using a Theorem Prover}
 
-\TODO{Merge the formal definition of VC generation and the illustration and informal description}
+In this section, we show how, given a procedure $\proc$ and a candidate invariant $\inv$, we can use a theorem prover
+to check whether a procedure $\proc$ is observationally pure with a consistent invariant $\inv$.
 
-\input{vcgen-eg}
+
 
 \subsection{Verification Condition Generation}
 
@@ -64,6 +65,27 @@ Fig.~\ref{fig:vcgen} contains a definition of $\mainvc{\procP}{\inv}$  and  $\au
 \caption{Generation of verification-condition and postcondition.}
 \label{fig:vcgen}
 \end{figure}
+
+Fig.~\ref{fig:vcgen} describes two computations. The first part computes, for each program point $\ell$ in the procedure,
+a condition $\varphi_{\ell}$ that describes what we expect to hold true when execution reaches $\ell$ if we start
+executing the procedure in a state satisfying $\inv$ and if every recursive invocation of the procedure also
+terminates in a state satisfying $\inv$. We compute this using the standard rules for the postcondition of a statement.
+Thus, for an assignment statement ``\code{x = e}'', we use existential quantification over \code{x} to represent the value
+of \code{x} prior to the execution of the statement. If we rename these existentially quantified variables with unique new
+names, we can lift all the existential quantifiers to the outermost level. When transformed thus, the condition $\varphi_{\ell}$
+takes the form $\exists x_1 \cdots x_n. \varphi$, where $\varphi$ is quantifier-free and $x_1, \cdots, x_n$ denote
+intermediate values of variables along the execution path from procedure-entry to program point $\ell$.
+
+The second part computes a verification condition $\vc$ that represents the conditions we must check to ensure that
+an execution through the procedure satisfies its obligations: namely, that the invariant holds true at every call-site
+and at procedure-exit. Let $\ell$ denote a call-site or the procedure-exit. We need to check that $\varphi_{\ell} \Rightarrow \inv$
+holds. Thus, the generation verification condition essentially consists of the conjunction of this check over all call-sites
+and procedure-exit. In addition, we add the check that the initial state too must satisfy $\inv$ as the basis condition for
+induction. 
+
+\TODO{Adapt the following description to illustrate what happens in our running example.}
+
+\input{vcgen-eg}
 
 \subsection{Existential Approach}
 
