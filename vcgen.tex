@@ -70,7 +70,12 @@ Fig.~\ref{fig:vcgen} describes two computations. The first part computes, for ea
 a condition $\varphi_{\ell}$ that describes what we expect to hold true when execution reaches $\ell$ if we start
 executing the procedure in a state satisfying $\inv$ and if every recursive invocation of the procedure also
 terminates in a state satisfying $\inv$. We compute this using the standard rules for the postcondition of a statement.
-Thus, for an assignment statement ``\code{x = e}'', we use existential quantification over \code{x} to represent the value
+A recursive call \code{x = p(y)}  is modelled by the \emph{assumed} specification for the procedure, namely that
+the global variables may be modified in any way, but the state at the return site will satisfy $\inv$
+and the returned value will equal $p(y)$. (Note that in a logical formula the symbol $p$ is used to represent the
+mathematical function realized by procedure $p$, assuming $p$ to be pure.)
+
+For an assignment statement ``\code{x = e}'', we use existential quantification over \code{x} to represent the value
 of \code{x} prior to the execution of the statement. If we rename these existentially quantified variables with unique new
 names, we can lift all the existential quantifiers to the outermost level. When transformed thus, the condition $\varphi_{\ell}$
 takes the form $\exists x_1 \cdots x_n. \varphi$, where $\varphi$ is quantifier-free and $x_1, \cdots, x_n$ denote
