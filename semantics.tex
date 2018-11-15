@@ -45,7 +45,7 @@ client are permitted.
 
 The following semantic formalism is motivated by the above observations. It can be seen as the semantics
 of the so-called ``most general sequential client'' of procedure $\proc$, which is the program:
-\code{while (*) { x = \proc(random()); }}.
+\code{while (*) { x = \procname (random()); }}.
 The executions (of $\proc$) produced by this program include all executions (of $\proc$)  produced by all
 sequential clients.
 
@@ -206,6 +206,7 @@ We define the relation $\iosemP$ to be $\{ (\inputval{\pi},\outputval{\pi}) \; |
 % parameter is $n$ and return value is $r$.
 
 \begin{definition}[Observational Purity]
+\label{def:purity}
 A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\iosem{\proc}$ is a (partial) function:
 that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 \end{definition}
@@ -249,6 +250,7 @@ $\sigma$ in $\pi$ $(\sigma,f) \models \varphi$.
 %there is a reachable entry-state of the form $(\lstack,\gmap)$.
 
 \begin{definition}[Invariant]
+\label{def:inv}
 Given a procedure $\proc$ and a mathematical function $f$, we say that $(\proc,f)$ satisfy
 an invariant $\inv$ if for every feasible execution $\pi$ of $\proc$, $(\pi,f) \models \varphi$.
 %for every reachable global entry-state $\gmap$ of $\proc$,
@@ -257,8 +259,13 @@ We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (m
 function $f$ such that $(\proc,f)$ satisfies $\inv$.
 \end{definition}
 
+We now combine Definition~\ref{def:purity} and Definition~\ref{def:inv} into one as below.
+Note that this combined requirement is stronger than a simple conjunction of the previous
+two requirements. A procedure that satisfies Definitions~\ref{def:purity} and \ref{def:inv}
+separately may not satisfy the following definition.
 \begin{definition}[Purity+Invariant]
-A procedure $\proc$ is said to be observationally pure with a consistent invariant $\inv$ if
+\label{def:pureinv}
+A procedure $\proc$ is said to satisfy $\pureinv$ if
 there exists a function $f$ such that for every trace $\pi$ of $\proc$,
 $\outputval{\pi} = f(\inputval{\pi})$ and $(\proc,f)$ satisfies $\inv$.
 \end{definition}

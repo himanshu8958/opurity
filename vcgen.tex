@@ -14,7 +14,8 @@ to check whether a procedure $\proc$ is observationally pure with a consistent i
 \subsection{Verification Condition Generation}
 
 We describe an adaptation of standard verification-condition generation techniques that we use as our first step.
-Given a procedure $\procP$, a candidate invariant $\inv$, the function $\mainvc{\procP}{\inv}$ returns a
+Given a procedure $\procP$, a candidate invariant $\inv$, our goal is to compute a
+% the function $\mainvc{\procP}{\inv}$ returns a
 pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that exists after an execution of
 $\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
 for the execution to satisfy its invariants and assertions.
@@ -29,6 +30,7 @@ a temporary if needed). We then replace the statement by the code fragment
 where \code{g1} to \code{gN} are the global variables.
 \item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
 \end{enumerate}
+Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as above.
 
 %We use an auxiliary function $\auxvcfn$ which is similar to $\mainvcfn$, but accepts a statement $\stmtS$ as
 %parameter instead of a procedure, and it has an extra parameter $\pre$ that is a precondition describing
@@ -51,7 +53,9 @@ where \code{g1} to \code{gN} are the global variables.
 \multicolumn{3}{l}{
 \vcfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \vcfn(\pre \wedge \expr, \stmtSA) \wedge \vcfn(\pre \wedge \neg \expr, \stmtSB)
 } \\
-\vcfn(\pre, \stmt) &= \text{true} & \text{for all other statements \stmt}
+\vcfn(\pre, \stmt) &= \text{true} & \text{for all other \stmt} \\
+\\
+\mainvc{\procP}{\inv} &= (\postfn(\tbody(\proc)), \vcfn(\tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
 \end{array}
 \]
 \caption{Generation of verification-condition and postcondition.}
@@ -74,14 +78,16 @@ names, we can lift all the existential quantifiers to the outermost level. When 
 takes the form $\exists x_1 \cdots x_n. \varphi$, where $\varphi$ is quantifier-free and $x_1, \cdots, x_n$ denote
 intermediate values of variables along the execution path from procedure-entry to program point $\ell$.
 
-Finally, we compute a verification condition $\vc$ that represents the conditions we must check to ensure that
+We compute a verification condition $\vc$ that represents the conditions we must check to ensure that
 an execution through the procedure satisfies its obligations: namely, that the invariant holds true at every call-site
 and at procedure-exit. Let $\ell$ denote a call-site or the procedure-exit. We need to check that $\varphi_{\ell} \Rightarrow \inv$
 holds. Thus, the generation verification condition essentially consists of the conjunction of this check over all call-sites
 and procedure-exit.
 
-Finally, we add the check that the initial state too must satisfy $\inv$ as the basis condition for
-induction.
+Finally, the function $\mainvcfn$ computes the postcondition and verification condition for the entire procedure as shown
+in Fig.~\ref{fig:vcgen}. Note that this adds the check that the initial state too must satisfy $\inv$ as the basis condition for
+induction. The initial state is encoded as a logical formula consisting of a conjunct ``\code{g=c}'' for every global \code{c}
+initialized to a value \code{c}.
 % (\initformula \Rightarrow \inv 
 
 \input{vcgen-eg}
@@ -96,7 +102,7 @@ We define $\EA(\proc,\inv)$ to be the formula $ \forall \overline{x}. \existform
 
 \begin{theorem}
 \label{theorem:EA}
-A procedure $\proc$ is observationally pure and satisfies invariant $\inv$ if
+A procedure $\proc$ satisfies $\pureinv$ if
 $\exists p. \EA(\proc,\inv)$ is a tautology
 (which holds iff $\EA(\proc,\inv)$ is satisfiable).
 \end{theorem}
@@ -143,8 +149,7 @@ by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.
 Define $\IW(\proc, \inv)$ to be the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
 \begin{theorem}
-A procedure $\proc$ is observationally pure and satisfies invariant $\inv$
-if $\IW(\proc, \inv)$ is unsatisfiable.
+A procedure $\proc$ satisfies  $\pureinv$ if $\IW(\proc, \inv)$ is unsatisfiable.
 \end{theorem}
 
 \begin{proof}
