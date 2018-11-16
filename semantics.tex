@@ -80,6 +80,9 @@ by a relation $\basicevalsto{\rho}{\expr}{v}$, indicating that the expression
 $\expr$ evaluates to value $v$ in an environment $\rho$ (which contains bindings
 of values to all identifiers occurring in $\expr$, both global and local).
 We omit the definition of this relation, which is straightforward.
+We use the notation $\rho_1 \uplus \rho_2$ to denote the union of two disjoint maps
+$\rho_1$ and $\rho_2$.
+
 
 Note that most rules captures the usual semantics of the language constructs.
 The last two rules, however, capture the semantics of the most-general sequential
@@ -129,7 +132,7 @@ the procedure may be initiated (with an arbitrary parameter value).
 \labrule{if-false}{
 \evalsto{\lmap}{\gmap}{\expr}{\code{false}}
 }{
-( (\code{(if (\expr) then \stmtSA else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
+( (\code{(if (\expr) then \stmtSA{} else \stmtSB); \stmtSC}, \lmap) \lstack, \gmap)
 \sssemP
 ( (\code{\stmtSB; \stmtSC}, \lmap) \lstack, \gmap)
 }
@@ -144,7 +147,7 @@ the procedure may be initiated (with an arbitrary parameter value).
 }
 
 \labrule{return}{
-\evalsto{\lmap}{\gmap}{r}{v}
+\evalsto{\lmap}{\gmap}{\code{r}}{v}
 }{
 ((\code{return r}, \lmap) (\code{y = p(e); \stmt}, \lmap') \lstack, \gmap)
 \sssemP
@@ -152,12 +155,12 @@ the procedure may be initiated (with an arbitrary parameter value).
 }
 
 \labrule{top-level-call}{
-\proc = \code{p(n) \stmtSA} \\
+\proc = \code{p(n) \{ B \}} \\
 v \in \vals
 }{
 ([], \gmap)
 \sssemP
-([(\stmtSA, [n \mapsto v])], \gmap)
+([(\code{B}, [n \mapsto v])], \gmap)
 }
 
 \labrule{top-level-return}{
@@ -239,10 +242,11 @@ Given a map $\rho$, a procedure name $\procname$, and a mathematical function $f
 $\rho[\procname \mapsto f]$ to indicate the extended map that assigns $\procname$ the value $f$ and every
 other $x$ the value $\rho[x]$.
 We will write $(\rho,f) \models \varphi$ to denote that $\rho[\procname \mapsto f] \models \varphi$.
+
 Recall that a state $\sigma =(\lstack,\gmap)$ consists of a stack $\lstack$ and global-state $\gmap$.
-We define the visible state $\rho$ of $\sigma$ to be the union of $\gmap$ and the current local state $\lmap$
-if $\lstack$ is non-empty, and we define $\rho$ to be just $\gmap$ otherwise.
-We write $(\sigma,f) \models \varphi$ to denote that $(\rho,f) \models \varphi$.
+Define $\text{env}(\sigma)$ to be the union of $\gmap$ and the current local state $\lmap$
+if $\lstack$ is non-empty, and define $\text{env}(\sigma)$ to be just $\gmap$ otherwise.
+We write $(\sigma,f) \models \varphi$ to denote that $(\text{env}(\sigma),f) \models \varphi$.
 For any execution $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
 $\sigma$ in $\pi$ $(\sigma,f) \models \varphi$.
 

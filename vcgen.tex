@@ -41,8 +41,8 @@ Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as
 \begin{figure}
 \[
 \begin{array}{lll}
-\postfn(\pre, \code{x = e}) &= (\exists x. \pre) \wedge (x = e) & \text{if } \code{x} \not\in \text{vars}(\code{e}) \\
-\postfn(\pre, \code{havoc(x)}) &= \exists x. \pre \\
+\postfn(\pre, \code{x = e}) &= (\exists \code{x}. \pre) \wedge (\code{x = e}) & \text{if } \code{x} \not\in \text{vars}(\code{e}) \\
+\postfn(\pre, \code{havoc(x)}) &= \exists \code{x}. \pre \\
 \postfn(\pre, \code{assume e}) &= \pre \wedge \code{e} \\
 \postfn(\pre, \code{assert e}) &= \pre \\
 \postfn(\pre, \stmtSA ; \stmtSB) &= \postfn( \postfn(\pre, \stmtSA), \stmtSB) \\
@@ -100,6 +100,10 @@ Let $\existformula$ denote the formula $\vc \wedge (\post \Rightarrow (r = p(n))
 Let $\overline{x}$ denote the sequence of all free variables in $\existformula$ except for $p$.
 We define $\EA(\proc,\inv)$ to be the formula $ \forall \overline{x}. \existformula$.
 
+In this approach, we use a theorem prover to check whether $\EA(\proc,\inv)$ is satisfiable.
+As shown by the following theorem, satisfiability of $\EA(\proc,\inv)$ establishes that $\proc$
+satisfies $\pureinv$.
+
 \begin{theorem}
 \label{theorem:EA}
 A procedure $\proc$ satisfies $\pureinv$ if
@@ -141,6 +145,14 @@ $\outputval{\pi} = f(\inputval{\pi})$.
 \end{proof}
 
 \subsection{Impurity Witness Approach}
+
+The existential approach presented in the previous section has a drawback. Checking satisfiability of $\EA(\proc,\inv)$
+is hard because it contains universal quantifiers and existing theorem provers do not work well enough for this
+approach. We now present an approximation of the existential approach that is easier to use with existing theorem
+provers. This new approach, which we will refer to as the impurity witness approach, reduces the problem to
+that of checking whether a quantifier-free formula is unsatisfiable, which is better suited to the capabilities of
+state-of-the-art theorem provers. This approach focuses on finding a counterexample to show that the
+procedure is impure or it violates the candidate invariant.
 
 Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
 Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
