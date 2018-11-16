@@ -172,8 +172,12 @@ $\pi_a$ in $\pi_1$ and a trace $\pi_b$ in $\pi_2$ such that $\pi_a$ and $\pi_b$ 
 value but different return values. Otherwise, we say that $(\pi_1, \pi_2)$ is pure. We extend
 this notion and say that a single execution $\pi$ is pure if $(\pi,\pi)$ is pure.
 
-We say that a feasible execution $\pi$ satisfies the invariant if there exists a function $f$ such that
-$(\pi,f) \models \inv$. Otherwise, we say that $\pi$ is an invariant violation witness.
+We say that a function $f$ is \emph{compatible} with a set of executions $\Pi$ if for every trace
+$\pi \in \Pi$, $\outputval{\pi} = f(\inputval{\pi})$.
+
+We say that a pure feasible execution $\pi$ strongly satisfies the invariant if for every function $f$
+that is compatible with $\{\pi\}$, we have $(\pi,f) \models \inv$. 
+Otherwise, we say that $\pi$ is an invariant violation witness.
 
 We will consider \emph{minimal} witnesses of the following form.
 We say that an impurity witness $(\pi_1, \pi_2)$ is minimal if for every proper prefix $\pi_1'$ of
@@ -184,9 +188,9 @@ $\pi_1$ and every proper prefix $\pi_2'$ of $\pi_2$, the following hold:
 (d) $\pi_2'$ satisfies the invariant.
 
 We say that an invariant violation witness $\pi$ is minimal if every proper prefix $\pi'$ of
-$\pi$ is both pure and satisfies the invariant.
+$\pi$ is both pure and strongly satisfies the invariant.
 
-If $\proc$ is not pure or fails to satisfy invariant $\inv$, then there exists a minimal impurity witness
+If $\proc$ does not satisfy $\pureinv$, then there exists a minimal impurity witness
 or a minimal invariant violation witness. In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
 must be satisfiable (as we show below). In the second case, $\neg \vc$ must be satisfiable (as we show below).
 Thus,  $\IW(\proc, \inv)$  is satisfiable in either case. The theorem follows.
@@ -201,41 +205,7 @@ assign values to variables in $\post_\beta$ from $\pi_b$ to get a satisfying
 assignment for $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
 If $\pi$ is a minimal invariant violation witness, let $\pi'$ be the trace that contains the invariant violation.
-Assigning values to variables as in $\pi'$ produces a satisfying assignment for$\neg (\post \Rightarrow \inv)$
-and, hence, for $\neg \vc$.
-
-%We say that two traces are incompatible if they have the same input values but different return values.
-%We say that two executions are incompatible if they contain two incompatible traces.
-%Let $\pi_1$ and $\pi_2$ be two incompatible histories.
-%
-%Further, assume that every proper prefix of
-%$\pi_1$ is compatible with $\pi_2$ and, similarly, every proper prefix of $\pi_2$ is compatible with $\pi_1$.
-%
-%We can find a function $f$ that is consistent with every other trace in $\pi_1$ and $\pi_2$.
-%Further, we assume that 
-
-
-%Let  $\vartheta$ denote the formula  $\exists p \forall \overline{x} (\vc \wedge (\post \Rightarrow (r = p(n))$
-%used in the existential approach.
-%Consider the formula $\vartheta'$ = $(\forall p \forall \overline{x} \vc) \wedge (\exists p \forall \overline{x} (\post \Rightarrow (r = p(n))))$.
-%It can be verified that $\vartheta'$ is a stronger condition than $\vartheta$.
-%Thus, if $\vartheta'$ can be verified to be a tautology, then it follows that $\vartheta$ is also a tautology,
-%and it follows from Theorem~\ref{theorem:EA} that $\proc$ is observationally pure and satisfies invariant $\inv$.
-%
-%The impurity witness approach essentially checks the stronger formula $\vartheta'$. Since it is a conjunction,
-%we can check each conjunct separately.
-%
-%We can check if $(\forall p \forall \overline{x} \vc)$ holds by checking
-%if $\neg \vc$ is not satisfiable.
-%
-%Now consider the second condition $\exists p \forall \overline{x} \post \Rightarrow (r = p(n))$.
-%We now show that if $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
-%is unsatisfiable, then the second condition must hold true. 
-%Assume that $\exists p \forall \overline{x} \post \Rightarrow (r = p(n))$ does not hold. Consider any function $p$.
-%Since $\forall \overline{x} \post \Rightarrow (r = p(n))$ does not hold (for this $p$), consider the set $C$ of all
-%valuations to $\overline{x}$ such that $\post$ holds. Note that every every element of $C$ assigns a value to every
-%free variable, including $r$ and $n$. Suppose we have two elements $\alpha'$ and $\beta'$ in $C$ that agree on the
-%value of $n$ but have different values for $r$, then these give us a satisfying assignment to
-%$(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
-%If not two such elements exist, ...
+Assigning values to variables as in $\pi'$ produces a satisfying assignment for
+% $\neg (\post \Rightarrow \inv)$ and, hence, for
+$\neg \vc$.
 \end{proof}
