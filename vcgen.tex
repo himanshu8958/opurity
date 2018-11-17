@@ -175,9 +175,10 @@ this notion and say that a single execution $\pi$ is pure if $(\pi,\pi)$ is pure
 We say that a function $f$ is \emph{compatible} with a set of executions $\Pi$ if for every trace
 $\pi \in \Pi$, $\outputval{\pi} = f(\inputval{\pi})$.
 
-We say that a pure feasible execution $\pi$ strongly satisfies the invariant if for every function $f$
-that is compatible with $\{\pi\}$, we have $(\pi,f) \models \inv$. 
-Otherwise, we say that $\pi$ is an invariant violation witness.
+We say that a pure feasible execution $\pi$ is a $\inv$-violation witness if there is some function $f$
+that is compatible with $\{\pi\}$ such that $(\pi,f) \nvDash \inv$. Note that this definition introduces
+a conservative approximation as we explain later.
+% Otherwise, we say that $\pi$ is an invariant violation witness.
 
 We will consider \emph{minimal} witnesses of the following form.
 We say that an impurity witness $(\pi_1, \pi_2)$ is minimal if for every proper prefix $\pi_1'$ of
@@ -187,11 +188,15 @@ $\pi_1$ and every proper prefix $\pi_2'$ of $\pi_2$, the following hold:
 (c) $\pi_1'$ satisfies the invariant, and
 (d) $\pi_2'$ satisfies the invariant.
 
-We say that an invariant violation witness $\pi$ is minimal if every proper prefix $\pi'$ of
-$\pi$ is both pure and strongly satisfies the invariant.
+We say that an $\inv$-violation witness $\pi$ is minimal if no proper prefix $\pi'$ of
+$\pi$ is a $\inv$-violation witness.
 
 If $\proc$ does not satisfy $\pureinv$, then there exists a minimal impurity witness
-or a minimal invariant violation witness. In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
+or a minimal $\inv$-violation witness. Note that our definition of $\inv$-violation witness is
+a conservative approximation and the converse of the preceding claim does not hold.
+A  $\inv$-violation witness does not mean that $\proc$ does not satisfy $\pureinv$.
+
+In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
 must be satisfiable (as we show below). In the second case, $\neg \vc$ must be satisfiable (as we show below).
 Thus,  $\IW(\proc, \inv)$  is satisfiable in either case. The theorem follows.
 
@@ -204,7 +209,7 @@ We can assign values to variables in $\post_\alpha$ from $\pi_a$, and
 assign values to variables in $\post_\beta$ from $\pi_b$ to get a satisfying
 assignment for $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
-If $\pi$ is a minimal invariant violation witness, let $\pi'$ be the trace that contains the invariant violation.
+If $\pi$ is a minimal $\inv$-violation witness, let $\pi'$ be the trace that contains the invariant violation.
 Assigning values to variables as in $\pi'$ produces a satisfying assignment for
 % $\neg (\post \Rightarrow \inv)$ and, hence, for
 $\neg \vc$.

@@ -1,0 +1,24 @@
+\section{Proofs}
+
+\begin{lemma}
+If there exists no impurity witness $(\pi_1,\pi_2)$ and there exists
+no $\inv$-violation witness $\pi$, then $\proc$ satisfies $\pureinv$.
+\end{lemma}
+
+\begin{proof}
+Consider the set $\Pi$ of all feasible executions of $\proc$.
+If there exists no impurity witness, then there exists a function $f$ compatible with $\Pi$.
+(We take the partial function $\{ (\inputval{\pi}, \outputval{\pi}) \; | \; \pi \in \Pi \}$ and
+extend it to be a total function.)
+Further, since there exists no $\inv$-violation witness, we are guaranteed that $(\pi,f) \models \inv$
+for every $\pi \in \Pi$.
+\end{proof}
+
+\begin{lemma}
+If there exists a $\inv$-violation witness $\pi$, then there exists a minimal $\inv$-violation witness.
+\end{lemma}
+
+\begin{lemma}
+If there exists an impurity witness, then there exists a minimal impurity witness or a minimal
+$\inv$-violation witness.
+\end{lemma}
