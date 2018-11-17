@@ -1,16 +1,19 @@
 \section{Related work}\label{sec:related}
-JML~\cite{leavens2008jml} does not allow any side-effects for Library
-procedures, thus specifiers use pure replacements instead. Barnett
-defines Observational purity~\cite{barnett200499}. A notion of
-equivalance is introduced by them between a pair of heaps, where one
-of the heaps has the cache un-initilized and other where cache holds
-the result. They mark all the fields which serve as cache as secret
-fields and equivalent heaps have the same values for the non-secret
-fields. Next, to reason about equivalance of the return value from
-such equivalent heaps, they annotate the program with an invariant
-that relates the secret and open fields. Our technique in comparison,
-requires the program to be annotated only with the invariant which
-could also be generated automatically in may cases. 
+Java modelling Language(JML)~\cite{leavens2008jml} is a specification
+lanugage for Java Programs which uses Hoare style pre and post
+conditions. Various specification languages such as JML and spec\#
+allow provably pure procedure to be used in specification.
+This overly restrictive constraint of using only provable pure
+procedure was first overcome by Barnett~\cite{barnett200499}, and we
+also sovle the same problem as them. However, we allow the
+specification of a procedure to reference the same procedure.They also
+note in the paper~\cite{barnett200499} that ``If we allow some P_g to
+involve \textit{f}, then there is a circularity - it would take a
+delicate argument, and additional conditions, to avoid unsoundness in
+this case''. In this work, other than allowing specifications of a
+procedure to self-reference we have also reduced the need for
+annotations. Moreover, the annotations that are needed, we claim they
+can be generated automatically for a large number of programs.
 
 The idea of comparing a program to
 itself~\cite{lahiri2013differential}~\cite{partush2013abstract} is
