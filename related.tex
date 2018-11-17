@@ -1,11 +1,11 @@
 \section{Related work}\label{sec:related}
 Java modelling Language(JML)~\cite{leavens2008jml} is a specification
-lanugage for Java Programs which uses Hoare style pre and post
+language for Java Programs which uses Hoare style pre and post
 conditions. Various specification languages such as JML and spec\#
 allow provably pure procedure to be used in specification.
 This overly restrictive constraint of using only provable pure
 procedure was first overcome by Barnett~\cite{barnett200499}, and we
-also sovle the same problem as them. However, we allow the
+also solve the same problem as them. However, we allow the
 specification of a procedure to reference the same procedure.They also
 note in the paper~\cite{barnett200499} that ``If we allow some P_g to
 involve \textit{f}, then there is a circularity - it would take a
@@ -15,29 +15,30 @@ procedure to self-reference we have also reduced the need for
 annotations. Moreover, the annotations that are needed, we claim they
 can be generated automatically for a large number of programs.
 
-The idea of comparing a program to
-itself~\cite{lahiri2013differential}~\cite{partush2013abstract} is
-closely related to the impurity witness
-approach. DAC~\cite{lahiri2013differential} uses this idea for finding
-the assertions that failed in a version of a program with respect to
-another version. Whereas, Partush and Yahav~\cite{partush2013abstract}
-focus on finding the parameter values for which the two versions of
-the procedure differ.
 
-Naumann~\cite{naumann2007observational} calls a procedure OP if it is
-output-equivalent to a procedure which is a side-effect free. And
-side-effect-freeness does not entail OPness as the procedure's return
-value may be dependent on some global variable. This work
-presents/uses a theory for simulations, closely related to ownership
-types. Thus this work is closely related but they solve a different
-problem.
+DAC~\cite{lahiri2013differential} and Yahav et
+al.~\cite{partush2013abstract} compare a program to an older version
+of itself. This is althought a different problem than ours but the
+idea of comparing a program to itself is central to the impurity
+witness approach.
+
+Naumann~\cite{naumann2007observational} also relaxes on what
+procedures can be used in specifications. In this paper, a procedure
+is labelled Observationally pure if it is output equivalent to a
+side-effect free procedure, which is different from our problem
+statement. Naumann's definition of OP does not constrain a procedure
+to respect a mathematical function. This work uses a theory for
+simulations of procedure to check the property.
 
 Cok~\cite{cok2008extensions} builds upon Barnett's
 work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
-partitioning the set of methods into ``pure'', ``secret'' and
-``query'' methods, each scoped to a particular data group. The query
-methods are OP. They give a set of rules to be followed by methods in
-each group. Thus, structuring for modular reasoning about OPness.
+partitioning the set of procedures into ``pure'', ``secret'' and
+``query'' methods, each scoped to a particular data group to manage Op
+checking. And the procedure in the ``query'' data group are OP.  But,
+this body of
+work~\cite{cok2008extensions}~\cite{barnett2006allowing}~\cite{barnett200499}
+cannot prove a recursive procedure to be OP. Also, they need a lot of
+annotations.
 
 Finifter~\cite{cok2008extensions} takes a different approach of
 restricting the programming language in order to make OP checking
