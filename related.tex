@@ -1,60 +1,67 @@
 \section{Related work}\label{sec:related}
-Java modelling Language(JML)~\cite{leavens2008jml} is a specification
-language for Java Programs which uses Hoare style pre and post
-conditions. Various specification languages such as JML and spec\#
-allow provably pure procedure to be used in specification.
-This overly restrictive constraint of using only provable pure
-procedure was first overcome by Barnett~\cite{barnett200499}, and we
-also solve the same problem as them. However, we allow the
-specification of a procedure to reference the same procedure.They also
-note in the paper~\cite{barnett200499} that ``If we allow some P_g to
-involve \textit{f}, then there is a circularity - it would take a
-delicate argument, and additional conditions, to avoid unsoundness in
-this case''. In this work, other than allowing specifications of a
-procedure to self-reference we have also reduced the need for
-annotations. Moreover, the annotations that are needed, we claim they
-can be generated automatically for a large number of programs.
 
+The previous work that is most closely related to our work is by Barnett et
+al.~\cite{barnett200499,barnett2006allowing}. Their approach is based on
+the same notion of observational purity as our approach. However, their
+approach is based on a more complex notion of invariant than our approach,
+which relates pairs of global states. Their approach has a similar
+structure as ours, in that they check the inductivity of the invariant, and
+also check that for the same parameter value the procedure returns the same
+value as long as the starting global states are related as per the
+invariant. However, their approach is not defined for recursive procedures;
+they in fact state that  ``there is a circularity - it would
+take a delicate argument, and additional conditions, to avoid unsoundness
+in this case''. Our approach allows the invariant to refer to a function
+symbol that represents the meaning of the procedure being checked; this
+allows the invariant to be simply stated in many cases, and also also
+allows recursive procedures to be checked. 
 
-DAC~\cite{lahiri2013differential} and Yahav et
-al.~\cite{partush2013abstract} compare a program to an older version
-of itself. This is althought a different problem than ours but the
-idea of comparing a program to itself is central to the impurity
-witness approach.
+Cok et al.~\cite{cok2008extensions}  generalize the work of Barnett
+et al.'s work, and suggest classifying procedures into categories ``pure'',
+``secret'', and ``query''. The ``query'' procdures are observationally
+pure. Again, recursive procedures are not addressed.
 
-Naumann~\cite{naumann2007observational} also relaxes on what
-procedures can be used in specifications. In this paper, a procedure
-is labelled Observationally pure if it is output equivalent to a
-side-effect free procedure, which is different from our problem
-statement. Naumann's definition of OP does not constrain a procedure
-to respect a mathematical function. This work uses a theory for
-simulations of procedure to check the property.
+Naumann~\cite{naumann2007observational} proposes a notion of observational
+purity that is also the same as ours. Their paper gives a methodology but
+not really an automated approach for checking the observational purity of a
+given procedure. Their methodology is not similar to ours; rather, it is
+based finding a \emph{weakly pure} procedure that simulates the given
+procedure as far as externally visible state changes and the return value
+are concerned. They have no notion of an invariant that uses a
+function symbol that represents the procedure, and they don't explicitly
+address the checking of recursive procedures.
 
-Cok~\cite{cok2008extensions} builds upon Barnett's
-work~\cite{barnett2006allowing} and~\cite{barnett200499} suggests
-partitioning the set of procedures into ``pure'', ``secret'' and
-``query'' methods, each scoped to a particular data group to manage Op
-checking. And the procedure in the ``query'' data group are OP.  But,
-this body of
-work~\cite{cok2008extensions}~\cite{barnett2006allowing}~\cite{barnett200499}
-cannot prove a recursive procedure to be OP. Also, they need a lot of
-annotations.
+There exists a significant body of work on identifying differences between
+two similar procedures. For instance, differential assertion
+checking~\cite{lahiri2013differential} checks if two procedures can ever
+start from the same state but end in different states such that exactly one
+of the ending states fails a given assertion. Their approach is based on
+logical reasoning, and accommodates recursive procedures. Our impurity
+witness approach has some similarity with their approach, because it is
+based on comparing the given procedure with itself. However, our comparison
+is stricter, because in our setting, starting with a common argument value
+but from different global states that are both within the invariant should
+not cause a difference in the return value. Furthermore, technically our
+approach is different because we use an invariant that refers to a function
+symbol that represents the procedure being checked, which is not a feature
+of their invariants. Partush et al.~\cite{partush2013abstract} solve a
+similar problem as differential assertion checking, but using abstract
+interpretation instead of logical reasoning.
 
-Finifter~\cite{cok2008extensions} takes a different approach of
-restricting the programming language in order to make OP checking
-simpler. In the restricted language called Joe-E, OP methods have all
-objects reachable from the parameters marked as immutable.
+There is a substantial body of work on checking if a procedure is
+\emph{pure}. The standard definition of purity is that the procedure not
+modify any objects that existed before the procedure was invoked, and not
+modify any  global variables. Salcianu et
+al.~\cite{sualcianu2005purity} describe a static analysis to check purity.
+Finifter et al.~\cite{finifter2008verifiable} propose an approach to
+enforce purity using language restrictions. Various tools exist, such as
+JML~\cite{leavens2008jml} and Spec\#~\cite{specSharp}, that use logical
+techniques based on annotations to prove procedures as pure.  Purity is a
+more restrictive notion than observational purity; procedures such
+as our `factorial' example are observationally pure, but not pure because
+they use as well as update state that persists between calls to the
+procedure. 
 
-Salcianu~\cite{sualcianu2005purity} gives a static analysis that
-checks if a method modifies the pre-existing state. All the operators
-used in specifications do not have side effects. If a procedure does
-not modify the pre-existing state it is called pure and
-~\cite{barnett200499} suggests that such procedures can be used in
-specifications. Our work in comparison generalizes further by allowing
-procedures that modify pre-existing state but behave as mathematical
-functions in specifications. We would like to point out that in their
-work they manually marked library methods that did caching but were
-semantically preserving as pure.
 
 \nocite{barnett2004spec}
 \nocite{lahiri2013differential}
