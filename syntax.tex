@@ -14,13 +14,19 @@ the library (that is, the clients of the library).
 \begin{figure}[t!]
 {\tt
 \begin{tabular}{rll}
+L \elt & \domain{Lib} & ::= $\overline{\code{g := c}}$ $\overline{\code{P}}$ \\
+P \elt & \domain{Proc} & ::= p (x) \{ S; return y \} \\
 S \elt & \domain{Stmt} & ::=  x := e | x := p(y) | S ; S | if (e) then S else S \\
-e \elt & \domain{Expr} & ::= c | e op e | unop e \\
+e \elt & \domain{Expr} & ::= c | x | e op e | unop e \\
 op \elt & \domain{Ops} & ::= + | - | / | * | \% | > | < | == | $\wedge$ | $\vee$ \\
 unop \elt & \domain{UnOps} & ::= $\neg$ \\
-x, y \elt & \domain{VarId} & ::= $\gvars \cup \lvars$ \\ 
-c \elt & $\vals$ \\
-p \elt & \domain{ProcId}
+\multicolumn{3}{c}{
+x, y \elt  \domain{LocalId} $\cup$ \domain{GlobalId},
+g \elt \domain{GlobalId},
+% $\gvars \cup \lvars$ \\ 
+c \elt $\vals$,
+p \elt \domain{ProcId}
+}
 \end{tabular}
 }
 \caption{Programming language syntax and meta-variables}
