@@ -110,15 +110,15 @@ the procedure may be initiated (with an arbitrary parameter value).
 \evalsto{\lmap}{\gmap}{\code{e}}{v} \\
 \proc = \code{p(n) \stmtSA}
 }{
-((\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
 \sssemP
-((\stmtSA, [n \mapsto v]) (\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\stmtSA, [n \mapsto v]) (\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
 }
 
 \labrule{return}{
 \evalsto{\lmap}{\gmap}{\code{r}}{v}
 }{
-((\code{return r}, \lmap) (\code{y = p(e); \stmt}, \lmap') \lstack, \gmap)
+((\code{return r}, \lmap) (\code{y := p(e); \stmt}, \lmap') \lstack, \gmap)
 \sssemP
 (\stmt, \lmap'[ \code{y} \mapsto v]) \lstack, \gmap)
 }
