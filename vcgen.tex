@@ -20,7 +20,9 @@ pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that ex
 $\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
 for the execution to satisfy its invariants and assertions.
 
-We first transform the procedure body as below:
+We first transform the procedure body as below to create an internal representation that is input to the
+postcondition and verification condition generator. In the internal representation, we allow the following
+extra forms of statements (with their usual meaning): \code{havoc(x)}, \code{assume e}, and  \code{assert e}.
 \begin{enumerate}
 \item For any assignment statement ``\code{x = e}'' where \code{e} contains \code{x}, we introduce a new temporary
 variable \code{t} and replace the assignment statement with ``\code{t = e; x = t}''.
@@ -55,7 +57,7 @@ Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as
 } \\
 \vcfn(\pre, \stmt) &= \text{true} & \text{for all other \stmt} \\
 \\
-\mainvc{\procP}{\inv} &= (\postfn(\tbody(\proc)), \vcfn(\tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
+\mainvc{\procP}{\inv} &= (\postfn(\inv, \tbody(\proc)), \vcfn(\inv, \tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
 \end{array}
 \]
 \caption{Generation of verification-condition and postcondition.}

@@ -270,6 +270,6 @@ separately may not satisfy the following definition.
 \begin{definition}[Purity+Invariant]
 \label{def:pureinv}
 A procedure $\proc$ is said to satisfy $\pureinv$ if
-there exists a function $f$ such that for every trace $\pi$ of $\proc$,
+there exists a function $f$ such that for every trace $\pi$ in a feasible execution of $\proc$,
 $\outputval{\pi} = f(\inputval{\pi})$ and $(\proc,f)$ satisfies $\inv$.
 \end{definition}
