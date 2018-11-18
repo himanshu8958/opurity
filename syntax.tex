@@ -1,3 +1,6 @@
+\newcommand{\elt}{\ensuremath{\in} }
+\newcommand{\domain}[1]{#1}
+
 \section{Language Syntax}
 \label{sec:background}
 
@@ -9,50 +12,19 @@ procedures, but they cannot be accessed or modified by procedures outside
 the library (that is, the clients of the library).
 
 \begin{figure}[t!]
-  %% \includegraphics[trim={0 5cm  3cm 0}, width=6cm]{grammar.eps}
-  \begin{grammar}
-    <statement> ::= <ident> = <logical-expr>
-    \alt <ident> = <arithmetic-expr>
-    \alt <statement>; <statement>
-    \alt if<logical-expr> then <statement> else <statement>
-    %% \alt while<logical-expr> do <statement>
-    %% \alt <ident> = foo(<params-list>)
-    %% \alt assume(<logical-expr>)
-    \alt <ident> = <ident> (<ident>)
-    %% \alt havoc(<ident>)
-    %% \alt <ident>[<ident>] = <ident>
-    %% \alt <ident> = <ident>[<ident>]
-
-    %% <params-list> ::= <params-list> , <ident>
-    %% \alt <ident>
-
-    <arithmetic-expr> ::= <ident> <arithmetic-op> <ident> | <ident> | <constant>
-
-     <arithmetic-op> ::= "+"  |  "-"  |  "/"  |  "*" |  "\%"
- 
-    <logical-expr> ::= <ident> <relational-op> <ident>
-    \alt <logical-expr> $\wedge$ <logical-expr>
-    \alt <logical-expr> $\vee$ <logical-expr>
-    \alt $\neg$<logical-expr>
-    \alt true
-    \alt false
-
-     <relational-op> ::= "<" | ">"| "==" | "!=" | $\leq$ | $\geq$
-
-    <ident> ::= <local-ident> | <global-ident> | <proc-ident>
- 
-    <global> ::= global <ident>   
-
-    <procedure> ::= <ident> (<ident>) "{" <statement> ; return <ident> "}"
-
-    <globals> ::= <global> <globals> | $\epsilon$
-
-    <procedures> ::= <procedure> <procedures> | $\epsilon$
-
-    <library> ::= <globals> <procedures>
-  \end{grammar}
-  \caption{Programming language syntax}
-  \label{fig:grammar}
+{\tt
+\begin{tabular}{rll}
+S \elt & \domain{Stmt} & ::=  x := e | x := p(y) | S ; S | if (e) then S else S \\
+e \elt & \domain{Expr} & ::= c | e op e | unop e \\
+op \elt & \domain{Ops} & ::= + | - | / | * | \% | > | < | == | $\wedge$ | $\vee$ \\
+unop \elt & \domain{UnOps} & ::= $\neg$ \\
+x, y \elt & \domain{VarId} & ::= $\gvars \cup \lvars$ \\ 
+c \elt & $\vals$ \\
+p \elt & \domain{ProcId}
+\end{tabular}
+}
+\caption{Programming language syntax and meta-variables}
+ \label{fig:grammar}
 \end{figure}
 
 In Fig.~\ref{fig:grammar}, we present the syntax of a simple

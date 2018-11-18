@@ -40,6 +40,37 @@
 
 \newcommand{\pureinv}{\mathrm{pure}(\inv)}
 
+
+\newcommand{\vals}{\mathcal{V}}
+\newcommand{\gvars}{G}
+\newcommand{\lvars}{L}
+\newcommand{\gmap}{\rho_g}
+\newcommand{\gmaps}{\Sigma_G}
+\newcommand{\lmap}{\rho_\ell}
+\newcommand{\lmaps}{\Sigma_L}
+\newcommand{\cstates}{\Sigma_C}
+\newcommand{\cont}{c}
+\newcommand{\lstack}{\gamma}
+\newcommand{\initstate}{\sigma_{\text{init}}}
+
+\newcommand{\initial}[1]{\textit{initial}(#1)}
+\newcommand{\final}[1]{\textit{final}(#1)}
+\newcommand{\inputval}[1]{\textit{input}(#1)}
+\newcommand{\outputval}[1]{\textit{output}(#1)}
+
+\newcommand{\extmap}{\sigma_e}
+
+
+\newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
+\newcommand{\iosemP}{\iosem{\proc}}
+\newcommand{\sssem}[1]{\rightarrow_{#1}}
+\newcommand{\sssemP}{\sssem{\proc}}
+
+\newcommand{\basicevalsto}[3]{ ({#1},{#2}) \Downarrow {#3}}
+\newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
+
+\newcommand{\labrule}[3]{\inferrule*[Lab={[#1]}]{#2}{#3}}
+
 \newcommand{\foo}{\textit{`foo'}}
 \newcommand{\trace}{\pi}
 % \newcommand{\inv}{\mathit{inv}}
