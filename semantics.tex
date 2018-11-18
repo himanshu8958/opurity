@@ -1,34 +1,3 @@
-
-\newcommand{\vals}{\mathcal{V}}
-\newcommand{\gvars}{G}
-\newcommand{\lvars}{L}
-\newcommand{\gmap}{\rho_g}
-\newcommand{\gmaps}{\Sigma_G}
-\newcommand{\lmap}{\rho_\ell}
-\newcommand{\lmaps}{\Sigma_L}
-\newcommand{\cstates}{\Sigma_C}
-\newcommand{\cont}{c}
-\newcommand{\lstack}{\gamma}
-\newcommand{\initstate}{\sigma_{\text{init}}}
-
-\newcommand{\initial}[1]{\textit{initial}(#1)}
-\newcommand{\final}[1]{\textit{final}(#1)}
-\newcommand{\inputval}[1]{\textit{input}(#1)}
-\newcommand{\outputval}[1]{\textit{output}(#1)}
-
-\newcommand{\extmap}{\sigma_e}
-
-
-\newcommand{\iosem}[1]{\rightsquigarrow_{#1}}
-\newcommand{\iosemP}{\iosem{\proc}}
-\newcommand{\sssem}[1]{\rightarrow_{#1}}
-\newcommand{\sssemP}{\sssem{\proc}}
-
-\newcommand{\basicevalsto}[3]{ ({#1},{#2}) \Downarrow {#3}}
-\newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
-
-\newcommand{\labrule}[3]{\inferrule*[Lab={[#1]}]{#2}{#3}}
-
 \section{A Semantic Definition of Purity}
 
 In this section, we formalize the input-output semantics of a procedure $\proc$ as a relation $\iosem{\proc}$,
@@ -141,15 +110,15 @@ the procedure may be initiated (with an arbitrary parameter value).
 \evalsto{\lmap}{\gmap}{\code{e}}{v} \\
 \proc = \code{p(n) \stmtSA}
 }{
-((\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
 \sssemP
-((\stmtSA, [n \mapsto v]) (\code{y = p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\stmtSA, [n \mapsto v]) (\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
 }
 
 \labrule{return}{
 \evalsto{\lmap}{\gmap}{\code{r}}{v}
 }{
-((\code{return r}, \lmap) (\code{y = p(e); \stmt}, \lmap') \lstack, \gmap)
+((\code{return r}, \lmap) (\code{y := p(e); \stmt}, \lmap') \lstack, \gmap)
 \sssemP
 (\stmt, \lmap'[ \code{y} \mapsto v]) \lstack, \gmap)
 }
@@ -270,6 +239,6 @@ separately may not satisfy the following definition.
 \begin{definition}[Purity+Invariant]
 \label{def:pureinv}
 A procedure $\proc$ is said to satisfy $\pureinv$ if
-there exists a function $f$ such that for every trace $\pi$ of $\proc$,
+there exists a function $f$ such that for every trace $\pi$ in a feasible execution of $\proc$,
 $\outputval{\pi} = f(\inputval{\pi})$ and $(\proc,f)$ satisfies $\inv$.
 \end{definition}

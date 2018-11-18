@@ -20,7 +20,9 @@ pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that ex
 $\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
 for the execution to satisfy its invariants and assertions.
 
-We first transform the procedure body as below:
+We first transform the procedure body as below to create an internal representation that is input to the
+postcondition and verification condition generator. In the internal representation, we allow the following
+extra forms of statements (with their usual meaning): \code{havoc(x)}, \code{assume e}, and  \code{assert e}.
 \begin{enumerate}
 \item For any assignment statement ``\code{x = e}'' where \code{e} contains \code{x}, we introduce a new temporary
 variable \code{t} and replace the assignment statement with ``\code{t = e; x = t}''.
@@ -40,22 +42,22 @@ Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as
 
 \begin{figure}
 \[
-\begin{array}{lll}
-\postfn(\pre, \code{x = e}) &= (\exists \code{x}. \pre) \wedge (\code{x = e}) & \text{if } \code{x} \not\in \text{vars}(\code{e}) \\
+\begin{array}{ll}
+\postfn(\pre, \code{x := e}) &= (\exists \code{x}. \pre) \wedge (\code{x = e}) (\text{if } \code{x} \not\in \text{vars}(\code{e})) \\
 \postfn(\pre, \code{havoc(x)}) &= \exists \code{x}. \pre \\
 \postfn(\pre, \code{assume e}) &= \pre \wedge \code{e} \\
 \postfn(\pre, \code{assert e}) &= \pre \\
 \postfn(\pre, \stmtSA ; \stmtSB) &= \postfn( \postfn(\pre, \stmtSA), \stmtSB) \\
-\multicolumn{3}{l}{\postfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \postfn(\pre \wedge \expr, \stmtSA) \vee \postfn(\pre \wedge \neg \expr, \stmtSB)} \\
+\multicolumn{2}{l}{\postfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \postfn(\pre \wedge \expr, \stmtSA) \vee \postfn(\pre \wedge \neg \expr, \stmtSB)} \\
 \\
 \vcfn(\pre, \code{assert e}) &= (\pre \Rightarrow e) \\
 \vcfn(\pre, \stmtSA ; \stmtSB) &= \vcfn(\pre, \stmtSA) \wedge \vcfn( \postfn(\pre, \stmtSA), \stmtSB) \\
-\multicolumn{3}{l}{
+\multicolumn{2}{l}{
 \vcfn(\pre, \code{if \expr{} then \stmtSA{} else \stmtSB{}}) = \vcfn(\pre \wedge \expr, \stmtSA) \wedge \vcfn(\pre \wedge \neg \expr, \stmtSB)
 } \\
-\vcfn(\pre, \stmt) &= \text{true} & \text{for all other \stmt} \\
+\vcfn(\pre, \stmt) &= \text{true} (\text{for all other \stmt}) \\
 \\
-\mainvc{\procP}{\inv} &= (\postfn(\tbody(\proc)), \vcfn(\tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
+\mainvc{\procP}{\inv} &= (\postfn(\inv, \tbody(\proc)), \vcfn(\inv, \tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
 \end{array}
 \]
 \caption{Generation of verification-condition and postcondition.}
