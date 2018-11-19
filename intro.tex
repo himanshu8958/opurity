@@ -1,185 +1,174 @@
 \section{Introduction}
-Verifying functional properties of procedures is a hard task.
-Formalizing such properties of a procedure requires deep understanding
-of the procedure's (expected) functionality. Many procedures
-(especially in mathematical libraries) implement some mathematical
-function. This paper describes a couple of techniques to check if a
-given procedure implements a mathematical function of the argument
-values. If the return value from a procedure is dependent only on the
-formal arguments, irrespective of whether the procedure reads/writes
-global variables,
-% even if the
-% procedure reads/writes to global variables,
-the given procedure is \textit{Observationally pure(OP)}.  If a
-procedure $\foo$ is observationally pure, then there exists a
-mathematical function $\F$ such that $\F$ mimics the input-output
-behaviour of $\foo$ in all sequence of procedure calls to $\foo$ ,
-where both $\foo$ and $\F$ share the same signature. Thus, the
-input-output behaviour of observationally pure procedures is
-independent of the global variables. This property is a generalization
-of referential transparency.
-%% For instance,
-`%% non-optimal implementations of dynamic programming algorithms that do
-%% not use memoization can be refactored to use memoization
-%% automatically.
-Checking whether a given procedure is OP is undecidable. In this
-paper, we propose a pair of static analysis techniques to check OPness
-that are proved to be sound i.e they give a valid answer if the
-technique terminates.
 
-All arithmetic and logical operators are mathematical-functions, and
-functional composition is closed under the set of functions
-(hereonwards, we will refer to mathematical-functions as functions and
-by procedure we mean a procedure written in an imperative programming
-language). Without access to global variables, all procedures are a
-function of their formal arguments. This paper focuses on checking if
-a procedure that reads and writes global variables is OP.
+We say that a procedure in an imperative programming language is
+\emph{observationally pure} (OP) if for each specific argument value it has
+a specific return value, across all possible sequences of calls to the
+procedure, irrespective of what other code runs between these calls.  In
+other words, there exists a mathematical function such that the argument to
+return-value behavior of the procedure mimics this function. Observational
+purity is a useful property, as OP procedures can be memoized, and
+statements that call OP procedures can be subject to code motion, code
+optimization, etc.
+
+Any procedure whose code is deterministic and that does not read any
+pre-existing state other than its arguments is trivially OP. Also, any
+procedure that uses global variables but does not involve looping or
+recursion is easy to verify whether it is OP. However, in general, many
+procedures, especially ones in libraries, update and read global variables,
+typically to optimize their own behavior, while still mimicking
+mathematical functions in terms of input-output behavior. At the same time,
+they also use looping or recursion. In this paper, we focus on the more
+general problem of checking observational purity of procedures that read
+and write global variables and that may make use of recursion.
 
 \subsection{Motivating Example}
 
-\begin{lstlisting}[language=c, caption= {Procedure `factorial' :
-      returns factorial of `n' and memoizes result for argument value
-      `3'.}, label=lst:factorialSimple]
+\begin{lstlisting}[language=c, caption= {Procedure `factCache' :
+      returns n! and memoizes result for last argument seen.},
+    label=lst:factorialSimple]
+  
 int g = -1;
-int factorial( int n) {
+int lastN = 0;
+int factCache( int n) {
   if(n <= 1) {
     return 1;
-  } else if(g == -1 && n == 3) {
-    g = 3 * factorial( 2 );
-    return g;
-  } else if(g != -1 && n == 3) {
+  } else if(g != -1 && n == lastN) {
     return g;
   } else {
-    return n * factorial( n - 1 );
+    g = n * factCache( n - 1 );
+    lastN = n;
+    return g;
   }
 }
 \end{lstlisting}
 
-Procedure factorial in Listing~\ref{lst:factorialSimple} mimics the
-function $\lambda n. n!$. It caches results using the global variable
-`g', for parameter value `n = 3'. The initial global state is `g =
--1', where `-1' represents the un-initialized state. At line 6, global
-variable `g' is set to `3!' iff `g' has value `-1' at line 5. Next,
-line 9 is reached iff global variable `g' is not `-1', implying that
-procedure factorial has been called with parameter value `n = 3'
-previously. At line 9, the procedure correctly returns the value
-`3!'. Other than this caching behaviour for `n = 3' this procedure is
-similar to the standard implementation for factorial.
+Let us consider the example procedure `factCache' in
+Listing~\ref{lst:factorialSimple}, which we use as our running example. It
+returns n! for the given argument n, and caches the return value for the
+last argument provided to it. It uses two ``private'' global variables to
+implement the caching -- g, and lastN. g is initialized to -1, and after
+the first call to the procedure onwards is used to store the return value
+from the most recent call. lastN is used to store the argument received in
+the most recent call. Clearly this procedure is OP, and mimics the
+input-output behavior of a regular factorial procedure that does not cache
+any results. 
 
-OPness is a property of a procedure and the set of reachable global
-states. Where \textit{reachable global states} represents the set of
-all the global states that are encountered at the boundaries of the
-procedure in a sequence of executions of the given procedure. A
-\textit{global state} is the assignment to the set of global
-variables. Procedure factorial in Listing~\ref{lst:factorialSimple}
-is OP if the global state is restricted to the set $\{\{g = -1\}, \{g
-= 3!\}\}$, the procedure mimics the function $\lambda n.n!$. But for
-the global states $\{\{g = 1\}, \{g = 3!\}\}$, procedure factorial
-is not a mathematical function. For argument value `$n = 3$' it may
-return `1' or `3!'.  We assume that the set of reachable global states
-can be represented in the underlying logic and we refer to it as
-\textit{invariant}.  The global states reachable at any boundary, of
-any procedure call, in a sequence of procedure calls must satisfy the
-invariant.
+\subsection{Proposed approach}
 
-To check if a given procedure is OP, we ensure that for all reachable
-global states, for each argument value, there is a unique result. Now,
-this can be modelled using standard pre and post conditions. The pre
-condition holds at the beginning of the procedure and the post
-condition holds at its end. Both the pre condition and the post
-condition can be substituted by the invariant $\inv$ ( in-order to
-verify the invariant). This however does not constrain the return
-value of the given procedure. But, the return value from a recursive
-call may flow into a global variable. Thus, the return from the
-procedure must be modelled in the post condition, to
-re-establish $\inv$.  For procedure factorial in
-Listing~\ref{lst:factorialSimple} we can use the invariant `$\inv : g
-= -1 \vee g = 6$' and the function factorial can be modelled as `$ f
-:= k \leq 1 \implies \fact[k] = 1 \wedge k >1 \implies \fact[k] =
-\fact[k-1]*k$'. Thus, the pre-condition is `$\inv$' and the
-post-condition is `$\inv \wedge f \wedge \retVar = fact[n]$' where
-$\retVar$ is the return variable. This post-condition will not only
-check the validity of the invariant but also that the given procedure
-is OP, as the return value is constrained to be equivalent to
-`$fact[n]$'.
+%% 1. We are looking for a Hoare logic style approach, for increased
+%%    precision. Herein, how to process the recursive calls? One solution is
+%%    to make the user guess the mathematical function implemented by the
+%%    procedure as well as the invariant on the global variables. Now, the
+%%    recursive call can be replaced by these specifications, and the whole
+%%    procedure can be checked whether it always returns n!.
 
+%% 2. The approach above would itself be novel. However, one issue is that
+%%    theorem provers face difficulty in proving equivalence of complex
+%%    formulas. Also, humans face difficulty in inferring meanings of
+%%    procedures. We therefore propose a more syntactic approach that is
+%%    easier on the theorem prover and on the human. 
 
-The above mentioned idea is sound, modulo ease of use. The issues are:
-(a) theorem provers often fail to prove such assertions (as is the
-case for the above mentioned example) (b) describing the procedure in
-logic takes considerable effort.  Instead of formalizing the function
-for the given procedure, why not equate the result from the procedure
-to that of an uninterpreted function symbol? This function symbol can
-also be used to represent the return value from the inner procedure
-calls. Next, we ask the question whether an assignment for the
-function symbol exists? If yes, then the procedure is OP, otherwise it
-is not OP.  This is our existential approach.
+Floyd-Hoare logic has been commonly used in previous approaches that try to
+tackle verification tasks with good precision. Our proposal is based on
+Floyd-Hoare logic as well. In order to verify a recursive procedure
+inductively, typically a specification of the procedure would need to be
+provided. The first idea for such a specification would be a full
+functional specification of the procedure. That is, if someone specifies
+that factCache mimics n!, then the verifier could replace Line~10 in the
+code with `g = n * (n-1)!'. This, on paper, is sufficient to assert that n!
+is returned in Line 12. However, to establish Line~8 also returns n!, an
+invariant would need to be provided that describes the possible values of g
+before any invocation to the procedure. In our example, a suitable
+invariant would be `(g = -1) $\vee$ (g = lastN!)'. The verifier would also
+need to verify that at the procedure's exit the invariant is
+re-established. Lines 10-12, with the recursive call replaced by (n-1)!,
+suffices on paper  to re-establish the invariant.
 
-Abstracting using function symbols goes a long way. It helps in
-representing the post-condition in a simpler manner and also it aids
-in describing the invariant. For procedure factorial, we can use
-the invariant `$\inv_{\F}:=g = -1 \vee g = \F(2) * 3$'. The symbol
-`$\F(2)$' in the invariant represents the return value from the
-procedure factorial for argument `$n = 2$', assuming procedure
-factorial is a mathematical function. Note that the invariant used
-here is valid if the given procedure is OP, otherwise it is not well
-defined.
+The candidate approach mentioned above, while being plausible, suffers from
+two weaknesses. The first is that a human would need to guess the
+mathematical expression returned by the given procedure. This may not be
+easy when the procedure is complex. Second, the underlying theorem prover
+would need to prove complex arithmetic properties, e.g., that n * (n-1)! is
+equal to n!. Complex proofs such as this may be out of bounds for many
+existing theorem provers.
+
+Our key insight is to sidestep the challenges mentioned by introducing a
+function symbol, say $f$, and replacing the recursive call for the purposes
+of verification with this function symbol. Intuitively, $f$ represents the
+mathematical function that the given procedure mimics if the procedure is
+OP.  In our example, Line~10 would become `g = n * $f$(n-1)'. This step
+needs no human involvement. The approach needs an invariant; however, in a
+novel manner, we allow the invariant also to refer to $f$. In our example,
+a suitable invariant would be `(g = -1) $\vee$ (g = lastN *
+$f$(lastN-1))'. This sort of invariant is relatively easy to construct;
+e.g., a human could arrive at it just by looking at Line~2 and with a local
+reasoning on Lines~10 and~11. Given this invariant, (a) a theorem prover
+could infer that the condition in Line~7 implies that Line~8 necessarily
+returns n * $f$(n-1). Due to the transformation to Line~10 mentioned above,
+(b) the theorem prover can infer that Line~12 also returns n *
+$f$(n-1). Note that since these two expressions are syntactically
+identical, a theorem prover can easily establish that they are equal in
+value.  Finally, since Line~6 is reached under a different condition than
+Lines~8 and~12, the verifier has finished establishing that the procedure
+always returns the same expression in n for any given value of n.
+
+Similarly, using the modified Line~10 mentioned above and from Line~11, the
+prover can re-establish that g is equal to `lastN * $f$(lastN - 1)' when
+control reaches Line~12; hence, the given invariant is established to be a
+valid invariant.
+
+Note, the effectiveness of the approach depends on the nature of the given
+invariant. For instance, if the given invariant was `(g = -1) $\vee$ (g =
+lastN!)', which is also technically correct, then the theorem prover may
+not be able to establish that Lines~8 and~12 always return the same
+expression in n. However, it is our claim that in fact it is the invariant
+`(g = -1) $\vee$ (g = lastN * $f$(lastN-1))' that is easier to infer by a
+human or by a potential tool, as justified by us two paragraphs above.
+
+\subsection{Salient aspects of our approach}
 
 %% should I talk about why F(2) *3 instead of F(3) ?
 
-OPness can also be checked by comparing a procedure to itself. We
-represent two instances of a procedure in some underlying logic, and
-then ask the question that do the two instances of the given procedure
-mimic each other, for all argument values, and all states satisfying
-the invariant? If yes, then we show that the given procedure is OP. We
-call this the impurity witness approach.  This approach also makes
-use of invariant with uninterpreted function symbols like the previous
-approach.
+The most closely related previous approaches are by Barnett et
+al.~\cite{barnett200499,barnett2006allowing},
+Naumann~\cite{naumann2007observational}, and~Cok et
+al.~\cite{cok2008extensions}.  All these approaches check observational
+purity of procedures that maintain mutable global state. However, none of
+these approaches use a function symbol in place of recursive calls or
+within invariants. Therefore, it is not clear that these approaches can
+check recursive procedures. To the best of our knowledge ours is the first
+approach to show that is feasible to check observational purity of
+procedures that maintain mutable global state for optimization purposes and
+that make use of recursion. 
 
-Since observational purity is a property on the return values from a
-procedure, this problem is closely related to the halting problem
-%%cite this
-. In Section~\ref{sec:background}, we define OPness in a way such that
-non-termination does not cause non-OPness. OP is violated if for a
-given invariant on the reachable global states, for a given argument
-value there is a non-unique return value. And in-case of
-non-termination there isn't a return value. Hence, a procedure that
-never terminates is vacuously OP and it mimics all functions.
+Being able to verify that a procedure is OP has many potential
+applications. The most obvious one is that OP procedures can be
+memoized. That is, input-output pairs can be recorded in a table, and calls
+to the procedure can be elided whenever an argument is seen more than
+once. This would not change the semantics of the overall program that calls
+the procedure, because the procedure always returns the same value for the
+same argument (and mutates only private global variables). Another
+application is that if a loop contains a call to an OP procedure, then the
+loop can be parallelized (provided the procedure is modified to access and
+update its private global variables in a single atomic operation).
 
-One direct application of this work is automatic memoization. Dynamic
-programming algorithms (such as factorial in
-Listing~\ref{lst:factorialSimple}) use memoization to store
-pre-computed solutions to the sub-problem so that the results can be
-looked-up when needed, thus trading memory for compute time. Our
-technique can check if it is safe to memoize the results produced by a
-procedure. By safety, we refer to preserving the input-output
-behaviour. We propose two static analysis approaches to check this
-problem. One interesting thing about our approach is that the user
-need not mention a (the) mathematical function that the procedure is
-supposed to mimic. Also, using a function symbol allows generating the
-invariant automatically.
+In this paper, we do make a number of assumptions. The global variables
+that the procedure reads or updates are assumed to be private to it, in the
+sense that other code cannot access these variables at all.  For simplicity
+of presentation, we assume that loops are not present, and have been
+converted to recursion. However, we do not restrict the procedure to use
+only tail recursion. We do not as yet address pointers and memory
+allocation. Finally, a note about terminology: throughout this paper we
+use `procedure' to refer to the code procedure being analyzed, and use
+`function' to refer to a mathematical function. 
 
-
-Many researchers have looked at the problem of observational purity
-and have proposed characterizations of benign side effects
-\cite{naumann2007observational}, \cite{barnett2006allowing},
-\cite{cok2008extensions},
-\cite{finifter2008verifiable}. Barnett~\cite{barnett2006allowing}
-gives an information flow based technique to check observational
-purity that marks some fields as secret and ensures all side effects
-are limited to secret fields. Whereas
-Naumann~\cite{naumann2007observational} calls a procedure OP if it
-mimics a procedure that is weakly pure, i.e has side effects only to
-pre-exiting objects. Cok~\cite{cok2008extensions} takes a very
-different approach to allowing procedure calls in the specification
-iff it mimics a procedure that has side effects only to pre-existing
-objects.
-
-In section~\ref{sec:background} we give the pre-requisites for this
-work. The semantics of the invariant we use are described in
-Section~\ref{sec:invariant}. Next Section~\ref{sec:op} defines
-observational purity. In Section~\ref{sec:approaches} we present a
-couple of techniques to check opness. Section~\ref{sec:experiments}
-discusses the experimental results and section~\ref{sec:related}
-compares this work to the current literature.
+The rest of this paper is structured as
+follows. Section~\ref{sec:background} introduces the core programming
+language that we address. Section~\ref{sec:semantics} provides formal
+semantics for our language, as well as definitions of invariants and
+observational purity. Section~\ref{sec:vcgen} describes our approach
+formally. Section~\ref{sec:experiments} describes evaluation of our
+approach on a few realistic examples, while Section~\ref{sec:related}
+describes related work. The appendix contains some details of the programs
+that we used in our evaluations. 
 
