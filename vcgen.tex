@@ -24,9 +24,9 @@ We first transform the procedure body as below to create an internal representat
 postcondition and verification condition generator. In the internal representation, we allow the following
 extra forms of statements (with their usual meaning): \code{havoc(x)}, \code{assume e}, and  \code{assert e}.
 \begin{enumerate}
-\item For any assignment statement ``\code{x = e}'' where \code{e} contains \code{x}, we introduce a new temporary
-variable \code{t} and replace the assignment statement with ``\code{t = e; x = t}''.
-\item For every procedure invocation ``\code{x = p(y)}'', we first ensure that \code{y} is a local variable (by introducing
+\item For any assignment statement ``\code{x := e}'' where \code{e} contains \code{x}, we introduce a new temporary
+variable \code{t} and replace the assignment statement with ``\code{t := e; x := t}''.
+\item For every procedure invocation ``\code{x := p(y)}'', we first ensure that \code{y} is a local variable (by introducing
 a temporary if needed). We then replace the statement by the code fragment
 ``\code{assert $\inv$; havoc(g1); ... havoc(gN); assume $\inv \wedge$ x = p(y)}'',
 where \code{g1} to \code{gN} are the global variables.
@@ -74,7 +74,7 @@ terminates in a state satisfying $\inv$. We compute this using the standard rule
 %and the returned value will equal $p(y)$. (Note that in a logical formula the symbol $p$ is used to represent the
 %mathematical function realized by procedure $p$, assuming $p$ to be pure.)
 %
-For an assignment statement ``\code{x = e}'', we use existential quantification over \code{x} to represent the value
+For an assignment statement ``\code{x := e}'', we use existential quantification over \code{x} to represent the value
 of \code{x} prior to the execution of the statement. If we rename these existentially quantified variables with unique new
 names, we can lift all the existential quantifiers to the outermost level. When transformed thus, the condition $\varphi_{\ell}$
 takes the form $\exists x_1 \cdots x_n. \varphi$, where $\varphi$ is quantifier-free and $x_1, \cdots, x_n$ denote
@@ -162,6 +162,15 @@ Let $\post_\alpha$ denote the formula obtained by replacing every free variable 
 by a new free variable $x_\alpha$. Define $\post_\beta$ similarly.
 Define $\IW(\proc, \inv)$ to be the formula $(\neg \vc) \vee (\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
+The impurity witness approach checks whether $\IW(\proc, \inv)$ is satisfiable. This can be done by separately checking
+whether $\neg \vc$ is satisfiable and whether $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
+is satisfiable. As formally defined, $\vc$ and $\post$ contain embedded existential quantifications. As explained earlier,
+these existential quantifiers can be moved to the outside after variable renaming and can be omitted for a satisfiability check.
+(A formula of the form $\forall \overline{x}. \psi$ is satisfiable iff $\psi$ is satisfiable.)
+As usual, these existential quantifiers refer to intermediate values of variables along an execution path.
+Finding a satisfying assignment to these variables essentially identifies a possible execution path (that
+satisfies some other property).
+
 \begin{theorem}
 A procedure $\proc$ satisfies  $\pureinv$ if $\IW(\proc, \inv)$ is unsatisfiable.
 \end{theorem}
@@ -178,8 +187,8 @@ We say that a function $f$ is \emph{compatible} with a set of executions $\Pi$ i
 $\pi \in \Pi$, $\outputval{\pi} = f(\inputval{\pi})$.
 
 We say that a pure feasible execution $\pi$ is a $\inv$-violation witness if there is some function $f$
-that is compatible with $\{\pi\}$ such that $(\pi,f) \nvDash \inv$. Note that this definition introduces
-a conservative approximation as we explain later.
+that is compatible with $\{\pi\}$ such that $(\pi,f) \nvDash \inv$. Otherwise, we say that $\pi$ satisfies
+the invariant. Note that this definition introduces a conservative approximation as we explain later.
 % Otherwise, we say that $\pi$ is an invariant violation witness.
 
 We will consider \emph{minimal} witnesses of the following form.
@@ -202,7 +211,8 @@ In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta)
 must be satisfiable (as we show below). In the second case, $\neg \vc$ must be satisfiable (as we show below).
 Thus,  $\IW(\proc, \inv)$  is satisfiable in either case. The theorem follows.
 
-We establish the above result using the following lemmas.
+We establish the above result as below.
+% using the following lemmas.
 If we have a trace that satisfies the invariant and the set of its sub-traces are pure,
 then the valuations assigned to variables by the trace satisfies $\post$.
 Thus, if $(\pi_1,\pi_2)$ are a minimal impurity witness, let $\pi_a$ and $\pi_b$
