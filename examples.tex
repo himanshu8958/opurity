@@ -29,6 +29,9 @@ procedure {:entrypoint} Fact(a: int) returns (r: int) modifies nineteen;{
 \end{lstlisting}
 
 \subsection{Factorial Recent}
+\begin{verbatim}
+Invariant : (or (= lastAns (- 0 1)) (= lastAns (* (recent_fact (+ (- 0 1) lastN)) lastN)))
+\end{verbatim}
 %% \lstinputlisting{examples/fact-recent/factRecent.bpl}
 \begin{lstlisting}[language=c, caption= {Procedure `recent\_fact' :
       returns factorial of `n' and memoizes result for the last argument value.}, label=lst:factorialRecent]
@@ -52,6 +55,9 @@ procedure {:entrypoint} recent_fact(a: int) returns (r: int) modifies lastN, las
 
 \subsection{Fibonacci}
 %% \lstinputlisting{examples/fib/fib.bpl}
+\begin{verbatim}
+Invariant : (or (= (select cache k) 0) (= (+ (fib (- k 1)) (fib (- k 2))) (select cache k)))
+\end{verbatim}
 \begin{lstlisting}[language=c, caption= {Procedure `fib' :
       returns the n'th fibonacci number}, label=lst:factorialSimple]
 //invariant : forall k. cache[k] = 0 OR cache[k] = fib(k -1) + fib( k -2)
@@ -70,5 +76,52 @@ procedure {:entrypoint} fib(n: int) returns (r: int) modifies cache;{
       cache[n] := r;
     }
   }
+}
+\end{lstlisting}
+
+\subsection{Matrix Chain Multipication}
+\begin{verbatim}
+(or (= (select m i j) (- 0 1)) (= (my_foo i j i (- 0 1)) (select m i
+ j)))
+\end{verbatim}
+
+\begin{lstlisting}[language=c, caption= {Procedure `matrix chain multipication' :
+      returns the minimum number of multipications needed to multiply a sequence of matrices.}, label=lst:factorialRecent]
+var p: [int] int;
+var m: [int, int] int;
+//invariant : \forall {i, j}. m[i, j] = -1 OR m[i, j] = foo(i, j, i, infinity)
+procedure {:entrypoint} mcm(i: int, j: int) returns (r: int) modifies m;{
+        var k, q : int;
+        var a, b :int;
+        if(i == j) {
+                m[i, j] := 0;
+                r := 0;
+        } else {
+                if( m[i, j] > 0) {
+                        r := m[i, j];
+                } else {
+                        k := i;
+                        call r := foo(i, j, k, m[i, j]);
+                        m[i, j] := r;
+                }
+        }
+}
+
+procedure foo(i: int, j: int, k:int, min :int) returns (r: int) modifies m;{
+        var a, b, q : int;
+        var min1 :int;
+        if(k >= j) {
+                r:= min;
+        } else {        
+                call a := mcm(i, k);
+                call b := mcm(k+1, j);
+                q := a + b + p[i-1] * p[k] * p[j];
+                if( q < min) {
+                  min1 := q;
+                } else {
+                  min1 := min;
+                }
+                call r := foo(i, j, k + 1, min1);
+        }       
 }
 \end{lstlisting}
