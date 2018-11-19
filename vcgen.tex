@@ -32,7 +32,7 @@ a temporary if needed). We then replace the statement by the code fragment
 where \code{g1} to \code{gN} are the global variables.
 \item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
 \end{enumerate}
-Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as above.
+Let $\tbody(\proc, \inv)$ denote the transformed body of procedure $\proc$ obtained as above.
 
 %We use an auxiliary function $\auxvcfn$ which is similar to $\mainvcfn$, but accepts a statement $\stmtS$ as
 %parameter instead of a procedure, and it has an extra parameter $\pre$ that is a precondition describing
@@ -57,7 +57,7 @@ Let $\tbody(\proc)$ denote the transformed body of procedure $\proc$ obtained as
 } \\
 \vcfn(\pre, \stmt) &= \text{true} (\text{for all other \stmt}) \\
 \\
-\mainvc{\procP}{\inv} &= (\postfn(\inv, \tbody(\proc)), \vcfn(\inv, \tbody(\proc)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
+\mainvc{\procP}{\inv} &= (\postfn(\inv, \tbody(\proc,\inv)), \vcfn(\inv, \tbody(\proc,\inv)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
 \end{array}
 \]
 \caption{Generation of verification-condition and postcondition.}

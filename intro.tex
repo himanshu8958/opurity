@@ -32,7 +32,7 @@ int lastN = 0;
 int factCache( int n) {
   if(n <= 1) {
     return 1;
-  } else if(g != -1 && n == lastN) {
+  } else if (g != -1 && n == lastN) {
     return g;
   } else {
     g = n * factCache( n - 1 );

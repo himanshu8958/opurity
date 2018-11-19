@@ -1,83 +1,71 @@
 \paragraph{Example}
-We now illustrate the postcondition and verification condition generated from our factorial example.
+We now illustrate the postcondition and verification condition generated from our factorial example
+presented in Listing~\ref{lst:factorialSimple}. Listing~\ref{lst:factorialTransformed} shows the example
+expressed in our language and transformed as described earlier (using function $\tbody$), using a
+supplied candidate invariant $\inv$.
 
-
-\TODO{Adapt the following description to illustrate what happens in our running example.}
-
-We transform the given procedure into the following representation
-in-order to encode it in logic. For example procedure factorial
-in Listing~\ref{lst:factorialTransformed}, is the transformed version
-of procedure factorial in Listing~\ref{lst:factorialSimple}.
-
-\begin{lstlisting}[language=c, caption= {Procedure factorial from
-      Listing~\ref{lst:factorialSimple} converted to the form our
-      approach expects. We refer to this procedure as `transformed
-      factorial'.}, label=lst:factorialTransformed]
-int g = -1;
-int transformedFactorial( int n) { // redo
+\begin{lstlisting}[float,language=c,mathescape=true, caption= {Procedure factorial from
+      Listing~\ref{lst:factorialSimple} transformed to incorporate a supplied candidate
+      invariant $\inv$.}, label=lst:factorialTransformed]
+g := -1;
+lastN := 0;
+factCache (n) {
   if(n <= 1) {
-    retVar = 1;
-    gout = g;
-  } else if(g == -1 && n == 19) {
-    gbef1 = g;
-    temp1 = F(18);  // temp1 = factorial(18)
-    havoc(g1);
-    gaft1 = g1;
-    g2 = 19 * temp1;
-    retVar = g2;
-    gout = g2;
-  } else if (g != -1 && n == 19) {
-    retVar = g;
-    gout = g;
+    result := 1;
+  } else if (g != -1 && n == lastN) {
+    result := g;
   } else {
-    gbef2 = g;
-    temp2 = F( n - 1 );  //temp2 = factorial(n-1)
-    havoc(g2);
-    gaft2 = g3;
-    retVar = n * temp2;
-    gout = g3;
+    t1 := n-1;
+    // t2 := factCache(t1);
+    assert $\inv$;
+    havoc (g); havoc (lastN);
+    assume $\inv \wedge$ (t2 = factCache(t1));
+    g := n * t2;
+    lastN := n;
+    result := g;
   }
+  // return result;
+  assert $\inv$;
 }
 \end{lstlisting}
 
-Now we compare `transformed factorial' and procedure factorial from
-Listings~\ref{lst:factorialTransformed} and \ref{lst:factorialSimple}
-respectively. The return statement (line 4) in procedure factorial
-is replaced by assignment to variable `\retVar' (line 4). Also, we
-have a added an assignment statement (line 5) in `transformed
-factorial', that defines variable `gout' in-order to store the value
-of variable `g' at the procedure boundary. Similarly, variable `gbef1'
-(line 7) is added in `transformed factorial' to capture the value of
-the global variable before the procedure call and assignment to
-variable `gaft1' is inserted at line 10 to capture the value of `g'
-after the procedure call. Also, havoc statements at lines 9 and 20
-over-approximate any side effects to the global variables. And in
-lines 8 and 19, the procedure call statements are substituted for
-function symbols.
+Fig.~\ref{fig:pathCondition} illustrates the computation of postcondition and verification condition from
+this transformed example. In this figure, we use $\cspre$ to denote the precondition computed to hold
+just before the recursive callsite, and $\cspost$ to denote the postcondition computed to hold just
+after the recursive callsite. The postcondition $\post$ (at the end of the procedure body) is itself
+a disjunction of three path-conditions representing execution through the three different paths in
+the program. In this illustration, we have simplified the logical conditions by omitting useless existential
+quantifications (that is, any quantification of the form $\exists x. \psi$ where $x$ does not occur in $\psi$).
+Note that the existentially quantified \code{g} and \code{lastN} in $\cspost$ denote the values of these
+globals \empty{before} the recursive call. Similarly, the existentially quantified \code{g} and \code{lastN} in
+$\path_3$ denote the values of these globals when the recursive call terminates, while the free variables
+\code{g} and \code{lastN} denote the final values of these globals.
 
 \begin{figure}
-  \begin{align*}
-    \pathCondition :=
-    &(n \leq 1 \wedge retVar = 1 \wedge gout = g) \vee \\
-    &(n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
-    \;&\wedge gaft1 = g1 \wedge g2 = 19 * temp1
-    \wedge retVar = g2) \vee\\
-    &(n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
-    \wedge n = 19 \wedge retVar = g = gout) \vee\\
-    &(n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
-    - 1) \wedge gaft2 = g1\\
-    &\wedge retVar = n * temp2 \wedge gout = g1)\\
-  \end{align*}
-  \caption{Formula representing procedure `transformed factorial' in
-    Listing~\ref{lst:factorialTransformed} (assuming that function
-    $\F$ is equivalent to procedure factorial).}
-  \label{fig:pathCondition}
+\begin{align*}
+\initstatefn(\proc) &= \code{(g = -1)} \wedge \code{(lastN = 0)} \\
+\path_1 &= \inv \wedge (\code{n <= 1}) \wedge (\code{result = 1}) \\
+\path_2 &= \inv \wedge \neg(\code{n <= 1}) \wedge (\code{g != 1}) \wedge (\code{n = lastN}) \wedge (\code{result = g}) \\
+\cspre &= \inv \wedge \neg(\code{n <= 1}) \wedge \neg((\code{n = lastN}) \wedge (\code{result = g})) \wedge (\code{t1 = n-1}) \\
+\cspost &= (\exists \code{g} \exists \code{lastN} \; \cspre) \wedge \inv \wedge (\code{t2 = factCache(t1)}) \\
+\path_3 &= (\exists \code{g} \exists \code{lastN} \; \cspost) \wedge (\code{g = n * t2}) \wedge (\code{last N = n}) \wedge (\code{result = g}) \\
+\post &= \path_1 \vee \path_2 \vee \path_3 \\
+\vc &= (\cspre \Rightarrow \inv) \wedge (\post \Rightarrow \inv) \wedge (\initstatefn(\proc) \Rightarrow \inv)
+\end{align*}
+\caption{
+The different formulae computed from the procedure in Listing~\ref{lst:factorialTransformed} 
+by our postcondition and verification-condition computation.
+}
+\label{fig:pathCondition}
 \end{figure}
 
-For example, the procedure `transformed factorial' in
-Listing~\ref{lst:factorialTransformed} is expressed in logic as shown
-in Figure~\ref{fig:pathCondition}. Each disjunct in
-Figure~\ref{fig:pathCondition} represents a straight-line execution of
-procedure factorial (from beginning, until end) . For instance, $(n <=
-1 \wedge retVar = 1 \wedge gout = g)$ represents the case where $`n
-\leq 1'$.
+%    \pathCondition :=
+%    &(n \leq 1 \wedge retVar = 1 \wedge gout = g) \vee \\
+%    &(n > 1 \wedge g = -1 = gbef \wedge n = 19 \wedge temp1 = \F(18) \\
+%    \;&\wedge gaft1 = g1 \wedge g2 = 19 * temp1
+%    \wedge retVar = g2) \vee\\
+%    &(n > 1 \wedge \neg( g = -1 \wedge n = 19) \wedge g \neq -1
+%    \wedge n = 19 \wedge retVar = g = gout) \vee\\
+%    &(n > 1 \wedge n \neq 19 \wedge gbef2 = g \wedge temp2 = \F( n
+%    - 1) \wedge gaft2 = g1\\
+%    &\wedge retVar = n * temp2 \wedge gout = g1)\\
