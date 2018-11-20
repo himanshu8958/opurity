@@ -47,7 +47,7 @@ $\path_3$ denote the values of these globals when the recursive call terminates,
 \path_1 &= \inv \wedge (\code{n <= 1}) \wedge (\code{result = 1}) \\
 \path_2 &= \inv \wedge \neg(\code{n <= 1}) \wedge (\code{g != 1}) \wedge (\code{n = lastN}) \wedge (\code{result = g}) \\
 \cspre &= \inv \wedge \neg(\code{n <= 1}) \wedge \neg((\code{n = lastN}) \wedge (\code{result = g})) \wedge (\code{t1 = n-1}) \\
-\cspost &= (\exists \code{g} \exists \code{lastN} \; \cspre) \wedge \inv \wedge (\code{t2 = factCache(t1)}) \\
+\cspost &= (\exists \code{g} \exists \code{lastN} \; \cspre) \wedge \inv \wedge (\code{t2 = \emph{factCache}(t1)}) \\
 \path_3 &= (\exists \code{g} \exists \code{lastN} \; \cspost) \wedge (\code{g = n * t2}) \wedge (\code{last N = n}) \wedge (\code{result = g}) \\
 \post &= \path_1 \vee \path_2 \vee \path_3 \\
 \vc &= (\cspre \Rightarrow \inv) \wedge (\post \Rightarrow \inv) \wedge (\initstatefn(\proc) \Rightarrow \inv)

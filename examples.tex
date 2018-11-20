@@ -178,16 +178,16 @@ procedure needs an invariant, and this invariant can use function symbols
 to refer to all procedures called by this procedure. Each procedure can
 then be checked independently using our approach as-is. Intuitively, this
 works because we check all the procedures, and while checking any procedure
-we assume that the other procedures are OP.
+we assume as an inductive hypothesis that the other procedures are OP.
 
 The invariant shown in the example above is for procedure `mcm'. We applied
 our tool only on procedure mcm. We did not apply our tool on procedure
-`chooseSplit', because currently our tool is not set up analyze all
+`chooseSplit', because currently our tool is not set up to analyze all
 procedures in a multi-procedure program. However, it is obvious that the
 impurity witness approach would certify procedure chooseSplit as OP, even
-without any invariant, because this procedure does not refer to or update
-the mutable global variable `m'. Therefore, for any tuple of argument
-values, the procedure would always follow the same path no matter how many
-times this tuple is repeated. Now, if the calls encountered in this path
-are assumed to be to observationally pure procedures (inductive
+without any invariant. This is because this procedure does not refer to or
+update the mutable global variable `m'. Therefore, for any tuple of
+argument values, the procedure would always follow the same path no matter
+how many times this tuple is repeated. Therefore, if the calls encountered in
+this path are assumed to be to observationally pure procedures (inductive
 hypothesis), then the path must return the same value every time.

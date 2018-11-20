@@ -27,10 +27,15 @@ extra forms of statements (with their usual meaning): \code{havoc(x)}, \code{ass
 \begin{enumerate}
 \item For any assignment statement ``\code{x := e}'' where \code{e} contains \code{x}, we introduce a new temporary
 variable \code{t} and replace the assignment statement with ``\code{t := e; x := t}''.
-\item For every procedure invocation ``\code{x := p(y)}'', we first ensure that \code{y} is a local variable (by introducing
+\item For every procedure invocation ``\code{x := $\procname$(y)}'', we first ensure that \code{y} is a local variable (by introducing
 a temporary if needed). We then replace the statement by the code fragment
-``\code{assert $\inv$; havoc(g1); ... havoc(gN); assume $\inv \wedge$ x = p(y)}'',
+``\code{assert $\inv$; havoc(g1); ... havoc(gN); assume $\inv \wedge$ x = $\procname$(y)}'',
 where \code{g1} to \code{gN} are the global variables.
+
+Note that the
+function call has been eliminated, and replaced with an ``assume''
+expression that refers to the function symbol $\procname$. In other words,
+there are no function calls in the transformed procedure.
 \item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
 \end{enumerate}
 Let $\tbody(\proc, \inv)$ denote the transformed body of procedure $\proc$ obtained as above.
@@ -58,7 +63,8 @@ Let $\tbody(\proc, \inv)$ denote the transformed body of procedure $\proc$ obtai
 } \\
 \vcfn(\pre, \stmt) &= \text{true} (\text{for all other \stmt}) \\
 \\
-\mainvc{\procP}{\inv} &= (\postfn(\inv, \tbody(\proc,\inv)), \vcfn(\inv, \tbody(\proc,\inv)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
+\mainvc{\procP}{\inv} = (\postfn(&\inv, \tbody(\proc,\inv)), \vcfn(\inv,
+\tbody(\proc,\inv)) \wedge (\initstatefn(\proc) \Rightarrow \inv))
 \end{array}
 \]
 \caption{Generation of verification-condition and postcondition.}
@@ -98,7 +104,7 @@ initialized to a value \code{c}.
 \subsection{Existential Approach}
 
 Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
-Let $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
+Let\\ $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
 Let $\existformula$ denote the formula $\vc \wedge (\post \Rightarrow (r = p(n)))$.
 Let $\overline{x}$ denote the sequence of all free variables in $\existformula$ except for $p$.
 We define $\EA(\proc,\inv)$ to be the formula $ \forall \overline{x}. \existformula$.

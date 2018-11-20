@@ -15,7 +15,7 @@ client are permitted.
 
 The following semantic formalism is motivated by the above observations. It can be seen as the semantics
 of the so-called ``most general sequential client'' of procedure $\proc$, which is the program:
-\code{while (*) { x = \procname (random()); }}.
+\code{while (*) { x = $\procname$ (random()); }}.
 The executions (of $\proc$) produced by this program include all possible executions (of $\proc$)  produced by all
 sequential clients.
 
@@ -110,17 +110,17 @@ the procedure may be initiated (with an arbitrary parameter value).
 
 \labrule{call}{
 \evalsto{\lmap}{\gmap}{\code{e}}{v} \\
-\proc = \code{p(n) \stmtSA}
+\proc = \code{$\procname$(n) \stmtSA}
 }{
-((\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\code{y := $\procname$(e); \stmtSB}, \lmap) \lstack, \gmap)
 \sssemP
-((\stmtSA, [n \mapsto v]) (\code{y := p(e); \stmtSB}, \lmap) \lstack, \gmap)
+((\stmtSA, [n \mapsto v]) (\code{y := $\procname$(e); \stmtSB}, \lmap) \lstack, \gmap)
 }
 
 \labrule{return}{
 \evalsto{\lmap}{\gmap}{\code{r}}{v}
 }{
-((\code{return r}, \lmap) (\code{y := p(e); \stmt}, \lmap') \lstack, \gmap)
+((\code{return r}, \lmap) (\code{y := $\procname$(e); \stmt}, \lmap') \lstack, \gmap)
 \sssemP
 (\stmt, \lmap'[ \code{y} \mapsto v]) \lstack, \gmap)
 }
@@ -205,10 +205,13 @@ We write $\rho \models \varphi$
 % as shorthand for $\basicevalsto{\gmap}{\varphi}{\code{true}}$ : \ie,
 to denote that $\varphi$ evaluates to true when its free variables are assigned a value as in $\rho$.
 
-However, as we saw with our running example, it is useful to allow the use of the name of a procedure in
-an invariant: \eg, an invariant such as ``$(g == -1) \vee (g == \text{factorial}(3))$''.
-We extend our expression language by permitting the use of procedure identifiers as
-function symbols (as above). Note that this extension is permitted only for use in logical formula.
+However, as we saw with our running example in the introduction, it is
+useful to allow the use of the name of a procedure in an invariant: \eg, an
+invariant such as `(g = -1) $\vee$ (g = lastN *
+\emph{factCache}(lastN-1))'.   We
+extend our expression language by permitting the use of procedure
+identifiers as function symbols (as above). Note that this extension is
+permitted only for use in logical formula.
 
 We extend our semantics $\rho \models \varphi$ to handle such extended invariants in the obvious way,
 with $\rho$ mapping each procedure name to a mathematical function (and other names to their numeric values).
