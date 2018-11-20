@@ -19,7 +19,7 @@ In this paper, we focus on the problem of checking observational purity of
 procedures that read and write global variables, especially in the presence of recursion,
 which makes the problem harder.
 
-\paragraph{Motivating Example}
+\subsection{Motivating Example}
 We use the example procedure `factCache' in
 Listing~\ref{lst:factorialSimple}  as our running example. It
 returns n! for the given argument n, and caches the return value for the
@@ -31,7 +31,7 @@ the most recent call. Clearly this procedure is OP, and mimics the
 input-output behavior of a regular factorial procedure that does not cache
 any results. 
 
-\begin{lstlisting}[float,language=c, caption= {Procedure `factCache' :
+\begin{lstlisting}[float,language=c,basicstyle=\scriptsize,caption= {Procedure `factCache' :
       returns n! and memoizes result for last argument seen.},
     label=lst:factorialSimple]
   
@@ -50,7 +50,7 @@ int factCache( int n) {
 }
 \end{lstlisting}
 
-\paragraph{Proposed approach}
+\subsection{Proposed approach}
 %
 %% 1. We are looking for a Hoare logic style approach, for increased
 %%    precision. Herein, how to process the recursive calls? One solution is
@@ -90,27 +90,27 @@ equal to n!. Complex proofs such as this may be out of bounds for many
 existing theorem provers.
 
 Our key insight is to sidestep the challenges mentioned by introducing a
-function symbol, say $f$, and replacing the recursive call for the purposes
-of verification with this function symbol. Intuitively, $f$ represents the
+function symbol, say $\procname$, and replacing the recursive call for the purposes
+of verification with this function symbol. Intuitively, $\procname$ represents the
 mathematical function that the given procedure mimics if the procedure is
-OP.  In our example, Line~10 would become `g = n * $f$(n-1)'. This step
+OP.  In our example, Line~10 would become `g = n * $\procname$(n-1)'. This step
 needs no human involvement. The approach needs an invariant; however, in a
-novel manner, we allow the invariant also to refer to $f$. In our example,
+novel manner, we allow the invariant also to refer to $\procname$. In our example,
 a suitable invariant would be `(g = -1) $\vee$ (g = lastN *
-$f$(lastN-1))'. This sort of invariant is relatively easy to construct;
+$\procname$(lastN-1))'. This sort of invariant is relatively easy to construct;
 e.g., a human could arrive at it just by looking at Line~2 and with a local
 reasoning on Lines~10 and~11. Given this invariant, (a) a theorem prover
 could infer that the condition in Line~7 implies that Line~8 necessarily
-returns n * $f$(n-1). Due to the transformation to Line~10 mentioned above,
+returns n * $\procname$(n-1). Due to the transformation to Line~10 mentioned above,
 (b) the theorem prover can infer that Line~12 also returns n *
-$f$(n-1). Note that since these two expressions are syntactically
+$\procname$(n-1). Note that since these two expressions are syntactically
 identical, a theorem prover can easily establish that they are equal in
 value.  Finally, since Line~6 is reached under a different condition than
 Lines~8 and~12, the verifier has finished establishing that the procedure
 always returns the same expression in n for any given value of n.
 
 Similarly, using the modified Line~10 mentioned above and from Line~11, the
-prover can re-establish that g is equal to `lastN * $f$(lastN - 1)' when
+prover can re-establish that g is equal to `lastN * $\procname$(lastN - 1)' when
 control reaches Line~12; hence, the given invariant is established to be a
 valid invariant.
 
@@ -119,15 +119,15 @@ invariant. For instance, if the given invariant was `(g = -1) $\vee$ (g =
 lastN!)', which is also technically correct, then the theorem prover may
 not be able to establish that Lines~8 and~12 always return the same
 expression in n. However, it is our claim that in fact it is the invariant
-`(g = -1) $\vee$ (g = lastN * $f$(lastN-1))' that is easier to infer by a
+`(g = -1) $\vee$ (g = lastN * $\procname$(lastN-1))' that is easier to infer by a
 human or by a potential tool, as justified by us two paragraphs above.
 
-\paragraph{Salient aspects of our approach}
+\subsection{Salient aspects of our approach}
 
 This paper makes two significant contributions. First, it tackles the circularity
 problem that arises due to the use of a presumed-to-be OP procedure
 in assertions and invariants and the use of these invariants in proving the
-procedure to be OP. This requires us to prove the soundness of a procedure
+procedure to be OP. This requires us to prove the soundness of an approach
 that verifies observational purity as well the invariants simultaneously (as they
 cannot be decoupled).
 
@@ -136,15 +136,14 @@ call the existential approach) reduces it to a problem of verifying a logical fo
 is a tautology. The structure of the generated formula, however, makes the resulting
 theorem prover instances hard. We show how a conservative approximation can be
 used to convert this hard problem into an easier problem of checking satisfiability
-of a quantifier-free formula, something within the scope of state-of-the-art theorem
+of a quantifier-free formula, which is something within the scope of state-of-the-art theorem
 provers.
 
 %% should I talk about why F(2) *3 instead of F(3) ?
 
 The most closely related previous approaches are by Barnett et
-al.~\cite{barnett200499,barnett2006allowing},
-Naumann~\cite{naumann2007observational}, and~Cok et
-al.~\cite{cok2008extensions}.  All these approaches check observational
+al.~\cite{barnett200499,barnett2006allowing}, and by
+Naumann~\cite{naumann2007observational}.  These approaches check observational
 purity of procedures that maintain mutable global state. However, none of
 these approaches use a function symbol in place of recursive calls or
 within invariants. Therefore, it is not clear that these approaches can

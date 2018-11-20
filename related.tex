@@ -2,24 +2,24 @@
 
 The previous work that is most closely related to our work is by Barnett et
 al.~\cite{barnett200499,barnett2006allowing}. Their approach is based on
-the same notion of observational purity as our approach. However, their
-approach is based on a more complex notion of invariant than our approach,
-which relates pairs of global states. Their approach has a similar
-structure as ours, in that they check the inductivity of the invariant, and
-also check that for the same parameter value the procedure returns the same
-value as long as the starting global states are related as per the
-invariant. However, their approach is not defined for recursive procedures;
-they in fact state that  ``there is a circularity - it would
-take a delicate argument, and additional conditions, to avoid unsoundness
-in this case''. Our approach allows the invariant to refer to a function
-symbol that represents the meaning of the procedure being checked; this
-allows the invariant to be simply stated in many cases, and also also
-allows recursive procedures to be checked. 
+the same notion of observational purity as our approach. Their approach is
+structurally similar to ours, in terms of needing an invariant, and using
+an inductive check for both the validity of the invariant as well as the
+uniqueness of return values for a given argument.  However, their approach
+is based on a more complex notion of invariant than our approach, which
+relates pairs of global states, and does not use a function symbol to
+represent recursive calls within the procedure. Hence, their approach does
+not extend readily to recursive procedures; they in fact state that ``there
+is a circularity - it would take a delicate argument, and additional
+conditions, to avoid unsoundness in this case''. Our idea of allowing the
+function symbol in the invariant to represent the recursive call allows
+recursive procedures to be checked, and also simplifies the specification
+of the invariant in many cases. 
 
-Cok et al.~\cite{cok2008extensions}  generalize the work of Barnett
-et al.'s work, and suggest classifying procedures into categories ``pure'',
-``secret'', and ``query''. The ``query'' procdures are observationally
-pure. Again, recursive procedures are not addressed.
+% Cok et al.~\cite{cok2008extensions}  generalize the work of Barnett
+% et al.'s work, and suggest classifying procedures into categories ``pure'',
+% ``secret'', and ``query''. The ``query'' procdures are observationally
+% pure. Again, recursive procedures are not addressed.
 
 Naumann~\cite{naumann2007observational} proposes a notion of observational
 purity that is also the same as ours. Their paper gives a rigorous but manual
@@ -32,33 +32,36 @@ symbol that represents the procedure, and they don't explicitly address the
 checking of recursive procedures.
 
 There exists a significant body of work on identifying differences between
-two similar procedures. For instance, differential assertion
-checking~\cite{lahiri2013differential} checks if two procedures can ever
-start from the same state but end in different states such that exactly one
-of the ending states fails a given assertion. Their approach is based on
-logical reasoning, and accommodates recursive procedures. Our impurity
-witness approach has some similarity with their approach, because it is
-based on comparing the given procedure with itself. However, our comparison
-is stricter, because in our setting, starting with a common argument value
-but from different global states that are both within the invariant should
-not cause a difference in the return value. Furthermore, technically our
-approach is different because we use an invariant that refers to a function
-symbol that represents the procedure being checked, which is not a feature
-of their invariants. Partush et al.~\cite{partush2013abstract} solve a
-similar problem as differential assertion checking, but using abstract
-interpretation instead of logical reasoning.
+two similar procedures.  For instance, differential assertion
+checking~\cite{lahiri2013differential} is a representative from this body,
+and is for checking if two procedures can ever start from the same state
+but end in different states such that exactly one of the ending states
+fails a given assertion. Their
+approach is based on logical reasoning, and accommodates recursive
+procedures. Our impurity witness approach has some similarity with their
+approach, because it is based on comparing the given procedure with
+itself. However, our comparison is stricter, because in our setting,
+starting with a common argument value but from different global states that
+are both within the invariant should not cause a difference in the return
+value. Furthermore, technically our approach is different because we use an
+invariant that refers to a function symbol that represents the procedure
+being checked, which is not a feature of their invariants. Partush et
+al.~\cite{partush2013abstract} solve a similar problem as differential
+assertion checking, but using abstract interpretation instead of logical
+reasoning.
 
 There is a substantial body of work on checking if a procedure is
-\emph{pure}. The standard definition of purity is that the procedure not
+\emph{pure}, in the sense that it does
 modify any objects that existed before the procedure was invoked, and not
 modify any  global variables. Salcianu et
 al.~\cite{sualcianu2005purity} describe a static analysis to check purity.
-Finifter et al.~\cite{finifter2008verifiable} propose an approach to
-enforce purity using language restrictions. Various tools exist, such as
+% Finifter et al.~\cite{finifter2008verifiable} propose an approach to
+% enforce purity using language restrictions.
+Various tools exist, such as
 JML~\cite{leavens2008jml} and Spec\#~\cite{specSharp}, that use logical
 techniques based on annotations to prove procedures as pure.  Purity is a
 more restrictive notion than observational purity; procedures such
-as our `factorial' example are observationally pure, but not pure because
+as our `factCache' example are observationally pure, but not pure because
 they use as well as update state that persists between calls to the
 procedure. 
 

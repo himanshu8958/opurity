@@ -1,3 +1,34 @@
-% \section{Experimental Results}\label{sec:experiments}
+\section{Evaluation}\label{sec:experiments}
 
-% (to be included)
+We have implemented our approach as a prototype using the Boogie
+framework~\cite{leino2008boogie}, and have evaluated the approach using
+this implementation on several examples. The objectives of this evaluation
+were primarily as a sanity check, to test how our approach does on a set of
+OP as well as non-OP procedures.
+
+We tried several simple non-OP programs, and our implementation terminated
+with a ``no'' answer on all of them.  We also tried the approach on several
+OP procedures: (1) the `factCache' running example, (2) a version of
+factorial procedure that caches all arguments seen so far and their
+corresponding values in an array, (3) a version of factorial that caches
+only the return value for argument value 19 in a scalar variable, (4) a
+recursive procedure that returns the $n^\mathit{th}$ Fibonacci number and
+caches all its arguments and corresponding return values seen so far in an
+array, and (5) a ``matrix chain multiplication'' (MCM) procedure for matrix
+chain multiplication. The last example is interesting, because it is based
+on dynamic programming, and hence naturally uses a table to memoize optimal
+results for sub-problems. Here, OP-ness implies that the procedure always
+returns the same solution for a given sub-problem, whether a hit was found
+in the table or not.  The appendix of this paper depicts all the procedures
+mentioned above as created by us directly in Boogie's language, as well as
+the invariants that we supplied (as emitted back by Boogie in its SMT2
+format).
+
+
+It is notable that our ``existential approach'' causes the theorem prover
+to not scale to even simple examples. The ``impurity witness'' approach
+terminated on all the examples mentioned above, with the theorem prover
+taking less than 1 second on each example. This said, it is likely that
+more optimizations and heuristics would need to be developed on top of our
+prototype implementation to make it scale to large procedures.
+
