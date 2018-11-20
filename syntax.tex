@@ -35,6 +35,8 @@ p \elt \domain{ProcId}
 
 In Fig.~\ref{fig:grammar}, we present the syntax of a simple
 programming language that we address in this paper.
+Given the foundational focus of this work, we keep the programming
+language very simple, but the ideas we present can be generalized.
 %Most of the statements are standard statements borrowed
 %from imperative languages. The rest of them are explained next.
 A \code{return} statement is permitted only as the last statement of
@@ -46,7 +48,8 @@ The language does not contain any looping construct.
 Loops can be modelled as recursive procedures.
 The formal parameters of a procedure are readonly and cannot be
 modified within the procedure.
-We omit types from the language.
+We omit types from the language. We permit only variables of primitive types.
+In particular, the language does not allow pointers or dynamic memory allocation.
 Note that expressions are pure in this language, and a procedure call
 is not allowed in an expression. Each procedure call is modelled as a
 separate statement.
@@ -68,3 +71,7 @@ variable and we refer to ``\code{S; return r}'' as the \emph{procedure body} and
 The library also includes a sequence of initializing declarations of globals of the form ``\code{g := c}'', indicating
 that \code{g} is initialized to the value \code{c} when execution begins.
 %, and a single global variable.
+
+ Finally, a note about terminology: throughout this paper we
+use the word `procedure' to refer to the code procedure being analyzed, and use the word
+`function' to refer to a mathematical function.
