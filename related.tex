@@ -16,10 +16,10 @@ function symbol in the invariant to represent the recursive call allows
 recursive procedures to be checked, and also simplifies the specification
 of the invariant in many cases. 
 
-% Cok et al.~\cite{cok2008extensions}  generalize the work of Barnett
-% et al.'s work, and suggest classifying procedures into categories ``pure'',
-% ``secret'', and ``query''. The ``query'' procdures are observationally
-% pure. Again, recursive procedures are not addressed.
+Cok et al.~\cite{cok2008extensions}  generalize the work of Barnett
+et al.'s work, and suggest classifying procedures into categories ``pure'',
+``secret'', and ``query''. The ``query'' procdures are observationally
+pure. Again, recursive procedures are not addressed.
 
 Naumann~\cite{naumann2007observational} proposes a notion of observational
 purity that is also the same as ours. Their paper gives a rigorous but manual
@@ -58,20 +58,9 @@ al.~\cite{sualcianu2005purity} describe a static analysis to check purity.
 % Finifter et al.~\cite{finifter2008verifiable} propose an approach to
 % enforce purity using language restrictions.
 Various tools exist, such as
-JML~\cite{leavens2008jml} and Spec\#~\cite{specSharp}, that use logical
+JML~\cite{leavens2008jml} and Spec\#~\cite{barnett2004spec}, that use logical
 techniques based on annotations to prove procedures as pure.  Purity is a
 more restrictive notion than observational purity; procedures such
 as our `factCache' example are observationally pure, but not pure because
 they use as well as update state that persists between calls to the
 procedure. 
-
-
-\nocite{barnett2004spec}
-\nocite{lahiri2013differential}
-\nocite{de2008z3}
-\nocite{alpern1988detecting}
-\nocite{sondergaard1990referential}
-\nocite{flanagan2001avoiding}
-\nocite{sualcianu2005purity}
-\nocite{cytron1991efficiently}
-\nocite{leino2008boogie}

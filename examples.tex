@@ -1,39 +1,49 @@
 \section{Examples}
 
-\subsection{Factorial}
+\subsection{Factorial, caching single result}
+Invariant:
 \begin{verbatim}
-invariant : (or (= nineteen (- 0 1)) (= nineteen (* (Fact 18) 19)))
+(or (= nineteen (- 0 1)) (= nineteen (* (FactSingle 18) 19)))
 \end{verbatim}
-\begin{lstlisting}[language=c, caption= {Procedure `factorial' :
-      returns factorial of `n' and memoizes result for argument value
-      `19'.}, label=lst:fact19]
+
+\begin{lstlisting}[language=c, caption= {Returns factorial of `n',
+      and memoizes result for argument value
+      `19' in global variable `nineteen'.}, label=lst:fact19]
 var nineteen: int;
-procedure {:entrypoint} Fact(a: int) returns (r: int) modifies nineteen;{
-  if( a <= 1) { r := 1;}
+/* invariant: nineteen = -1 ||
+  nineteen = 19*FactSingle(18)   */
+procedure {:entrypoint} FactSingle(n: int) returns (r: int) modifies nineteen;{
+  if( n <= 1) { r := 1;}
   else {
-    if( a == 19) {
+    if( n == 19) {
       if( nineteen == -1) {
-        call nineteen := Fact(18);
+        call nineteen := FactSingle(18);
         nineteen := nineteen * 19;
         r := nineteen;
       } else {
         r := nineteen;
       }
     } else {
-      call r := Fact( a - 1);
-      r := a * r;
+      call r := FactSingle( n - 1);
+      r := n * r;
     }
   }
 }
 \end{lstlisting}
 
-\subsection{Factorial Array}
+\subsection{Factorial, caching in  array}
+Invariant:
 \begin{verbatim}
-invariant : (forall ((k Int) ) (or (= (select g k) 0) (= (*
+(forall ((k Int) ) (or (= (select g k) 0) (= (*
 k (FactArray (- k 1))) (select g k))))
 \end{verbatim}
-\begin{lstlisting}[language=c, caption= {Procedure `FactArray' cache result for each argument value greater than 1}, label=lst:factArrayImpl]
+\begin{lstlisting}[language=c, caption= {Returns factorial of `n', 
+      and caches results for all argument values greater than 1 in global
+    array `g'},
+    label=lst:factArrayImpl]
 var g: [int] int;
+/* invariant: forall k. g[k] = 0 ||
+  g[k] = k*FactArray(k-1)   */  
 procedure {:entrypoint} FactArray(n: int) returns (r: int) modifies g;{
   var k :int;
   if( n <= 1) { r := 1;}
@@ -47,39 +57,43 @@ procedure {:entrypoint} FactArray(n: int) returns (r: int) modifies g;{
 }
 \end{lstlisting}
 
-\subsection{Factorial Recent}
+\subsection{Factorial, caching only last-seen argument}
+Invariant:
 \begin{verbatim}
-Invariant : (or (= lastAns (- 0 1)) (= lastAns (* (recent_fact (+ (- 0 1) lastN)) lastN)))
+(or (= g (- 0 1)) (= g (* (FactRecent (+ (- 0 1) lastN)) lastN)))
 \end{verbatim}
 %% \lstinputlisting{examples/fact-recent/factRecent.bpl}
-\begin{lstlisting}[language=c, caption= {Procedure `recent\_fact' :
-      returns factorial of `n' and memoizes result for the last argument value.}, label=lst:factorialRecent]
+\begin{lstlisting}[language=c, caption= {Returns factorial of `n', 
+      and caches last seen argument in lastN and corresponding return value
+    in g}, label=lst:factorialRecent]
 var lastN: int;
-var lastAns: int;
-//invariant : lastAns = -1 || g = lastN * factorial(lastN -1) && lastN >1 
-procedure {:entrypoint} recent_fact(a: int) returns (r: int) modifies lastN, lastAns;{
-  if( a <= 1) { r := 1;}
+var g: int;
+//invariant : g = -1 || g = lastN * FactRecent(lastN - 1) 
+procedure {:entrypoint} FactRecent(n: int) returns (r: int) modifies lastN, g;{
+  if( n <= 1) { r := 1;}
   else {
-     if( a == lastN && lastAns != -1) {
-        r := lastAns;
+     if( n == lastN && g != -1) {
+        r := g;
       } else {
-      call r := recent_fact( a - 1);    
-      r := a * r;
+      call r := FactRecent( n - 1);    
+      r := n * r;
       lastN := a;
-      lastAns := r;
+      g := r;
     }
   }
 }
 \end{lstlisting}
 
-\subsection{Fibonacci}
+\subsection{Fibonacci, caching in array}
 %% \lstinputlisting{examples/fib/fib.bpl}
+Invariant:
 \begin{verbatim}
-Invariant : (or (= (select cache k) 0) (= (+ (fib (- k 1)) (fib (- k 2))) (select cache k)))
+(forall (k Int) (or (= (select cache k) 0) (= (+ (fib (- k 1)) (fib (- k 2)))
+  (select cache k))))
 \end{verbatim}
-\begin{lstlisting}[language=c, caption= {Procedure `fib' :
-      returns the n'th fibonacci number}, label=lst:factorialSimple]
-//invariant : forall k. cache[k] = 0 OR cache[k] = fib(k -1) + fib( k -2)
+\begin{lstlisting}[language=c, caption= {Returns $n$th Fibonacci number, and
+      caches all arguments and return values seen so far in global array `cache'}]
+/* invariant : forall k. cache[k] = 0 OR cache[k] = fib(k -1) + fib( k -2) */
 var cache:[int] int;
 procedure {:entrypoint} fib(n: int) returns (r: int) modifies cache;{
   var a, b : int;
@@ -98,17 +112,17 @@ procedure {:entrypoint} fib(n: int) returns (r: int) modifies cache;{
 }
 \end{lstlisting}
 
-\subsection{Matrix Chain Multipication}
+\subsection{Matrix Chain Multiplication}
+Invariant:
 \begin{verbatim}
-(or (= (select m i j) (- 0 1)) (= (chooseSplit i j i (- 0 1)) (select m i
- j)))
+ (forall ((i Int) (j Int)) (or (= (select m i j) (- 0 1))
+   (= (chooseSplit i j i (- 0 1)) (select m i j))))
 \end{verbatim}
 
-\begin{lstlisting}[language=c, caption= {Procedure `matrix chain multipication' :
-      returns the minimum number of multipications needed to multiply a sequence of matrices.}, label=lst:factorialRecent]
+\begin{lstlisting}[language=c, caption= {Returns the minimum number of multipications needed to multiply a sequence of matrices.}, label=lst:mcm]
 var p: [int] int;
 var m: [int, int] int;
-//invariant : \forall {i, j}. m[i, j] = -1 OR m[i, j] = foo(i, j, i, infinity)
+/* invariant : forall i, j. m[i, j] = -1 OR m[i, j] = chooseSplit(i, j, i, -1) */
 procedure {:entrypoint} mcm(i: int, j: int) returns (r: int) modifies m;{
         var k, q : int;
         var a, b :int;
@@ -144,3 +158,35 @@ procedure chooseSplit(i: int, j: int, k:int, min :int) returns (r: int) modifies
         }       
 }
 \end{lstlisting}
+
+\subsubsection{Notes about how this procedure was verified.}
+In this example, `p' is an input array, and stores the dimensions of the matrices
+to be multiplied. p$[i]$ and p$[i+1]$ store the dimensions of the $i^\mathit{th}$
+matrix to be multiplied. Matrix m is computed by the procedure. m$[i,j]$
+stores the minimum number of scalar multiplications required
+to multiple input matrices $i, i+1, \ldots, j$. The procedure `mc'
+basically returns m[i,j] given arguments i and j. chooseSplit is a
+tail-recursive procedure, which is used to consider all possible k, i $<$ k
+$\leq$ j, at which to split the sequence $i, i+1, \ldots, j$. This search
+is required to find the optimal split point.
+
+Note, mcm and chooseSplit call each other. Although we presented our
+approach as if it can check a given single procedure, it can also check if
+a set of mutually-recursive procedures are all OP. The idea is that each
+procedure needs an invariant, and this invariant can use function symbols
+to refer to all procedures called by this procedure. Each procedure can
+then be checked independently using our approach as-is. Intuitively, this
+works because we check all the procedures, and while checking any procedure
+we assume that the other procedures are OP.
+
+The invariant shown in the example above is for procedure `mcm'. We applied
+our tool only on procedure mcm. We did not apply our tool on procedure
+`chooseSplit', because currently our tool is not set up analyze all
+procedures in a multi-procedure program. However, it is obvious that the
+impurity witness approach would certify procedure chooseSplit as OP, even
+without any invariant, because this procedure does not refer to or update
+the mutable global variable `m'. Therefore, for any tuple of argument
+values, the procedure would always follow the same path no matter how many
+times this tuple is repeated. Now, if the calls encountered in this path
+are assumed to be to observationally pure procedures (inductive
+hypothesis), then the path must return the same value every time.
