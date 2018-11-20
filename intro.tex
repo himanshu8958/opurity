@@ -125,6 +125,21 @@ human or by a potential tool, as justified by us two paragraphs above.
 
 \subsection{Salient aspects of our approach}
 
+This paper makes two significant contributions. First, it tackles the circularity
+problem that arises due to the use of a presumed-to-be OP procedure
+in assertions and invariants and the use of these invariants in proving the
+procedure to be OP. This requires us to prove the soundness of a procedure
+that verifies observational purity as well the invariants simultaneously (as they
+cannot be decoupled).
+
+Secondly, as we show, a direct approach to this verification problem (which we
+call the existential approach) reduces it to a problem of verifying a logical formula
+is a tautology. The structure of the generated formula, however, makes the resulting
+theorem prover instances hard. We show how a conservative approximation can be
+used to convert this hard problem into an easier problem of checking satisfiability
+of a quantifier-free formula, something within the scope of state-of-the-art theorem
+provers.
+
 %% should I talk about why F(2) *3 instead of F(3) ?
 
 The most closely related previous approaches are by Barnett et
@@ -134,8 +149,10 @@ al.~\cite{cok2008extensions}.  All these approaches check observational
 purity of procedures that maintain mutable global state. However, none of
 these approaches use a function symbol in place of recursive calls or
 within invariants. Therefore, it is not clear that these approaches can
-verify recursive procedures. To
-the best of our knowledge ours is the first paper to show that is
+verify recursive procedures. 
+Barnett et al., in fact, state ``there is a circularity - it would take a delicate argument, and additional conditions,
+to avoid unsoundness in this case''.
+To the best of our knowledge ours is the first paper to show that is
 feasible to check observational purity of procedures that maintain mutable
 global state for optimization purposes and that make use of recursion.
 
