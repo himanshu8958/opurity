@@ -159,12 +159,13 @@ procedure chooseSplit(i: int, j: int, k:int, min :int) returns (r: int) modifies
 }
 \end{lstlisting}
 
-\subsubsection{Notes about how this procedure was verified.}
+\subsubsection{Notes about how this program was verified.}
 In this example, `p' is an input array, and stores the dimensions of the matrices
 to be multiplied. p$[i]$ and p$[i+1]$ store the dimensions of the $i^\mathit{th}$
-matrix to be multiplied. Matrix m is computed by the procedure. m$[i,j]$
+matrix to be multiplied. Table `m' is computed by the procedure. m$[i,j]$
 stores the minimum number of scalar multiplications required
-to multiple input matrices $i, i+1, \ldots, j$. The procedure `mc'
+to multiply the sequence of matrices from the $i^\mathit{th}$ matrix
+through the $j^\mathit{th}$ matrix. The procedure `mcm'
 basically returns m[i,j] given arguments i and j. chooseSplit is a
 tail-recursive procedure, which is used to consider all possible k, i $<$ k
 $\leq$ j, at which to split the sequence $i, i+1, \ldots, j$. This search

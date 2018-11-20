@@ -5,9 +5,22 @@ A procedure in an imperative programming language is said to be
 a specific return value, across all possible sequences of calls to the
 procedure, irrespective of what other code runs between these calls.  In
 other words, the input-output behavior of an OP procedure mimics a mathematical
-function. Observational purity is a useful property, as OP procedures can be memoized, and
-statements that call OP procedures can be subject to code motion, code
-optimization, etc.
+function.
+
+Being able to verify that a procedure is OP has many potential
+applications. The most obvious one is that OP procedures can be
+memoized. That is, input-output pairs can be recorded in a table, and calls
+to the procedure can be elided whenever an argument is seen more than
+once. This would not change the semantics of the overall program that calls
+the procedure, because the procedure always returns the same value for the
+same argument (and mutates only private global variables). Another
+application is that if a loop contains a call to an OP procedure, then the
+loop can be parallelized (provided the procedure is modified to access and
+update its private global variables in a single atomic operation).
+
+% Observational purity is a useful property, as OP procedures can be memoized, and
+% statements that call OP procedures can be subject to code motion, code
+% optimization, etc.
 
 Any procedure whose code is deterministic and does not read any
 pre-existing state other than its arguments is trivially OP.
@@ -154,16 +167,6 @@ To the best of our knowledge ours is the first paper to show that is
 feasible to check observational purity of procedures that maintain mutable
 global state for optimization purposes and that make use of recursion.
 
-Being able to verify that a procedure is OP has many potential
-applications. The most obvious one is that OP procedures can be
-memoized. That is, input-output pairs can be recorded in a table, and calls
-to the procedure can be elided whenever an argument is seen more than
-once. This would not change the semantics of the overall program that calls
-the procedure, because the procedure always returns the same value for the
-same argument (and mutates only private global variables). Another
-application is that if a loop contains a call to an OP procedure, then the
-loop can be parallelized (provided the procedure is modified to access and
-update its private global variables in a single atomic operation).
 
 %In this paper, we do make a number of assumptions. The global variables
 %that the procedure reads or updates are assumed to be private to it, in the
