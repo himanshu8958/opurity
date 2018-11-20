@@ -100,7 +100,7 @@ procedure {:entrypoint} fib(n: int) returns (r: int) modifies cache;{
 
 \subsection{Matrix Chain Multipication}
 \begin{verbatim}
-(or (= (select m i j) (- 0 1)) (= (my_foo i j i (- 0 1)) (select m i
+(or (= (select m i j) (- 0 1)) (= (chooseSplit i j i (- 0 1)) (select m i
  j)))
 \end{verbatim}
 
@@ -120,13 +120,13 @@ procedure {:entrypoint} mcm(i: int, j: int) returns (r: int) modifies m;{
                         r := m[i, j];
                 } else {
                         k := i;
-                        call r := foo(i, j, k, m[i, j]);
+                        call r := chooseSplit(i, j, k, m[i, j]);
                         m[i, j] := r;
                 }
         }
 }
 
-procedure foo(i: int, j: int, k:int, min :int) returns (r: int) modifies m;{
+procedure chooseSplit(i: int, j: int, k:int, min :int) returns (r: int) modifies m;{
         var a, b, q : int;
         var min1 :int;
         if(k >= j) {
@@ -140,7 +140,7 @@ procedure foo(i: int, j: int, k:int, min :int) returns (r: int) modifies m;{
                 } else {
                   min1 := min;
                 }
-                call r := foo(i, j, k + 1, min1);
+                call r := chooseSplit(i, j, k + 1, min1);
         }       
 }
 \end{lstlisting}
