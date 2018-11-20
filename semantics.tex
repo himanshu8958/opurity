@@ -125,7 +125,7 @@ the procedure may be initiated (with an arbitrary parameter value).
 }
 
 \labrule{top-level-call}{
-\proc = \code{p(n) \{ B \}} \\
+\code{B} = \text{body}(\proc) \\
 v \in \vals
 }{
 ([], \gmap)
@@ -141,7 +141,15 @@ v \in \vals
 }
 
 \end{mathpar}
-\caption{A small-step operational semantics for our language.}
+\caption{
+A small-step operational semantics for our language, represented as a relation $\sigma_1 \sssemP \sigma_2$.
+Note that a state $\sigma_i$ is a configuration of the form
+$((\stmt, \lmap) \lstack, \gmap)$ where
+$\stmt$ captures the statements to be executed in the current procedure, 
+$\lmap$ assigns values to local variables in the current procedure,
+$\lstack$ is the call-stack (excluding the current procedure),
+and $\gmap$ assigns values to global variables.
+}
 \label{fig:semantics}
 \end{figure}
 

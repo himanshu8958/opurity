@@ -18,7 +18,7 @@ We describe an adaptation of standard verification-condition generation techniqu
 Given a procedure $\procP$, a candidate invariant $\inv$, our goal is to compute a
 % the function $\mainvc{\procP}{\inv}$ returns a
 pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that exists after an execution of
-$\procP$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
+$\text{body}(\procP)$ starting from a state that satisfies $\inv$, and $\vc$ is a verification-condition that must hold true
 for the execution to satisfy its invariants and assertions.
 
 We first transform the procedure body as below to create an internal representation that is input to the
