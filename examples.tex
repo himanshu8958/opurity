@@ -2,12 +2,37 @@
 
 \subsection{Factorial}
 \begin{verbatim}
-invariant : (forall ((k Int) ) (or (= (select g k) 0) (= (*
-k (my_FactArray (- k 1))) (select g k))))
+invariant : (or (= nineteen (- 0 1)) (= nineteen (* (Fact 18) 19)))
 \end{verbatim}
 \begin{lstlisting}[language=c, caption= {Procedure `factorial' :
       returns factorial of `n' and memoizes result for argument value
-      `19'.}, label=lst:factImpl]
+      `19'.}, label=lst:fact19]
+var nineteen: int;
+procedure {:entrypoint} Fact(a: int) returns (r: int) modifies nineteen;{
+  if( a <= 1) { r := 1;}
+  else {
+    if( a == 19) {
+      if( nineteen == -1) {
+        call nineteen := Fact(18);
+        nineteen := nineteen * 19;
+        r := nineteen;
+      } else {
+        r := nineteen;
+      }
+    } else {
+      call r := Fact( a - 1);
+      r := a * r;
+    }
+  }
+}
+\end{lstlisting}
+
+\subsection{Factorial Array}
+\begin{verbatim}
+invariant : (forall ((k Int) ) (or (= (select g k) 0) (= (*
+k (FactArray (- k 1))) (select g k))))
+\end{verbatim}
+\begin{lstlisting}[language=c, caption= {Procedure `FactArray' cache result for each argument value greater than 1}, label=lst:factArrayImpl]
 var g: [int] int;
 procedure {:entrypoint} FactArray(n: int) returns (r: int) modifies g;{
   var k :int;
