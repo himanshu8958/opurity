@@ -1,29 +1,27 @@
 \section{Introduction}
 
-We say that a procedure in an imperative programming language is
+A procedure in an imperative programming language is said to be
 \emph{observationally pure} (OP) if for each specific argument value it has
 a specific return value, across all possible sequences of calls to the
 procedure, irrespective of what other code runs between these calls.  In
-other words, there exists a mathematical function such that the argument to
-return-value behavior of the procedure mimics this function. Observational
-purity is a useful property, as OP procedures can be memoized, and
+other words, the input-output behavior of an OP procedure mimics a mathematical
+function. Observational purity is a useful property, as OP procedures can be memoized, and
 statements that call OP procedures can be subject to code motion, code
 optimization, etc.
 
-Any procedure whose code is deterministic and that does not read any
-pre-existing state other than its arguments is trivially OP. Also, any
-procedure that uses global variables but does not involve looping or
-recursion is easy to verify whether it is OP. However, in general, many
-procedures, especially ones in libraries, update and read global variables,
-typically to optimize their own behavior, while still mimicking
-mathematical functions in terms of input-output behavior. At the same time,
-they also use looping or recursion. In this paper, we focus on the more
-general problem of checking observational purity of procedures that read
-and write global variables and that may make use of recursion.
+Any procedure whose code is deterministic and does not read any
+pre-existing state other than its arguments is trivially OP.
+However, it is common for procedures, especially ones in libraries,
+to update and read global variables, typically to optimize their own behavior,
+while still mimicking mathematical functions in terms of their input-output behavior.
+% At the same time, they also use looping or recursion.
+In this paper, we focus on the problem of checking observational purity of
+procedures that read and write global variables, especially in the presence of recursion,
+which makes the problem harder.
 
 \subsection{Motivating Example}
 
-\begin{lstlisting}[language=c, caption= {Procedure `factCache' :
+\begin{lstlisting}[float,language=c, caption= {Procedure `factCache' :
       returns n! and memoizes result for last argument seen.},
     label=lst:factorialSimple]
   
@@ -42,13 +40,13 @@ int factCache( int n) {
 }
 \end{lstlisting}
 
-Let us consider the example procedure `factCache' in
-Listing~\ref{lst:factorialSimple}, which we use as our running example. It
+We use the example procedure `factCache' in
+Listing~\ref{lst:factorialSimple}  as our running example. It
 returns n! for the given argument n, and caches the return value for the
 last argument provided to it. It uses two ``private'' global variables to
-implement the caching -- g, and lastN. g is initialized to -1, and after
+implement the caching -- \code{g}, and \code{lastN}. \code{g} is initialized to -1, and after
 the first call to the procedure onwards is used to store the return value
-from the most recent call. lastN is used to store the argument received in
+from the most recent call. \code{lastN} is used to store the argument received in
 the most recent call. Clearly this procedure is OP, and mimics the
 input-output behavior of a regular factorial procedure that does not cache
 any results. 
@@ -68,9 +66,9 @@ any results.
 %%    procedures. We therefore propose a more syntactic approach that is
 %%    easier on the theorem prover and on the human. 
 
-Floyd-Hoare logic has been commonly used in previous approaches that try to
-tackle verification tasks with good precision. Our proposal is based on
-Floyd-Hoare logic as well. In order to verify a recursive procedure
+% Floyd-Hoare logic has been commonly used in previous approaches that try to
+% tackle verification tasks with good precision.
+Our verification approach is based on Floyd-Hoare logic. In order to verify a recursive procedure
 inductively, typically a specification of the procedure would need to be
 provided. The first idea for such a specification would be a full
 functional specification of the procedure. That is, if someone specifies
