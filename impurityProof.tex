@@ -1,0 +1,70 @@
+\documentclass{llncs}
+
+\usepackage{makeidx}  % allows for indexgeneration
+%% himanshu
+\usepackage[title]{appendix}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath}
+
+\usepackage{listings}
+\usepackage{syntax}
+\usepackage{amssymb}
+\usepackage{mathpartir}
+
+\input{macros}
+\begin{document}
+
+\begin{lemma}
+  $\proc$ does not satisfy $\pureinv$,
+  $\forall F. \exists \pi. F$ is compatible with $\pi$ and $\pi$ is $\inv$-violation witness;
+  then $\forall F. \exists \pi. \forall \pi_{inner}. F$ is compatible with $\pi, \pi_{inner} \in $sub-traces-of$(\pi)$,
+  $\sigma_{beg}$ be entry-state-of $\pi$,
+  $\sigma_{exit}$ be exit-state-of $\pi$,
+  $\sigma_{bef}$ be before-call-state-of $\pi$,
+  $\sigma_{aft}$ be after-call-state-of $\pi$,
+  $(\sigma_{beg}, F) \models \inv$,
+  $(\sigma_{aft}, F) \models \inv$,
+  $(\sigma_{bef}, F) \nvDash \inv \vee (\sigma_{end}, F) \nvDash\inv$
+  and $\pi_{inner}$ is not a $\inv$-violation witness.
+\end{lemma}
+
+\begin{definition}[mappings($\pi$ : trace)]
+  $\{(a,b) \mid \pi' \in$ sub-traces($\pi$), $\pi \in \Pi$, a =
+  param($\pi$), b = ret($\pi$)\} 
+\end{definition}
+
+\begin{definition}[conflict-free-mappings($\Pi$ : set of traces)]
+  $\{(a,b) \mid (a,b) \in $ mappings($\pi$),
+  $\pi \in \Pi$,
+  $(a, b') \not \in$ mappings($\pi'$),
+  $\pi' \in \Pi$, 
+  $b \neq b'$\}
+\end{definition}
+
+\begin{definition}[safe-functions($\Pi$ : set of traces)]
+  $\{F  \mid (a,b) \in$ conflict-free-mappings($\Pi$)
+  $\implies$ F(a) = b $\wedge$
+  %% \nexists c. (a,c) \in$ conflict-free-mappings($\Pi$)
+  $ \implies F(a) = b'$
+  \}
+\end{definition}
+
+\begin{lemma}
+  $\proc$ does not satisfy $\pureinv$, $\Pi$ = traces-of($\proc$),
+  $\pi_1 \in \Pi$,
+  $\pi_2 \in \Pi$,
+  $\pi'_1 \in$ sub-traces-of($\pi_1$),
+  $\pi'_2 \in$ sub-traces-of($\pi_2$),
+  param($\pi'_1$) = param($\pi'_2$),
+  ret($\pi'_1) \neq$ param($\pi'_2$),
+  then
+  $\forall F. F \in$ safe-functions($\Pi$) $\exists \pi. \pi \in $sub-traces-of($\Pi$),
+  $\forall \sigma. \sigma \in boundry-states(\pi) \wedge$
+  $(\sigma, F) \models \inv$,
+  ret($\pi) \neq$ F(param($\pi$)),
+  all sub-traces of $\pi$ satisfy the invariant and are compatible
+  with F.
+\end{lemma}
+\end{document}
