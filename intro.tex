@@ -35,26 +35,28 @@ the most recent call. Clearly this procedure is OP, and mimics the
 input-output behavior of a regular factorial procedure that does not cache
 any results. 
 
-\begin{lstlisting}[float,language=c,basicstyle=\scriptsize,caption= {Procedure `factCache' :
-      returns n! and memoizes result for last argument seen.},
+\begin{lstlisting}[float,language=c,basicstyle=\scriptsize,caption= {Procedure factCache:
+      returns n!, and memoizes most recent result.},
     label=lst:factorialSimple]
   
-int g = -1;
-int lastN = 0;
+int g := -1;
+int lastN := 0;
 int factCache( int n) {
   if(n <= 1) {
-    return 1;
+    result := 1;
   } else if (g != -1 && n == lastN) {
-    return g;
+    result := g;
   } else {
     g = n * factCache( n - 1 );
     lastN = n;
-    return g;
+    result := g;
   }
+  return result;
 }
 \end{lstlisting}
 
-\subsection{Proposed approach}
+\subsection{Proposed Approach}
+\label{ssec:intro:approach}
 %
 %% 1. We are looking for a Hoare logic style approach, for increased
 %%    precision. Herein, how to process the recursive calls? One solution is
@@ -71,19 +73,20 @@ int factCache( int n) {
 %
 % Floyd-Hoare logic has been commonly used in previous approaches that try to
 % tackle verification tasks with good precision.
-Our verification approach is based on Floyd-Hoare logic. In order to verify a recursive procedure
-inductively, typically a specification of the procedure would need to be
-provided. The first idea for such a specification would be a full
-functional specification of the procedure. That is, if someone specifies
-that factCache mimics n!, then the verifier could replace Line~10 in the
-code with `g = n * (n-1)!'. This, on paper, is sufficient to assert that n!
-is returned in Line 12. However, to establish that Line~8 also returns n!, an
-invariant would need to be provided that describes the possible values of g
-before any invocation to the procedure. In our example, a suitable
-invariant would be `(g = -1) $\vee$ (g = lastN!)'. The verifier would also
-need to verify that at the procedure's exit the invariant is
-re-established. Lines 10-12, with the recursive call replaced by (n-1)!,
-suffices on paper  to re-establish the invariant.
+Our verification approach is based on Floyd-Hoare logic. In order to verify
+a recursive procedure inductively, typically a specification of the
+procedure would need to be provided. The first idea for such a
+specification would be a full functional specification of the
+procedure. That is, if someone specifies that factCache mimics n!, then the
+verifier could replace Line~10 in the code with `g = n * (n-1)!'. This, on
+paper, is sufficient to assert that Line 12 always assigns n! to
+`result'. However, to establish that Line~8 also does the same, an invariant
+would need to be provided that describes the possible values of g before
+any invocation to the procedure. In our example, a suitable invariant would
+be `(g = -1) $\vee$ (g = lastN!)'. The verifier would also need to verify
+that at the procedure's exit the invariant is re-established. Lines 10-12,
+with the recursive call replaced by (n-1)!, suffices on paper to
+re-establish the invariant.
 
 The candidate approach mentioned above, while being plausible, suffers from
 two weaknesses. The first is that a human would need to guess the
@@ -105,9 +108,8 @@ a suitable invariant would be `(g = -1) $\vee$ (g = lastN *
 e.g., a human could arrive at it just by looking at Line~2 and with a local
 reasoning on Lines~10 and~11. Given this invariant, (a) a theorem prover
 could infer that the condition in Line~7 implies that Line~8 necessarily
-returns n * \emph{factCache}(n-1). Due to the transformation to Line~10 mentioned above,
-(b) the theorem prover can infer that Line~12 also returns n *
-\emph{factCache}(n-1). Note that since these two expressions are syntactically
+copies the value of `n * \emph{factCache}(n-1)' into `result'. Due to the transformation to Line~10 mentioned above,
+(b) the theorem prover can infer that Line~12 also does the same. Note that since these two expressions are syntactically
 identical, a theorem prover can easily establish that they are equal in
 value.  Finally, since Line~6 is reached under a different condition than
 Lines~8 and~12, the verifier has finished establishing that the procedure
@@ -121,12 +123,13 @@ invariant to be a valid invariant is also complete.
 Note, the effectiveness of the approach depends on the nature of the given
 invariant. For instance, if the given invariant was `(g = -1) $\vee$ (g =
 lastN!)', which is also technically correct, then the theorem prover may
-not be able to establish that Lines~8 and~12 always return the same
-expression in n. However, it is our claim that in fact it is the invariant
-`(g = -1) $\vee$ (g = lastN * \emph{factCache}(lastN-1))' that is easier to infer by a
-human or by a potential tool, as justified by us two paragraphs above.
+not be able to establish that in Lines~8 and~12 the variable `g' always
+stores the same expression in n. However, it is our claim that in fact it is the
+invariant `(g = -1) $\vee$ (g = lastN * \emph{factCache}(lastN-1))' that is
+easier to infer by a human or by a potential tool, as justified by us two
+paragraphs above.
 
-\subsection{Salient aspects of our approach}
+\subsection{Salient Aspects Of Our Approach}
 
 This paper makes two significant contributions. First, it tackles the
 circularity problem that arises due to the use of a presumed-to-be OP

@@ -39,8 +39,9 @@ Given the foundational focus of this work, we keep the programming
 language very simple, but the ideas we present can be generalized.
 %Most of the statements are standard statements borrowed
 %from imperative languages. The rest of them are explained next.
-A \code{return} statement is permitted only as the last statement of
-the procedure.
+A \code{return} statement is required in each procedure,
+and is permitted only as the last
+statement of the procedure.
 %The language does not contain a \code{return} statement.
 %At the end of execution of the procedure body, the procedure returns
 %the final value of a special variable (indicated in the procedure declaration).
@@ -61,17 +62,27 @@ separate statement.
 %% proceed if the predicate `x' holds at the program point, otherwise it
 %% halts the execution.
 
-For simplicity in notation, we assume, without loss of generality,
-that the library consists of a single procedure, with a single formal
-parameter. We will abuse terminology and use the terms procedure and library interchangeably.
-In the sequel, we will use the symbol $\proc$ (as a metavariable) to represent the procedure/library,
-while we use $\procname$ (as a metavariable) to represent the \emph{name} of the procedure.
+For simplicity of presentation, without loss of conceptual generality, we assume
+that the library consists of a single (possibly recursive) procedure, with a single formal
+parameter.
+% We will abuse terminology and use the terms procedure and library interchangeably.
+In the sequel, we will use the symbol $\proc$ (as a metavariable) to
+represent this library procedure, $\procname$ (as a metavariable) to
+represent the \emph{name} of this procedure, and will assume that the name
+of the formal parameter is \code{n}. 
 If the procedure is of the form ``$\procname$ \code{ (n) \{ S; return r \}}'', we refer to \code{r} as the \emph{return}
-variable and we refer to ``\code{S; return r}'' as the \emph{procedure body} and denote it $\text{body}(\proc)$.
-The library also includes a sequence of initializing declarations of globals of the form ``\code{g := c}'', indicating
-that \code{g} is initialized to the value \code{c} when execution begins.
+variable, and  refer to ``\code{S; return r}'' as the \emph{procedure body}
+and denote it as $\text{body}(\proc)$.
+The library also contains, outside of the procedure's code,
+a sequence of initializing declarations of
+the global variables used in the procedure, of the form ``\code{g1 := c1};
+$\ldots$; \code{gN := cN}''. These initializations are assumed to be
+performed  once during any execution of the client application,
+just before the first call to the
+procedure $\proc$ is placed by the client application.
 %, and a single global variable.
 
  Finally, a note about terminology: throughout this paper we
-use the word `procedure' to refer to the code procedure being analyzed, and use the word
+ use the word `procedure' to refer to the library procedure $\proc$, and
+ use the word
 `function' to refer to a mathematical function.

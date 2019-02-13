@@ -1,17 +1,20 @@
 \section{A Semantic Definition of Purity}
 \label{sec:semantics}
 
-In this section, we formalize the input-output semantics of a procedure $\proc$ as a relation $\iosem{\proc}$,
+In this section, we formalize the input-output semantics of the procedure $\proc$ as a relation $\iosem{\proc}$,
 where $n \iosem{\proc} r$ indicates that an invocation of $\proc$ with input $n$ may return a result of $r$.
 The procedure is then defined to be observationally pure if the relation $\iosem{\proc}$ is a (partial) function:
 that is, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 
-The object of our analysis is a single procedure or, more generally, a collection of procedures (a library),
-and not a whole program. The result of our analysis is valid for any program that uses the procedure/library.
-The only assumptions we make are: (a) The shared state used by the library (the global variables) are private
-to the library and cannot be modified by the rest of the program, and (b) The client invokes the library
-procedures sequentially: no concurrent or overlapping invocations of the library procedures by a concurrent
-client are permitted.
+The object of our analysis is the set of procedures in the library, or,
+actually, a single-procedure library (for simplicity of presentation), but
+not the entire (client) application. The result of our analysis is valid
+for any client program that uses the procedure/library.  The only
+assumptions we make are: (a) The shared state used by the library (the
+global variables) are private to the library and cannot be modified by the
+rest of the program, and (b) The client invokes the library procedures
+sequentially: no concurrent or overlapping invocations of the library
+procedures by a concurrent client are permitted.
 
 The following semantic formalism is motivated by the above observations. It can be seen as the semantics
 of the so-called ``most general sequential client'' of procedure $\proc$, which is the program:
@@ -29,29 +32,33 @@ executed. Let $\cstates$ represent the set of local continuations.
 % We use an element $\cont \in \cstates$ to represent
 % what remains to be executed in the procedure (and can, hence, be thought of as a program-point
 % representing what is to be executed next).
-The set of runtime states is defined to be $(\cstates \times \lmaps)^* \times \gmaps$, where
-the first component represents a runtime stack, and the second component the values of global
-variables. The runtime stack is a sequence, each element of which is a pair $(\stmt,\lmap)$ consisting of the
-remaining procedure fragment $\stmt$ to be executed and the values of local variables $\lmap$.
-We write $(\stmt,\lmap)\gamma$ to indicate a stack where the topmost entry is $(\stmt,\lmap)$
-and $\gamma$ represents the remaining part of the stack.
+The set of runtime states (or simply, \emph{states}) is defined to be
+$(\cstates \times \lmaps)^* \times \gmaps$, where the first component
+represents a runtime stack, and the second component the values of global
+variables. We denote individual states using symbols $\sigma, \sigma_1,
+\sigma_i$, etc. The runtime stack is a sequence, each element of which is a pair
+$(\stmt,\lmap)$ consisting of the remaining procedure fragment $\stmt$ to
+be executed and the values of local variables $\lmap$.  We write
+$(\stmt,\lmap)\gamma$ to indicate a stack where the topmost entry is
+$(\stmt,\lmap)$ and $\gamma$ represents the remaining part of the stack.
 
-We say that a state $((\stmt,\lmap)\gamma,\gmap)$ is an \emph{entry-state} if its location is at
+We say that a state $((\stmt,\lmap)\gamma,\gmap)$ is an \emph{entry-state}
+if its location is at 
 the procedure entry point (\ie, if $\stmt$ is the entire body of the procedure),
 and we say that it is an \emph{exit-state} if its location is at the procedure exit point
 (\ie, if $\stmt$ consists of just a \code{return} statement).
 
-A procedure $\proc$ determines a single-step execution relation $\sssem{\proc}$,
-where $\sigma_1 \sssem{\proc} \sigma_2$ indicates
-that execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single step.
-Fig.~\ref{fig:semantics} defines this semantics.
-The semantics of evaluation of a side-effect-free expression is captured
-by a relation $\basicevalsto{\rho}{\expr}{v}$, indicating that the expression
-$\expr$ evaluates to value $v$ in an environment $\rho$ (which contains bindings
-of values to all identifiers occurring in $\expr$, both global and local).
-We omit the definition of this relation, which is straightforward.
-We use the notation $\rho_1 \uplus \rho_2$ to denote the union of two disjoint maps
-$\rho_1$ and $\rho_2$.
+A procedure $\proc$ determines a single-step execution relation
+$\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates that
+execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single
+step.  Fig.~\ref{fig:semantics} defines this semantics.  The semantics of
+evaluation of a side-effect-free expression is captured by a relation
+$\basicevalsto{\rho}{\expr}{v}$, indicating that the expression $\expr$
+evaluates to value $v$ in an \emph{environment} $\rho$ (by
+\emph{environment}, we mean an
+element of $\lmaps \times \gmaps$).  We omit the definition of this
+relation, which is straightforward.  We use the notation $\rho_1 \uplus
+\rho_2$ to denote the union of two disjoint maps $\rho_1$ and $\rho_2$.
 
 
 Note that most rules captures the usual semantics of the language constructs.
@@ -162,27 +169,47 @@ We define an \emph{execution} (of $\proc$) to be a sequence of states $\sigma_0 
 $\sigma_i \sssem{\proc} \sigma_{i+1}$ for all $0 \leq i < n$.
 %(In this paper we consider only \emph{sequential} executions of the procedure. Thus, no concurrent invocations
 %of the procedure by a concurrent client of the library is allowed.)
-Let $\initstate$ denote the \emph{initial state} of the library.
-We say that an execution $\sigma_0 \sigma_1 \cdots \sigma_n$ is a \emph{feasible} execution if $\sigma_0 = \initstate$.
+Let $\initstate$ denote the \emph{initial state} of the library; i.e., this
+is the element of $\gmaps$ that is induced by the sequence of initializing declarations of
+the library, namely, ``\code{g1 := c1};
+$\ldots$; \code{gN := cN}''
+We say that an execution $\sigma_0 \sigma_1 \cdots \sigma_n$ is a
+\emph{feasible} execution if $\sigma_0 = \initstate$. Note, 
+intuitively, a feasible execution  corresponds to the sequence
+of states visited within the library across all invocations of
+the library procedure over the course of a single execution of
+the most-general client mentioned above; also, since the most-general client
+supplies a random parameter value to each invocation of $\proc$, in general
+multiple feasible executions of the library may exist.
 We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
 
-We define a \emph{history} (of $\proc$) to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
-(a) $\sigma_0$ is the initial state of the library,
-(b) $\sigma_n$ is an exit-state, and
-(c) $\pi$ has an equal number of entry-states and exit-states.
-Note that a history represents a complete  execution produced by a
-sequence of invocations of the procedure.
+%% We define a \emph{history} (of $\proc$) to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
+%% (a) $\sigma_0$ is the initial state of the library,
+%% (b) $\sigma_n$ is an exit-state, and
+%% (c) $\pi$ has an equal number of entry-states and exit-states.
+%% Note that a history represents a complete  execution produced by a
+%% sequence of invocations of the procedure.
 
-We say that an execution is a \emph{trace} (of $\proc$) if it represents the complete execution
-of the procedure produced by a single invocation of the procedure.
-Note, however, that a trace may contain nested sub-traces,
-which are themselves traces, due to recursive calls.
-
+We define a \emph{trace} (of $\proc$) to be a substring 
+ $\pi = \sigma_0 \cdots \sigma_n$ of a feasible execution such that:
+ (a) $\sigma_0$ is entry-state
+ (b) $\sigma_n$ is an exit-state, and
+ (c) $\sigma_n$ corresponds to the return from the invocation represented
+by $\sigma_0$.
+In other words, a trace is a state sequence corresponding to a single
+invocation of the procedure. A trace may contain within it nested
+sub-traces due to recursive calls, which are themselves traces.
 Given a trace $\pi = \sigma_0 \cdots \sigma_n$, we define
 $\initial{\pi}$ to be $\sigma_0$,
 $\final{\pi}$ to be $\sigma_n$,
 $\inputval{\pi}$ to be value of the input parameter in $\initial{\pi}$,
 and $\outputval{\pi}$ to be the value of the return variable in $\final{\pi}$.
+
+%% We say that an execution is a \emph{trace} (of $\proc$) if it represents the complete execution
+%% of the procedure produced by a single invocation of the procedure.
+%% Note, however, that a trace may contain nested sub-traces,
+%% which are themselves traces, due to recursive calls.
+
 
 We define the relation $\iosemP$ to be $\{ (\inputval{\pi},\outputval{\pi}) \; | \; \pi \text{ is a trace of } \proc \}$.
 % we say $n \iosemP r$ if there exists a reachable exit state where the value of formal
@@ -194,65 +221,80 @@ A procedure $\proc$ is said to be \emph{observationally pure} if the relation $\
 that is, if for all $n$, $r_1$, $r_2$, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 \end{definition}
 
-\subsection*{Logical Formula And Invariants}
+\subsubsection{Logical Formula and Invariants.}
 
-Our methodology makes use of \emph{invariants}, which are represented using \emph{logical formulae}.
-The set of logical formulae is defined as usual. We permit the same operators as allowed in our language.
-We allow universal and existential quantification, and typically assume that the free variables are either
-global or local variables.
-% A  logical formula $\varphi$ is just a boolean-valued expression (in our language) over the set of global variables.
-We write $\rho \models \varphi$
+Our methodology makes use of \emph{logical formulae} for different
+purposes, including to express a given \emph{invariant}. 
+Our logical formulae use the local and global variables in the library
+procedure as free variables, use
+the same operators as allowed in our language, and make use of universal as
+well as existential quantification. 
+% A  logical formula $\varphi$ is just a boolean-valued expression (in our
+% language) over the set of global variables.
+Given a formula $\varphi$, 
+we write $\rho \models \varphi$
 % as shorthand for $\basicevalsto{\gmap}{\varphi}{\code{true}}$ : \ie,
-to denote that $\varphi$ evaluates to true when its free variables are assigned a value as in $\rho$.
+to denote that $\varphi$ evaluates to true when its free variables are
+assigned values from the environment $\rho$.
 
-However, as we saw with our running example in the introduction, it is
-useful to allow the use of the name of a procedure in an invariant: \eg, an
-invariant such as `(g = -1) $\vee$ (g = lastN *
-\emph{factCache}(lastN-1))'.   We
-extend our expression language by permitting the use of procedure
-identifiers as function symbols (as above). Note that this extension is
-permitted only for use in logical formula.
+As discussed in Section~\ref{ssec:intro:approach},
+one of our central ideas is to allow the names of the library procedures to
+be referred to in the invariant; \eg, our running example becomes amenable
+to our analysis using an invariant such as `(g = -1) $\vee$ (g = lastN *
+\emph{factCache}(lastN-1))'.  We therefore allow the use of library
+procedure names (in our simplified presentation, the name $\procname$) as free variables in
+logical formulae. Correspondingly, 
+we let each environment $\rho$ map each procedure name to a mathematical
+function in addition to mapping variables to numeric values, and extend the
+semantics of $\rho \models \varphi$ by substituting the values of both
+variables and procedure names in $\varphi$ from the environment $\rho$. 
 
-We extend our semantics $\rho \models \varphi$ to handle such extended invariants in the obvious way,
-with $\rho$ mapping each procedure name to a mathematical function (and other names to their numeric values).
+
 %Let $\extmap$ denote an extended map that assigns global variables a (numeric) value and assigns the
 %procedure names a mathematical function as a value. We can then extend the expression evaluation semantics
 %in a straightforward fashion to evaluate extended boolean expressions of the above form. 
 %We will write $\extmap \models \varphi_e$ to denote that the extended boolean expression $\varphi_e$
 %evaluates to true under $\extmap$.
 
-Given a map $\rho$, a procedure name $\procname$, and a mathematical function $f$, we will write
-$\rho[\procname \mapsto f]$ to indicate the extended map that assigns $\procname$ the value $f$ and every
-other $x$ the value $\rho[x]$.
+Given an environment $\rho$, a procedure name $\procname$, and a mathematical function $f$, we will write
+$\rho[\procname \mapsto f]$ to indicate the updated environment that maps
+$\procname$ to the value $f$ and maps every
+other variable $x$ to its original value $\rho[x]$.
 We will write $(\rho,f) \models \varphi$ to denote that $\rho[\procname \mapsto f] \models \varphi$.
 
-Recall that a state $\sigma =(\lstack,\gmap)$ consists of a stack $\lstack$ and global-state $\gmap$.
-Define $\text{env}(\sigma)$ to be the union of $\gmap$ and the current local state $\lmap$
-if $\lstack$ is non-empty, and define $\text{env}(\sigma)$ to be just $\gmap$ otherwise.
+Given a state $\sigma = ((\stmt,\lmap)\gamma,\gmap)$, 
+we define $\text{env}(\sigma)$ to be $\lmap \uplus \gmap$,  and given a
+state $\sigma = ([],\gmap)$, we define $\text{env}(\sigma)$ to be just $\gmap$.
 We write $(\sigma,f) \models \varphi$ to denote that $(\text{env}(\sigma),f) \models \varphi$.
 For any execution $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
-$\sigma$ in $\pi$ $(\sigma,f) \models \varphi$.
+$\sigma$ in $\pi$, $(\sigma,f) \models \varphi$.
+We now introduce another definition of observational purity.
+\begin{definition}[Observational Purity wrt an Invariant]
+\label{def:pureinv}
+Given an invariant $\inv$, 
+a library procedure $\proc$ is said to satisfy $\pureinv$ if
+there exists a function $f$ such that for every trace $\pi$ of $\proc$,
+$\outputval{\pi} = f(\inputval{\pi})$ and $(\pi,f) \models \inv$.
+\end{definition}
+It is easy to see that if procedure $\proc$ satisfies $\pureinv$ wrt any
+given candidate invariant $\inv$, then $\proc$ is observationally pure as
+per Definition~\ref{def:purity}. 
 
 %We say that a $\gmap \in \gmaps$ is a \emph{reachable global entry-state} of $\proc$ if
 %there is a reachable entry-state of the form $(\lstack,\gmap)$.
 
-\begin{definition}[Invariant]
-\label{def:inv}
-Given a procedure $\proc$ and a mathematical function $f$, we say that $(\proc,f)$ satisfy
-an invariant $\inv$ if for every feasible execution $\pi$ of $\proc$, $(\pi,f) \models \varphi$.
-%for every reachable global entry-state $\gmap$ of $\proc$,
-%$\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
-We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
-function $f$ such that $(\proc,f)$ satisfies $\inv$.
-\end{definition}
+%% \begin{definition}[Invariant]
+%% \label{def:inv}
+%% Given a procedure $\proc$ and a mathematical function $f$, we say that $(\proc,f)$ satisfy
+%% an invariant $\inv$ if for every feasible execution $\pi$ of $\proc$, $(\pi,f) \models \varphi$.
+%% %for every reachable global entry-state $\gmap$ of $\proc$,
+%% %$\inv$ holds in $\gmap[\proc \mapsto f]$: that is, if $\gmap[\proc \mapsto f] \models \inv$.
+%% We say that procedure $\proc$ satisfies an invariant $\inv$ if there exists a (mathematical)
+%% function $f$ such that $(\proc,f)$ satisfies $\inv$.
+%% \end{definition}
 
-We now combine Definition~\ref{def:purity} and Definition~\ref{def:inv} into one as below.
-Note that this combined requirement is stronger than a simple conjunction of the previous
-two requirements. A procedure that satisfies Definitions~\ref{def:purity} and \ref{def:inv}
-separately may not satisfy the following definition.
-\begin{definition}[Purity+Invariant]
-\label{def:pureinv}
-A procedure $\proc$ is said to satisfy $\pureinv$ if
-there exists a function $f$ such that for every trace $\pi$ in a feasible execution of $\proc$,
-$\outputval{\pi} = f(\inputval{\pi})$ and $(\proc,f)$ satisfies $\inv$.
-\end{definition}
+%% We now combine Definition~\ref{def:purity} and Definition~\ref{def:inv} into one as below.
+%% Note that this combined requirement is stronger than a simple conjunction of the previous
+%% two requirements. A procedure that satisfies Definitions~\ref{def:purity} and \ref{def:inv}
+%% separately may not satisfy the following definition.
+

@@ -7,14 +7,16 @@
 \section{Checking Purity Using a Theorem Prover}
 \label{sec:vcgen}
 
-In this section, we show how, given a procedure $\proc$ and a candidate invariant $\inv$, we can use a theorem prover
-to check whether a procedure $\proc$ is observationally pure with a consistent invariant $\inv$.
+In this section we provide two different approaches that, given a procedure
+$\proc$ and a candidate invariant $\inv$, use a theorem prover to check
+conservatively whether procedure $\proc$ satisfies $\pureinv$.
 
 
 
 \subsection{Verification Condition Generation}
 
-We describe an adaptation of standard verification-condition generation techniques that we use as our first step.
+We first describe an adaptation of standard verification-condition generation
+techniques that we use as a common first step in both our approaches.
 Given a procedure $\procP$, a candidate invariant $\inv$, our goal is to compute a
 % the function $\mainvc{\procP}{\inv}$ returns a
 pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that exists after an execution of
@@ -49,7 +51,8 @@ Let $\tbody(\proc, \inv)$ denote the transformed body of procedure $\proc$ obtai
 \begin{figure}
 \[
 \begin{array}{ll}
-\postfn(\pre, \code{x := e}) &= (\exists \code{x}. \pre) \wedge (\code{x = e}) (\text{if } \code{x} \not\in \text{vars}(\code{e})) \\
+\postfn(\pre, \code{x := e}) &= (\exists \code{x}. \pre) \wedge (\code{x =
+  e}) \ (\text{if } \code{x} \not\in \text{vars}(\code{e})) \\
 \postfn(\pre, \code{havoc(x)}) &= \exists \code{x}. \pre \\
 \postfn(\pre, \code{assume e}) &= \pre \wedge \code{e} \\
 \postfn(\pre, \code{assert e}) &= \pre \\
@@ -95,13 +98,13 @@ and procedure-exit.
 
 Finally, the function $\mainvcfn$ computes the postcondition and verification condition for the entire procedure as shown
 in Fig.~\ref{fig:vcgen}. Note that this adds the check that the initial state too must satisfy $\inv$ as the basis condition for
-induction. The initial state is encoded as a logical formula consisting of a conjunct ``\code{g=c}'' for every global \code{c}
-initialized to a value \code{c}.
+induction. $\initstatefn(\proc)$ is basically the formula  ``\code{g1 = c1}
+$\wedge \ldots$ \code{gN = cN}'' (see Section~\ref{sec:background}).
 % (\initformula \Rightarrow \inv 
 
 \input{vcgen-eg}
 
-\subsection{Existential Approach}
+\subsection{Approach 1: Existential Approach}
 
 Let $\proc$ be a procedure with input parameter $n$ and return variable $r$.
 Let\\ $\mainvc{\proc}{\inv}$ = $(\post,\vc)$.
@@ -153,7 +156,7 @@ $\EA(\proc,\inv)$ includes the conjunct $\post \Rightarrow (r = p(n))$, it follo
 $\outputval{\pi} = f(\inputval{\pi})$.
 \end{proof}
 
-\subsection{Impurity Witness Approach}
+\subsection{Approach 2: Impurity Witness Approach}
 
 The existential approach presented in the previous section has a drawback. Checking satisfiability of $\EA(\proc,\inv)$
 is hard because it contains universal quantifiers and existing theorem provers do not work well enough for this
@@ -173,7 +176,7 @@ The impurity witness approach checks whether $\IW(\proc, \inv)$ is satisfiable. 
 whether $\neg \vc$ is satisfiable and whether $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
 is satisfiable. As formally defined, $\vc$ and $\post$ contain embedded existential quantifications. As explained earlier,
 these existential quantifiers can be moved to the outside after variable renaming and can be omitted for a satisfiability check.
-(A formula of the form $\forall \overline{x}. \psi$ is satisfiable iff $\psi$ is satisfiable.)
+(A formula of the form $\exists \overline{x}. \psi$ is satisfiable iff $\psi$ is satisfiable.)
 As usual, these existential quantifiers refer to intermediate values of variables along an execution path.
 Finding a satisfying assignment to these variables essentially identifies a possible execution path (that
 satisfies some other property).
