@@ -7,32 +7,30 @@ procedure, irrespective of what other code runs between these calls.  In
 other words, the input-output behavior of an OP procedure mimics a mathematical
 function.
 
-
-
 % Observational purity is a useful property, as OP procedures can be memoized, and
 % statements that call OP procedures can be subject to code motion, code
 % optimization, etc.
 
-Any procedure whose code is deterministic and does not read any
+A deterministic procedure that does not read any
 pre-existing state other than its arguments is trivially OP.
-However, it is common for procedures, especially ones in libraries,
-to update and read global variables, typically to optimize their own behavior,
-while still mimicking mathematical functions in terms of their input-output behavior.
+However, it is common for procedures to update and read global variables,
+typically for performance optimization,
+while still being OP.
+% still mimicking mathematical functions in terms of their input-output behavior.
 % At the same time, they also use looping or recursion.
 In this paper, we focus on the problem of checking observational purity of
 procedures that read and write global variables, especially in the presence of recursion,
 which makes the problem harder.
 
-\subsection{Motivating Example}
-We use the example procedure `factCache' in
-Listing~\ref{lst:factorialSimple}  as our running example. It
-returns n! for the given argument n, and caches the return value for the
-last argument provided to it. It uses two ``private'' global variables to
-implement the caching -- \code{g}, and \code{lastN}. \code{g} is initialized to -1, and after
-the first call to the procedure onwards is used to store the return value
-from the most recent call. \code{lastN} is used to store the argument received in
+\para{Motivating Example}
+We use procedure `factCache' in Listing~\ref{lst:factorialSimple}  as our running example. It
+returns \code{n}! for a given argument \code{n}, and caches the return value of the
+most recent call. It uses two \emph{private global} variables, \code{g} and \code{lastN}, to
+implement the caching. \code{g} is initialized to -1. After
+the first call to the procedure onwards, \code{g} stores the return value
+of the most recent call, and \code{lastN} stores the argument of
 the most recent call. Clearly this procedure is OP, and mimics the
-input-output behavior of a regular factorial procedure that does not cache
+input-output behavior of a factorial procedure that does not cache
 any results. 
 
 \begin{lstlisting}[float,language=c,basicstyle=\scriptsize,caption= {Procedure factCache:
@@ -55,8 +53,8 @@ int factCache( int n) {
 }
 \end{lstlisting}
 
-\subsection{Proposed Approach}
-\label{ssec:intro:approach}
+\para{Proposed Approach}
+% \label{ssec:intro:approach}
 %
 %% 1. We are looking for a Hoare logic style approach, for increased
 %%    precision. Herein, how to process the recursive calls? One solution is
@@ -73,72 +71,74 @@ int factCache( int n) {
 %
 % Floyd-Hoare logic has been commonly used in previous approaches that try to
 % tackle verification tasks with good precision.
-Our verification approach is based on Floyd-Hoare logic. In order to verify
-a recursive procedure inductively, typically a specification of the
-procedure would need to be provided. The first idea for such a
+Our approach is based on Floyd-Hoare logic, which typically
+requires a specification of the procedure to be provided. One candidate
 specification would be a full functional specification of the
-procedure. That is, if someone specifies that factCache mimics n!, then the
-verifier could replace Line~10 in the code with `g = n * (n-1)!'. This, on
-paper, is sufficient to assert that Line 12 always assigns n! to
-`result'. However, to establish that Line~8 also does the same, an invariant
-would need to be provided that describes the possible values of g before
+procedure. If the user specifies that \code{factCache} realizes \code{n}!, then the
+verifier could replace Line~10 in the code with `\code{g = n * (n-1)!}'. This, on
+paper, is sufficient to assert that Line 12 always assigns \code{n}! to
+\code{result}. However, to establish that Line~8 also does the same, an invariant
+would need to be provided that describes the possible values of \code{g} before
 any invocation to the procedure. In our example, a suitable invariant would
-be `(g = -1) $\vee$ (g = lastN!)'. The verifier would also need to verify
+be `(\code{g} = -1) $\vee$ (\code{g} = \code{lastN}!)'. The verifier would also need to verify
 that at the procedure's exit the invariant is re-established. Lines 10-12,
-with the recursive call replaced by (n-1)!, suffices on paper to
+with the recursive call replaced by (\code{n}-1)!, suffices on paper to
 re-establish the invariant.
 
-The candidate approach mentioned above, while being plausible, suffers from
-two weaknesses. The first is that a human would need to guess the
-mathematical expression that is implemented by the given procedure. This may not be
-easy when the procedure is complex. Second, the underlying theorem prover
-would need to prove complex arithmetic properties, e.g., that n * (n-1)! is
-equal to n!. Complex proofs such as this may be out of bounds for many
+The candidate approach described above, while plausible, suffers from
+two weaknesses. First, a mathematical specification of the function
+being computed may be complex and non-trivial to write. (Note, for example,
+that \code{factCache} is defined for negative integers while factorial is not.
+Thus, the previous candidate specification is actually incorrect for this edge
+case.)
+Second, the underlying theorem prover
+would need to prove complex arithmetic properties, e.g., that \code{n} * (\code{n}-1)! is
+equal to \code{n}!. Complex proofs such as this may be beyond the scope of many
 existing theorem provers.
 
 Our key insight is to sidestep the challenges mentioned by introducing a
 function symbol, say \emph{factCache}, and replacing the recursive call for the purposes
 of verification with this function symbol. Intuitively, \emph{factCache} represents the
-mathematical function that the given procedure mimics if the procedure is
+mathematical function that the given procedure mimics \emph{if} the procedure is
 OP.  In our example, Line~10 would become `g = n * \emph{factCache}(n-1)'. This step
 needs no human involvement. The approach needs an invariant; however, in a
 novel manner, we allow the invariant also to refer to \emph{factCache}. In our example,
-a suitable invariant would be `(g = -1) $\vee$ (g = lastN *
-\emph{factCache}(lastN-1))'. This sort of invariant is relatively easy to construct;
+a suitable invariant would be `(\code{g} = -1) $\vee$ (\code{g} = \code{lastN} *
+\emph{factCache}(\code{lastN}-1))'. This sort of invariant is relatively easy to construct;
 e.g., a human could arrive at it just by looking at Line~2 and with a local
 reasoning on Lines~10 and~11. Given this invariant, (a) a theorem prover
 could infer that the condition in Line~7 implies that Line~8 necessarily
-copies the value of `n * \emph{factCache}(n-1)' into `result'. Due to the transformation to Line~10 mentioned above,
+copies the value of `\code{n} * \emph{factCache}(\code{n}-1)' into `\code{result}'. Due to the transformation to Line~10 mentioned above,
 (b) the theorem prover can infer that Line~12 also does the same. Note that since these two expressions are syntactically
 identical, a theorem prover can easily establish that they are equal in
 value.  Finally, since Line~6 is reached under a different condition than
 Lines~8 and~12, the verifier has finished establishing that the procedure
-always returns the same expression in n for any given value of n.
+always returns the same expression in \code{n} for any given value of \code{n}.
 
 Similarly, using the modified Line~10 mentioned above and from Line~11, the
-prover can re-establish that g is equal to `lastN * \emph{factCache}(lastN - 1)' when
+prover can re-establish that \code{g} is equal to `\code{lastN} * \emph{factCache}(\code{lastN} - 1)' when
 control reaches Line~12. Hence, the necessary step of proving the given
 invariant to be a valid invariant is also complete. 
 
 Note, the effectiveness of the approach depends on the nature of the given
-invariant. For instance, if the given invariant was `(g = -1) $\vee$ (g =
+invariant. For instance, if the given invariant was `(\code{g} = -1) $\vee$ (\code{g} =
 lastN!)', which is also technically correct, then the theorem prover may
-not be able to establish that in Lines~8 and~12 the variable `g' always
-stores the same expression in n. However, it is our claim that in fact it is the
-invariant `(g = -1) $\vee$ (g = lastN * \emph{factCache}(lastN-1))' that is
+not be able to establish that in Lines~8 and~12 the variable `\code{g}' always
+stores the same expression in \code{n}. However, it is our claim that in fact it is the
+invariant `(\code{g} = -1) $\vee$ (\code{g} = \code{lastN} * \emph{factCache}(\code{lastN}-1))' that is
 easier to infer by a human or by a potential tool, as justified by us two
 paragraphs above.
 
-\subsection{Salient Aspects Of Our Approach}
+\para{Salient Aspects Of Our Approach}
 
 This paper makes two significant contributions. First, it tackles the
 circularity problem that arises due to the use of a presumed-to-be OP
 procedure in assertions and invariants and the use of these invariants in
 proving the procedure to be OP. This requires us to prove the soundness of
-an approach that verifies observational purity as well the validity of
-invariants simultaneously (as they cannot be decoupled).
+an approach that \emph{simultaneously} verifies observational purity as well the validity of
+invariants (as they cannot be decoupled).
 
-Secondly, as we show, a direct approach to this verification problem (which we
+Secondly, we show that a direct approach to this verification problem (which we
 call the existential approach) reduces it to a problem of verifying that a logical formula
 is a tautology. The structure of the generated formula, however, makes the resulting
 theorem prover instances hard. We show how a conservative approximation can be
