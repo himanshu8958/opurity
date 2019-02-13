@@ -6,10 +6,9 @@ where $n \iosem{\proc} r$ indicates that an invocation of $\proc$ with input $n$
 The procedure is then defined to be observationally pure if the relation $\iosem{\proc}$ is a (partial) function:
 that is, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 
-The object of our analysis is the set of procedures in the library, or,
-actually, a single-procedure library (for simplicity of presentation), but
-not the entire (client) application. The result of our analysis is valid
-for any client program that uses the procedure/library.  The only
+The object of our analysis is a single-procedure library,  not the entire (client) application.
+(Our approach can be generalized to handle multi-procedure libraries.)
+The result of our analysis is valid for any client program that uses the procedure/library.  The only
 assumptions we make are: (a) The shared state used by the library (the
 global variables) are private to the library and cannot be modified by the
 rest of the program, and (b) The client invokes the library procedures
@@ -56,7 +55,7 @@ evaluation of a side-effect-free expression is captured by a relation
 $\basicevalsto{\rho}{\expr}{v}$, indicating that the expression $\expr$
 evaluates to value $v$ in an \emph{environment} $\rho$ (by
 \emph{environment}, we mean an
-element of $\lmaps \times \gmaps$).  We omit the definition of this
+element of  $(\gvars \cup \lvars) \hookrightarrow \vals$).  We omit the definition of this
 relation, which is straightforward.  We use the notation $\rho_1 \uplus
 \rho_2$ to denote the union of two disjoint maps $\rho_1$ and $\rho_2$.
 
@@ -237,7 +236,7 @@ we write $\rho \models \varphi$
 to denote that $\varphi$ evaluates to true when its free variables are
 assigned values from the environment $\rho$.
 
-As discussed in Section~\ref{ssec:intro:approach},
+As discussed in Section~\ref{sec:intro},
 one of our central ideas is to allow the names of the library procedures to
 be referred to in the invariant; \eg, our running example becomes amenable
 to our analysis using an invariant such as `(g = -1) $\vee$ (g = lastN *
@@ -266,7 +265,7 @@ Given a state $\sigma = ((\stmt,\lmap)\gamma,\gmap)$,
 we define $\text{env}(\sigma)$ to be $\lmap \uplus \gmap$,  and given a
 state $\sigma = ([],\gmap)$, we define $\text{env}(\sigma)$ to be just $\gmap$.
 We write $(\sigma,f) \models \varphi$ to denote that $(\text{env}(\sigma),f) \models \varphi$.
-For any execution $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
+For any execution or trace $\pi$, we write $(\pi,f) \models \varphi$ if for every entry-state and exit-state
 $\sigma$ in $\pi$, $(\sigma,f) \models \varphi$.
 We now introduce another definition of observational purity.
 \begin{definition}[Observational Purity wrt an Invariant]

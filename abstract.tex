@@ -1,19 +1,20 @@
 \begin{abstract}
-  Verifying whether a procedure is \emph{observationally pure} is useful in
-  many software engineering scenarios. An observationally pure procedure
-  always returns the same value for the same argument, and thus mimics a
-  mathematical function. The problem is challenging when procedures use
-  private mutable global variables, e.g., for memoization of frequently
-  returned answers, and when they involve recursion.
+  Verifying whether a procedure is \emph{observationally pure} 
+  (that is, it always returns the same result for the same input argument)
+  is challenging when procedure uses private mutable global variables,
+  e.g., for memoization, and when the procedure is recursive.
 
-  We present a novel verification approach for this problem. Our approach
-  involves encoding the procedure's code as a formula that is a disjunction
-  of path constraints, with the recursive calls being replaced in the
-  formula with references to a mathematical function symbol. Then, a
-  theorem prover is invoked to check whether the formula that has been
-  constructed agrees with the function symbol referred to above in terms of
-  input-output behavior for all arguments.
+  We present a deductive verification approach for this problem. Our approach
+  encodes the procedure's code as a logical formula, with recursive calls being
+  modeled using a mathematical function symbol \emph{assuming that the
+  procedure is observationally pure}. Then, a theorem prover is invoked to
+  check whether the formula that has been constructed agrees with the
+  function symbol referred to above in terms of input-output behavior for all arguments.
+  We prove the soundness of this approach.
 
+  We then present a conservative approximation of the first approach that reduces
+  the verification problem to one of checking whether a quantifier-free formula
+  is satisfiable and prove the soundness of the second approach.
   %% Key to making this idea work is a
   %% user-provided invariant, which is used as an ``assume'' 
   %% at the points just after the recursive calls, and which summarizes the

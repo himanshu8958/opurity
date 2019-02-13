@@ -39,6 +39,7 @@ function call has been eliminated, and replaced with an ``assume''
 expression that refers to the function symbol $\procname$. In other words,
 there are no function calls in the transformed procedure.
 \item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
+Note that we intentionally do \emph{not} assert that the return value equals $\procname(n)$.
 \end{enumerate}
 Let $\tbody(\proc, \inv)$ denote the transformed body of procedure $\proc$ obtained as above.
 
@@ -93,7 +94,7 @@ intermediate values of variables along the execution path from procedure-entry t
 We compute a verification condition $\vc$ that represents the conditions we must check to ensure that
 an execution through the procedure satisfies its obligations: namely, that the invariant holds true at every call-site
 and at procedure-exit. Let $\ell$ denote a call-site or the procedure-exit. We need to check that $\varphi_{\ell} \Rightarrow \inv$
-holds. Thus, the generation verification condition essentially consists of the conjunction of this check over all call-sites
+holds. Thus, the generated verification condition essentially consists of the conjunction of this check over all call-sites
 and procedure-exit.
 
 Finally, the function $\mainvcfn$ computes the postcondition and verification condition for the entire procedure as shown
