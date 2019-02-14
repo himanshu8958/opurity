@@ -21,57 +21,8 @@ of the so-called ``most general sequential client'' of procedure $\proc$, which 
 The executions (of $\proc$) produced by this program include all possible executions (of $\proc$)  produced by all
 sequential clients.
 
-Let $\gvars$ denote the set of global variables. Let $\lvars$ denote the set of local variables.
-Let $\vals$ denote the set of numeric values (that the variables can take).
-An element $\gmap \in \gmaps = \gvars \hookrightarrow \vals$ maps global variables to their values.
-An element $\lmap \in \lmaps = \lvars \hookrightarrow \vals$ maps local variables to their values.
-We define a \emph{local continuation} to be a statement sequence ending with a \code{return} statement.
-We use a local continuation to represent the part of the procedure body that still remains to be
-executed. Let $\cstates$ represent the set of local continuations.
-% We use an element $\cont \in \cstates$ to represent
-% what remains to be executed in the procedure (and can, hence, be thought of as a program-point
-% representing what is to be executed next).
-The set of runtime states (or simply, \emph{states}) is defined to be
-$(\cstates \times \lmaps)^* \times \gmaps$, where the first component
-represents a runtime stack, and the second component the values of global
-variables. We denote individual states using symbols $\sigma, \sigma_1,
-\sigma_i$, etc. The runtime stack is a sequence, each element of which is a pair
-$(\stmt,\lmap)$ consisting of the remaining procedure fragment $\stmt$ to
-be executed and the values of local variables $\lmap$.  We write
-$(\stmt,\lmap)\gamma$ to indicate a stack where the topmost entry is
-$(\stmt,\lmap)$ and $\gamma$ represents the remaining part of the stack.
 
-We say that a state $((\stmt,\lmap)\gamma,\gmap)$ is an \emph{entry-state}
-if its location is at 
-the procedure entry point (\ie, if $\stmt$ is the entire body of the procedure),
-and we say that it is an \emph{exit-state} if its location is at the procedure exit point
-(\ie, if $\stmt$ consists of just a \code{return} statement).
-
-A procedure $\proc$ determines a single-step execution relation
-$\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates that
-execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single
-step.  Fig.~\ref{fig:semantics} defines this semantics.  The semantics of
-evaluation of a side-effect-free expression is captured by a relation
-$\basicevalsto{\rho}{\expr}{v}$, indicating that the expression $\expr$
-evaluates to value $v$ in an \emph{environment} $\rho$ (by
-\emph{environment}, we mean an
-element of  $(\gvars \cup \lvars) \hookrightarrow \vals$).  We omit the definition of this
-relation, which is straightforward.  We use the notation $\rho_1 \uplus
-\rho_2$ to denote the union of two disjoint maps $\rho_1$ and $\rho_2$.
-
-
-Note that most rules captures the usual semantics of the language constructs.
-The last two rules, however, capture the semantics of the most-general sequential
-client explained previously: when the call stack is empty, a new invocation of
-the procedure may be initiated (with an arbitrary parameter value).
-
-%We encode invocations of the procedure using the same relation $\sssem{\proc}$: 
-%$\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is an entry-state,
-%and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
-%parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
-%parameter value).
-
-\begin{figure}
+\begin{figure}[t]
 \begin{small}
 \begin{mathpar}
 \labrule{assgn}{
@@ -146,20 +97,69 @@ v \in \vals
 \sssemP
 ([], \gmap)
 }
-
 \end{mathpar}
 \end{small}
 \caption{
 A small-step operational semantics for our language, represented as a relation $\sigma_1 \sssemP \sigma_2$.
-Note that a state $\sigma_i$ is a configuration of the form
+A state $\sigma_i$ is a configuration of the form
 $((\stmt, \lmap) \lstack, \gmap)$ where
-$\stmt$ captures the statements to be executed in the current procedure, 
-$\lmap$ assigns values to local variables in the current procedure,
-$\lstack$ is the call-stack (excluding the current procedure),
+$\stmt$ captures statements to be executed in current procedure, 
+$\lmap$ assigns values to local variables,
+$\lstack$ is the call-stack (excluding current procedure),
 and $\gmap$ assigns values to global variables.
 }
 \label{fig:semantics}
 \end{figure}
+
+Let $\gvars$ denote the set of global variables. Let $\lvars$ denote the set of local variables.
+Let $\vals$ denote the set of numeric values (that the variables can take).
+An element $\gmap \in \gmaps = \gvars \hookrightarrow \vals$ maps global variables to their values.
+An element $\lmap \in \lmaps = \lvars \hookrightarrow \vals$ maps local variables to their values.
+We define a \emph{local continuation} to be a statement sequence ending with a \code{return} statement.
+We use a local continuation to represent the part of the procedure body that still remains to be
+executed. Let $\cstates$ represent the set of local continuations.
+% We use an element $\cont \in \cstates$ to represent
+% what remains to be executed in the procedure (and can, hence, be thought of as a program-point
+% representing what is to be executed next).
+The set of runtime states (or simply, \emph{states}) is defined to be
+$(\cstates \times \lmaps)^* \times \gmaps$, where the first component
+represents a runtime stack, and the second component the values of global
+variables. We denote individual states using symbols $\sigma, \sigma_1,
+\sigma_i$, etc. The runtime stack is a sequence, each element of which is a pair
+$(\stmt,\lmap)$ consisting of the remaining procedure fragment $\stmt$ to
+be executed and the values of local variables $\lmap$.  We write
+$(\stmt,\lmap)\gamma$ to indicate a stack where the topmost entry is
+$(\stmt,\lmap)$ and $\gamma$ represents the remaining part of the stack.
+
+We say that a state $((\stmt,\lmap)\gamma,\gmap)$ is an \emph{entry-state}
+if its location is at 
+the procedure entry point (\ie, if $\stmt$ is the entire body of the procedure),
+and we say that it is an \emph{exit-state} if its location is at the procedure exit point
+(\ie, if $\stmt$ consists of just a \code{return} statement).
+
+A procedure $\proc$ determines a single-step execution relation
+$\sssem{\proc}$, where $\sigma_1 \sssem{\proc} \sigma_2$ indicates that
+execution proceeds from state $\sigma_1$ to state $\sigma_2$ in a single
+step.  Fig.~\ref{fig:semantics} defines this semantics.  The semantics of
+evaluation of a side-effect-free expression is captured by a relation
+$\basicevalsto{\rho}{\expr}{v}$, indicating that the expression $\expr$
+evaluates to value $v$ in an \emph{environment} $\rho$ (by
+\emph{environment}, we mean an
+element of  $(\gvars \cup \lvars) \hookrightarrow \vals$).  We omit the definition of this
+relation, which is straightforward.  We use the notation $\rho_1 \uplus
+\rho_2$ to denote the union of two disjoint maps $\rho_1$ and $\rho_2$.
+
+
+Note that most rules captures the usual semantics of the language constructs.
+The last two rules, however, capture the semantics of the most-general sequential
+client explained previously: when the call stack is empty, a new invocation of
+the procedure may be initiated (with an arbitrary parameter value).
+
+%We encode invocations of the procedure using the same relation $\sssem{\proc}$: 
+%$\sigma \sssem{\proc} \sigma'$  holds if $\sigma$ is an exit-state, $\sigma'$ is an entry-state,
+%and $\sigma$ and $\sigma'$ agree on the values of all global variables (but the value of the formal
+%parameter $n$ may be arbitrary in $\sigma'$ to indicate an invocation of the procedure with that
+%parameter value).
 
 Note that all the following definitions are parametric over a given procedure $\proc$.
 E.g., we will use the word ``execution'' as shorthand for ``execution of $\proc$''.

@@ -78,7 +78,8 @@
 \newcommand{\basicevalsto}[3]{ ({#1},{#2}) \Downarrow {#3}}
 \newcommand{\evalsto}[4]{ ({#1} \uplus {#2},{#3}) \Downarrow {#4}}
 
-\newcommand{\labrule}[3]{\inferrule*[Lab={[#1]}]{#2}{#3}}
+\newcommand{\labrule}[3]{\inferrule*[left={[#1]}]{#2}{#3}}
+% \newcommand{\labrule}[3]{[\textsc{#1}] \and \inferrule*{#2}{#3} \\}
 
 \newcommand{\foo}{\textit{`foo'}}
 \newcommand{\trace}{\pi}
