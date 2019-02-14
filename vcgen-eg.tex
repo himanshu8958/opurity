@@ -1,8 +1,3 @@
-\paragraph{Example}
-We now illustrate the postcondition and verification condition generated from our factorial example
-presented in Listing~\ref{lst:factorialSimple}. Listing~\ref{lst:factorialTransformed} shows the example
-expressed in our language and transformed as described earlier (using function $\tbody$), using a
-supplied candidate invariant $\inv$.
 
 \begin{lstlisting}[float,language=c,mathescape=true,basicstyle=\scriptsize,caption= {Procedure factCache from
       Listing~\ref{lst:factorialSimple} transformed to incorporate a supplied candidate
@@ -28,6 +23,12 @@ factCache (n) {
   assert $\inv$;
 }
 \end{lstlisting}
+
+\paragraph{Example}
+We now illustrate the postcondition and verification condition generated from our factorial example
+presented in Listing~\ref{lst:factorialSimple}. Listing~\ref{lst:factorialTransformed} shows the example
+expressed in our language and transformed as described earlier (using function $\tbody$), using a
+supplied candidate invariant $\inv$.
 
 Fig.~\ref{fig:pathCondition} illustrates the computation of postcondition and verification condition from
 this transformed example. In this figure, we use $\cspre$ to denote the precondition computed to hold

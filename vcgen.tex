@@ -187,53 +187,65 @@ A procedure $\proc$ satisfies  $\pureinv$ if $\IW(\proc, \inv)$ is unsatisfiable
 \end{theorem}
 
 \begin{proof}
-We prove the contrapositive.
+% We prove the contrapositive.
 
-We say that a pair of feasible executions $(\pi_1, \pi_2)$ is an impurity witness if there is a trace
-$\pi_a$ in $\pi_1$ and a trace $\pi_b$ in $\pi_2$ such that $\pi_a$ and $\pi_b$ have the same input
-value but different return values. Otherwise, we say that $(\pi_1, \pi_2)$ is pure. We extend
-this notion and say that a single execution $\pi$ is pure if $(\pi,\pi)$ is pure.
+We say that two traces disagree if they receive the same argument value but return different values.
+We say that a pair of feasible executions $(\pi_1, \pi_2)$ is an \emph{impurity witness} if there is a trace
+$\pi_a$ in $\pi_1$ and a trace $\pi_b$ in $\pi_2$ such that $\pi_a$ and $\pi_b$ disagree.
+% Otherwise, we say that $(\pi_1, \pi_2)$ is pure.
+% We extend this notion and say that a single execution $\pi$ is pure if $(\pi,\pi)$ is pure.
 
-We say that a function $f$ is \emph{compatible} with a set of executions $\Pi$ if for every trace
-$\pi \in \Pi$, $\outputval{\pi} = f(\inputval{\pi})$.
+A trace is said to be compatible with a function $f$ (and vice versa) if the trace's input-output behavior matches that of the function.
+An execution is said to be compatible with a function (and vice versa) if every trace in the execution is compatible with the function.
+We say that a feasible execution $\pi$ \emph{strongly satisfies} $\inv$ if for every function $f$ that is compatible with $\pi$, $(\pi,f) \models \inv$.
 
-We say that a pure feasible execution $\pi$ is a $\inv$-violation witness if there is some function $f$
-that is compatible with $\{\pi\}$ such that $(\pi,f) \nvDash \inv$. Otherwise, we say that $\pi$ satisfies
-the invariant. Note that this definition introduces a conservative approximation as we explain later.
-% Otherwise, we say that $\pi$ is an invariant violation witness.
+We prove the theorem using the following lemmas:
+if $\IW(\proc, \inv)$ is unsatisfiable, then lemmas~\ref{lemma:iw-strong-invariant} and~\ref{lemma:iw-impurity} imply
+that the preconditions of lemma~\ref{lemma:iw-two-cases} hold and, hence, $\proc$ satisfies $\pureinv$.
+\begin{enumerate}
+\item \label{lemma:iw-two-cases}
+If there exists no impurity witness, and every feasible execution strongly satisfies $\inv$, then $\proc$ satisfies $\pureinv$.
 
-We will consider \emph{minimal} witnesses of the following form.
-We say that an impurity witness $(\pi_1, \pi_2)$ is minimal if for every proper prefix $\pi_1'$ of
-$\pi_1$ and every proper prefix $\pi_2'$ of $\pi_2$, the following hold:
-(a) $(\pi_1',\pi_2)$ is pure,
-(b) $(\pi_1,\pi_2')$ is pure,
-(c) $\pi_1'$ satisfies the invariant, and
-(d) $\pi_2'$ satisfies the invariant.
+\item \label{lemma:iw-strong-invariant}
+If a feasible execution $\pi$ that does not strongly satisfy $\inv$ exists, $\IW(\proc, \inv)$ is satisfiable.
 
-We say that an $\inv$-violation witness $\pi$ is minimal if no proper prefix $\pi'$ of
-$\pi$ is a $\inv$-violation witness.
+\item \label{lemma:iw-impurity}
+If an impurity witness exists, then $\IW(\proc, \inv)$ is satisfiable.
+\end{enumerate}
 
-If $\proc$ does not satisfy $\pureinv$, then there exists a minimal impurity witness
-or a minimal $\inv$-violation witness. Note that our definition of $\inv$-violation witness is
-a conservative approximation and the converse of the preceding claim does not hold.
-A  $\inv$-violation witness does not mean that $\proc$ does not satisfy $\pureinv$.
+% We say that a function $f$ is \emph{compatible} with a set of executions $\Pi$ if for every trace
+% $\pi \in \Pi$, $\outputval{\pi} = f(\inputval{\pi})$.
 
-In the first case, $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$
-must be satisfiable (as we show below). In the second case, $\neg \vc$ must be satisfiable (as we show below).
-Thus,  $\IW(\proc, \inv)$  is satisfiable in either case. The theorem follows.
+% We say that a pure feasible execution $\pi$ is a $\inv$-violation witness if there is some function $f$
+% that is compatible with $\{\pi\}$ such that $(\pi,f) \nvDash \inv$. Otherwise, we say that $\pi$ satisfies
+% the invariant. Note that this definition introduces a cons ervative approximation as we explain later.
 
-We establish the above result as below.
-% using the following lemmas.
-If we have a trace that satisfies the invariant and the set of its sub-traces are pure,
-then the valuations assigned to variables by the trace satisfies $\post$.
-Thus, if $(\pi_1,\pi_2)$ are a minimal impurity witness, let $\pi_a$ and $\pi_b$
-be the two traces in $\pi_1$ and $\pi_2$ that are incompatible.
-We can assign values to variables in $\post_\alpha$ from $\pi_a$, and
-assign values to variables in $\post_\beta$ from $\pi_b$ to get a satisfying
-assignment for $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+%If $\proc$ does not satisfy $\pureinv$, then there exists a minimal impurity witness
+%or a minimal $\inv$-violation witness. Note that our definition of $\inv$-violation witness is
+%a conservative approximation and the converse of the preceding claim does not hold.
+%A  $\inv$-violation witness does not mean that $\proc$ does not satisfy $\pureinv$.
 
-If $\pi$ is a minimal $\inv$-violation witness, let $\pi'$ be the trace that contains the invariant violation.
-Assigning values to variables as in $\pi'$ produces a satisfying assignment for
-% $\neg (\post \Rightarrow \inv)$ and, hence, for
-$\neg \vc$.
+\ref{lemma:iw-two-cases} is straightforward.
+
+For~\ref{lemma:iw-strong-invariant}, we use a ``minimal'' feasible execution $\pi$ that does not strongly satisfy $\inv$
+to construct a satisfying assignment to $\neg \vc$.
+
+For~\ref{lemma:iw-impurity}, we use a ``minimal'' impurity witness to construct a satisfying assignment to
+$(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+
+%
+%We establish the above result as below.
+%% using the following lemmas.
+%If we have a trace that satisfies the invariant and the set of its sub-traces are pure,
+%then the valuations assigned to variables by the trace satisfies $\post$.
+%Thus, if $(\pi_1,\pi_2)$ are a minimal impurity witness, let $\pi_a$ and $\pi_b$
+%be the two traces in $\pi_1$ and $\pi_2$ that are incompatible.
+%We can assign values to variables in $\post_\alpha$ from $\pi_a$, and
+%assign values to variables in $\post_\beta$ from $\pi_b$ to get a satisfying
+%assignment for $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+%
+%If $\pi$ is a minimal $\inv$-violation witness, let $\pi'$ be the trace that contains the invariant violation.
+%Assigning values to variables as in $\pi'$ produces a satisfying assignment for
+%% $\neg (\post \Rightarrow \inv)$ and, hence, for
+%$\neg \vc$.
 \end{proof}
