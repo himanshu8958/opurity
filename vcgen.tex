@@ -131,61 +131,34 @@ satisfying assignment
 % for $\EA(\proc,\inv)$.
 for  $ \forall \overline{x}. \existformula$.
 We show that for every feasible execution $\pi$: (P1) $(\pi, f)
-\satisfies \inv$, and (P2) for every trace $\pi_a$ inside $\pi$,
-$\outputval{\pi_a} = f(\inputval{\pi_a})$. This implies that
+\satisfies \inv$, and (P2) for every trace $\pi'$ inside $\pi$,
+$\outputval{\pi'} = f(\inputval{\pi'})$. This implies that
 $\proc$ satisfies $\pureinv$.
 
-Assume for contradiction that there exists a feasible execution $\pi$ that does
-not satisfy P1 or P2 above. One of the following two cases, namely, Case 1
-or Case 2, must hold. 
+In particular, for any feasible execution $\pi$, we prove by induction over the
+execution steps in $\pi$ that
+\begin{enumerate}
+\item For any entry state $\sigma$ in $\pi$, $(\sigma,f) \satisfies \inv$.
+\item For any exit state $\sigma$ in $\pi$, $(\sigma,f) \satisfies \inv$.
+\item For any exit state $\sigma$ in $\pi$, if it is the exit state of a trace $\pi'$,
+then $\outputval{\pi'} = f(\inputval{\pi'})$.
+\end{enumerate}
 
-Case 1: Some entry or exit state $\sigma_x$ in $\pi$ is such that: (a)
-$(\sigma_x, f)$ does not satisfy $\inv$,  (b) every complete trace
-$\pi_a$ within $\pi$ that ends before $\sigma_x$ agrees with $f$ (i.e.,
-$\outputval{\pi_a} = f(\inputval{\pi_a})$, and (c) every entry/exit state
-$\sigma_u$ in $\pi$ that comes before $\sigma_x$ is such that $(\sigma_u,
-f) \models \inv$.
-
-There are two further sub-cases to consider within Case 1.
-
-Case 1(a): If $\sigma_x$ is an exit-state, then let $\pi'$ be the trace for
-which $\sigma_x$ is the exit state. It can be shown that the sequence of
+If the above properties fail to hold, we can identify a trace $\pi'$ corresponding
+to the first such failure. It can be shown that the sequence of
 states visited by this trace, when substituted for $\overline{x}$, are a
 witness that $[p \mapsto f]$ is not a satisfying assignment for  $\forall
 \overline{x}. \existformula$. This is a contradiction of our original
 assumption. 
 
-Case 1(b): $\sigma_x$ is an entry-state. If $\sigma_x$ is the first
-state of the execution $\pi$ (i.e., $\sigma_x$ is $\initstate$), then $[p
-  \mapsto f]$ cannot satisfy the conjunct $(\initstatefn(\proc) \Rightarrow
-\inv)$ that is present inside the formula $\forall
-\overline{x}. \existformula$. This is a contradiction of our original
-assumption. If $\sigma_x$ is not the entry-state of the whole execution
-$\pi$, then it cannot be the entry-state of any outermost trace, because
-then the immediately preceding exit-state, which would be identical to
-$\sigma_x$, would have triggered Case 1(a) above. Therefore, $\sigma_x$
-must be the entry-state of some inner trace $\pi''$. Let $|pi'$ be the trace that
-contains $\pi''$. It be can be shown that the states of $\pi'$ from its entry-state
-upto $\sigma_x$ are a witness that $[p \mapsto f]$ is not a satisfying
-assignment for the conjunct $\vc$ within $\forall
-\overline{x}. \existformula$. This is a contradiction of our original
-assumption.
+%Case 1(b): $\sigma_x$ is an entry-state. If $\sigma_x$ is the first
+%state of the execution $\pi$ (i.e., $\sigma_x$ is $\initstate$), then $[p
+%  \mapsto f]$ cannot satisfy the conjunct $(\initstatefn(\proc) \Rightarrow
+%\inv)$ that is present inside the formula $\forall
+%\overline{x}. \existformula$. This is a contradiction of our original
+%assumption.
 
-Case 2: If Case 1 does not hold,
-then there must exist a trace $\pi'$ within $\pi$ such that
-(a) $\pi'$ disagrees with $f$, (b) all entry and exit states $\sigma_y$ of
-$\pi$ that come before $\pi'$ are such that $(\sigma_y, f) \models \inv$, (c)
-if $\pi'$ has an inner trace then this inner trace agrees with $f$, and 
-the entry state $\sigma_u$ and exit state
-$\sigma_v$ of the inner trace are such that
-$(\sigma_u, f) \models \inv$ and
- $(\sigma_v, f) \models \inv$. It
-can be argued that the sequence of states within $\pi'$ are a witness that $[p
-  \mapsto f]$ is not a satisfying assignment for the formula
-$\forall \overline{x}. \existformula$, and this is a contradiction of our
-original assumption.
-
-(Please see~\cite{CheckingOP:arxiv} for a more complete proof.)
+Please see~\cite{CheckingOP:arxiv} for more details of the proof.
 
 \end{proof}
 
@@ -219,7 +192,6 @@ A procedure $\proc$ satisfies  $\pureinv$ if $\IW(\proc, \inv)$ is unsatisfiable
 \end{theorem}
 
 \begin{proof}
-(Please see~\cite{CheckingOP:arxiv} for a more complete proof.)
 % We prove the contrapositive.
 
 We say that two traces disagree if they receive the same argument value but return different values.
@@ -265,6 +237,8 @@ to construct a satisfying assignment to $\neg \vc$.
 
 For~\ref{lemma:iw-impurity}, we use a ``minimal'' impurity witness to construct a satisfying assignment to
 $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
+
+Please see~\cite{CheckingOP:arxiv} for more details of the proof.
 
 %
 %We establish the above result as below.
