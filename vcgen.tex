@@ -11,12 +11,10 @@ In this section we provide two different approaches that, given a procedure
 $\proc$ and a candidate invariant $\inv$, use a theorem prover to check
 conservatively whether procedure $\proc$ satisfies $\pureinv$.
 
-
-
 \subsection{Verification Condition Generation}
 
 We first describe an adaptation of standard verification-condition generation
-techniques that we use as a common first step in both our approaches.
+techniques (\eg, see~\cite{cormac:popl01}) that we use as a common first step in both our approaches.
 Given a procedure $\procP$, a candidate invariant $\inv$, our goal is to compute a
 % the function $\mainvc{\procP}{\inv}$ returns a
 pair $(\post,\vc)$ where $\post$ is a postcondition describing the state that exists after an execution of
@@ -98,8 +96,9 @@ holds. Thus, the generated verification condition essentially consists of the co
 and procedure-exit.
 
 Finally, the function $\mainvcfn$ computes the postcondition and verification condition for the entire procedure as shown
-in Fig.~\ref{fig:vcgen}. Note that this adds the check that the initial state too must satisfy $\inv$ as the basis condition for
-induction. $\initstatefn(\proc)$ is basically the formula  ``\code{g1 = c1}
+in Fig.~\ref{fig:vcgen}. (Thus, it returns a pair of formulae.)
+Note that this function also adds the check that the initial state must satisfy $\inv$ to the verification condition
+(as the basis condition for induction). $\initstatefn(\proc)$ is basically the formula  ``\code{g1 = c1}
 $\wedge \ldots$ \code{gN = cN}'' (see Section~\ref{sec:background}).
 % (\initformula \Rightarrow \inv 
 

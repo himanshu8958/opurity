@@ -51,7 +51,7 @@ The formal parameters of a procedure are readonly and cannot be
 modified within the procedure.
 We omit types from the language. We permit only variables of primitive types.
 In particular, the language does not allow pointers or dynamic memory allocation.
-Note that expressions are pure in this language, and a procedure call
+Note that expressions are pure (that is, they have no side effects) in this language, and a procedure call
 is not allowed in an expression. Each procedure call is modelled as a
 separate statement.
 %The
