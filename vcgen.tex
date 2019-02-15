@@ -125,37 +125,68 @@ $\exists p. \EA(\proc,\inv)$ is a tautology
 \end{theorem}
 
 \begin{proof}
-(Please see~\cite{CheckingOP:arxiv} for a more complete proof.)
+
 Note that $p$ is the only free variable in $\EA(\proc,\inv)$. Assume that $[p \mapsto f]$ is a
-satisfying assignment for $\EA(\proc,\inv)$.
-We prove that for every trace $\pi$ the following hold:
-(a) $\outputval{\pi} = f(\inputval{\pi})$ and
-(b) If $(\initial{\pi},f)$ satisfies $\inv$, then $(\final{\pi},f)$ also satisfies $\inv$.
+satisfying assignment
+% for $\EA(\proc,\inv)$.
+for  $ \forall \overline{x}. \existformula$.
+We show that for every feasible execution $\pi$: (P1) $(\pi, f)
+\satisfies \inv$, and (P2) for every trace $\pi_a$ inside $\pi$,
+$\outputval{\pi_a} = f(\inputval{\pi_a})$. This implies that
+$\proc$ satisfies $\pureinv$.
 
-The proof is by contradiction. Let $\pi$ be the shortest trace that does not satisfy at least
-one of the two conditions (a) and (b).
+Assume for contradiction that there exists a feasible execution $\pi$ that does
+not satisfy P1 or P2 above. One of the following two cases, namely, Case 1
+or Case 2, must hold. 
 
-Let us first consider a trace $\pi$ without any sub-traces (\ie, without a procedure call).
-Consider any transition $\sigma_i \sssemP \sigma_{i+1}$ in $\pi$
-caused by an assignment statement $\stmt$. Our verification-condition generation produces
-a precondition $\pre_{\stmt}$ and a postcondition $\post_{\stmt}$ for $\stmt$. Further, this generation
-guarantees that if $(\sigma_i,f)$ satisfies $\pre_{\stmt}$, then $(\sigma_{i+1},f)$ satisfies $\post_{\stmt}$.
-This lets us prove (via induction over $i$), that if $(\initial{\pi},f)$ satisfies $\inv$,
-then $(\sigma_{i+1},f)$ satisfies $\post_{\stmt}$.
+Case 1: Some entry or exit state $\sigma_x$ in $\pi$ is such that: (a)
+$(\sigma_x, f)$ does not satisfy $\inv$,  (b) every complete trace
+$\pi_a$ within $\pi$ that ends before $\sigma_x$ agrees with $f$ (i.e.,
+$\outputval{\pi_a} = f(\inputval{\pi_a})$, and (c) every entry/exit state
+$\sigma_u$ in $\pi$ that comes before $\sigma_x$ is such that $(\sigma_u,
+f) \models \inv$.
 
-We now consider a trace $\pi$ that contains a sub-trace $\pi' = \sigma_i \cdots \sigma_j$ corresponding to a procedure call
-statement $\stmt$. Our verification-condition generation produces a precondition $\pre_{\stmt}$,
-a postcondition $\post_{\stmt}$  and a conjunct $\pre_{\stmt} \Rightarrow \inv$ in $\vc$ for $\stmt$.
-We extend the induction over $i$ to handle recursive calls as below.
-Our inductive hypothesis guarantees that $(\sigma_i,f)$ satisfies $\pre_{\stmt}$.
-Further, we know that $[p \mapsto f]$ is a satisfying assignment for $\EA(\proc,\inv)$,
-which includes the conjunct $\pre_{\stmt} \Rightarrow \inv$. Hence, it follows that  $(\sigma_i,f)$ satisfies $\inv$.
-Since $\pi'$ is a shorter trace than $\pi$, we can assume that it satisfies conditions (a)
-and (b). This is sufficient to guarantee that $(\sigma_j,f)$ satisfies $\post_{\stmt}$.
+There are two further sub-cases to consider within Case 1.
 
-Thus, we can establish $(\final{\pi},f)$ satisfies $\post$ and $\inv$. Further, since 
-$\EA(\proc,\inv)$ includes the conjunct $\post \Rightarrow (r = p(n))$, it follows that
-$\outputval{\pi} = f(\inputval{\pi})$.
+Case 1(a): If $\sigma_x$ is an exit-state, then let $\pi'$ be the trace for
+which $\sigma_x$ is the exit state. It can be shown that the sequence of
+states visited by this trace, when substituted for $\overline{x}$, are a
+witness that $[p \mapsto f]$ is not a satisfying assignment for  $\forall
+\overline{x}. \existformula$. This is a contradiction of our original
+assumption. 
+
+Case 1(b): $\sigma_x$ is an entry-state. If $\sigma_x$ is the first
+state of the execution $\pi$ (i.e., $\sigma_x$ is $\initstate$), then $[p
+  \mapsto f]$ cannot satisfy the conjunct $(\initstatefn(\proc) \Rightarrow
+\inv)$ that is present inside the formula $\forall
+\overline{x}. \existformula$. This is a contradiction of our original
+assumption. If $\sigma_x$ is not the entry-state of the whole execution
+$\pi$, then it cannot be the entry-state of any outermost trace, because
+then the immediately preceding exit-state, which would be identical to
+$\sigma_x$, would have triggered Case 1(a) above. Therefore, $\sigma_x$
+must be the entry-state of some inner trace $\pi''$. Let $|pi'$ be the trace that
+contains $\pi''$. It be can be shown that the states of $\pi'$ from its entry-state
+upto $\sigma_x$ are a witness that $[p \mapsto f]$ is not a satisfying
+assignment for the conjunct $\vc$ within $\forall
+\overline{x}. \existformula$. This is a contradiction of our original
+assumption.
+
+Case 2: If Case 1 does not hold,
+then there must exist a trace $\pi'$ within $\pi$ such that
+(a) $\pi'$ disagrees with $f$, (b) all entry and exit states $\sigma_y$ of
+$\pi$ that come before $\pi'$ are such that $(\sigma_y, f) \models \inv$, (c)
+if $\pi'$ has an inner trace then this inner trace agrees with $f$, and 
+the entry state $\sigma_u$ and exit state
+$\sigma_v$ of the inner trace are such that
+$(\sigma_u, f) \models \inv$ and
+ $(\sigma_v, f) \models \inv$. It
+can be argued that the sequence of states within $\pi'$ are a witness that $[p
+  \mapsto f]$ is not a satisfying assignment for the formula
+$\forall \overline{x}. \existformula$, and this is a contradiction of our
+original assumption.
+
+(Please see~\cite{CheckingOP:arxiv} for a more complete proof.)
+
 \end{proof}
 
 \subsection{Approach 2: Impurity Witness Approach}

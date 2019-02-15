@@ -25,7 +25,7 @@ sequential clients.
 \begin{figure}[t]
 \begin{small}
 \begin{mathpar}
-\labrule{assgn}{
+\labrule{assign-local}{
 \code{x} \in \lvars \\
 \evalsto{\lmap}{\gmap}{\code{e}}{v}
 }{
@@ -34,7 +34,7 @@ sequential clients.
 ((\code{S}, \lmap[\code{x} \mapsto v]) \lstack, \gmap)
 }
 
-\labrule{assgn}{
+\labrule{assign-global}{
 \code{x} \in \gvars \\
 \evalsto{\lmap}{\gmap}{\code{e}}{v}
 }{
@@ -93,7 +93,7 @@ v \in \vals
 
 \labrule{top-level-return}{
 }{
-[(\code{return r}, \lmap)], \gmap)
+([(\code{return r}, \lmap)], \gmap)
 \sssemP
 ([], \gmap)
 }
