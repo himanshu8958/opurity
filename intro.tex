@@ -80,7 +80,7 @@ verifier could replace Line~10 in the code with `\code{g = n * (n-1)!}'. This, o
 paper, is sufficient to assert that Line 12 always assigns \code{n}! to
 \code{result}. However, to establish that Line~8 also does the same, an invariant
 would need to be provided that describes the possible values of \code{g} before
-any invocation to the procedure. In our example, a suitable invariant would
+an invocation to the procedure. In our example, a suitable invariant would
 be `(\code{g} = -1) $\vee$ (\code{g} = \code{lastN}!)'. The verifier would also need to verify
 that at the procedure's exit the invariant is re-established. Lines 10-12,
 with the recursive call replaced by (\code{n}-1)!, suffices on paper to
@@ -99,7 +99,10 @@ existing theorem provers.
 
 Our key insight is to sidestep the challenges mentioned by introducing a
 function symbol, say \emph{factCache}, and replacing the recursive call for the purposes
-of verification with this function symbol. Intuitively, \emph{factCache} represents the
+of verification with this function symbol. (Note that we reuse the same symbol for two purposes,
+which may be slightly confusing here. One denotes the procedure name, while the other
+denotes a function symbol for use in a logical formula. The italicized name here denotes the
+function symbol.)  Intuitively, \emph{factCache} represents the
 mathematical function that the given procedure mimics \emph{if} the procedure is
 OP.  In our example, Line~10 would become `g = n * \emph{factCache}(n-1)'. This step
 needs no human involvement. The approach needs an invariant; however, in a

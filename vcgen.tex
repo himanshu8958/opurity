@@ -33,9 +33,9 @@ a temporary if needed). We then replace the statement by the code fragment
 where \code{g1} to \code{gN} are the global variables.
 
 Note that the
-function call has been eliminated, and replaced with an ``assume''
+procedure call has been eliminated, and replaced with an ``assume''
 expression that refers to the function symbol $\procname$. In other words,
-there are no function calls in the transformed procedure.
+there are no procedure calls in the transformed procedure.
 \item We replace the ``\code{return x}'' statement by ``\code{assert $\inv$}''.
 Note that we intentionally do \emph{not} assert that the return value equals $\procname(n)$.
 \end{enumerate}
@@ -158,7 +158,7 @@ assumption.
 %assumption.
 
 Please see~\cite{CheckingOP:arxiv} for more details of the proof.
-
+\qed
 \end{proof}
 
 \subsection{Approach 2: Impurity Witness Approach}
@@ -238,6 +238,7 @@ For~\ref{lemma:iw-impurity}, we use a ``minimal'' impurity witness to construct 
 $(\post_\alpha \wedge \post_\beta \wedge (n_\alpha = n_\beta) \wedge (r_\alpha \neq r_\beta))$.
 
 Please see~\cite{CheckingOP:arxiv} for more details of the proof.
+\qed
 
 %
 %We establish the above result as below.

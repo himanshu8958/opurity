@@ -1,14 +1,14 @@
 \begin{abstract}
   Verifying whether a procedure is \emph{observationally pure} 
   (that is, it always returns the same result for the same input argument)
-  is challenging when procedure uses private mutable global variables,
+  is challenging when the procedure uses mutable (private) global variables,
   e.g., for memoization, and when the procedure is recursive.
 
   We present a deductive verification approach for this problem. Our approach
   encodes the procedure's code as a logical formula, with recursive calls being
   modeled using a mathematical function symbol \emph{assuming that the
   procedure is observationally pure}. Then, a theorem prover is invoked to
-  check whether the formula that has been constructed agrees with the
+  check whether this logical formula agrees with the
   function symbol referred to above in terms of input-output behavior for all arguments.
   We prove the soundness of this approach.
 

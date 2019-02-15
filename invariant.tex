@@ -31,7 +31,7 @@ We take the disjunction of this formula with $I_{k-1}$ and simplify it to get $I
 %iterations $m$ and $m+1$ are encountered such that $I_m \equiv I_{m+1}$, at
 %which point $I_m$ is returned as the candidate invariant.
 
-In the following formalization of this semi-algorithm, we exploit the fact that the \code{assert}
+Fig.~\ref{fig:invgen} formalizes this semi-algorithm. Here, we exploit the fact that the \code{assert}
 statements are added precisely at every recursive callsite and end of procedure and
 these are the places where we take the conditions to be disjuncted.
 \begin{figure}

@@ -3,7 +3,7 @@
 
 In this section, we formalize the input-output semantics of the procedure $\proc$ as a relation $\iosem{\proc}$,
 where $n \iosem{\proc} r$ indicates that an invocation of $\proc$ with input $n$ may return a result of $r$.
-The procedure is then defined to be observationally pure if the relation $\iosem{\proc}$ is a (partial) function:
+The procedure is defined to be observationally pure if the relation $\iosem{\proc}$ is a (partial) function:
 that is, if  $n \iosem{\proc} r_1$ and $n \iosem{\proc} r_2$, then $r_1 = r_2$.
 
 The object of our analysis is a single-procedure library,  not the entire (client) application.
@@ -180,7 +180,7 @@ the library procedure over the course of a single execution of
 the most-general client mentioned above; also, since the most-general client
 supplies a random parameter value to each invocation of $\proc$, in general
 multiple feasible executions of the library may exist.
-We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
+% We say that a state $\sigma$ is \emph{ reachable} if there exists an execution $\pi = \initstate \sigma_1 \cdots \sigma$.
 
 %% We define a \emph{history} (of $\proc$) to be an execution $\pi = \sigma_0 \sigma_1 \cdots \sigma_n$ such that
 %% (a) $\sigma_0$ is the initial state of the library,
